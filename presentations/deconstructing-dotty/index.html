@@ -104,13 +104,11 @@
 
                 <section>
                     <h3>Procedure Syntax</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
-def foo {}
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def foo {}
 // error!
 
 def foo = {}
-// res: Unit
-                    </code></pre>
+// res: Unit</code></pre>
                     <span class="fragment">But there's a flag for that: <code>-language:Scala2</code></span>
                 </section>
 
@@ -152,8 +150,7 @@ def foo$1(x: AnyRef): String =
 
                 <section>
                     <h3>Union Types for Enums</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
-case object Monday
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">case object Monday
 case object Tuesday
 case object Wednesday
 case object Thursday
@@ -163,8 +160,7 @@ case object Sunday
 
 type Weekend = Saturday.type | Sunday.type
 type Weekday = Monday.type | Tuesday.type...
-type AnyDay  = Weekday | Weekend
-                    </code></pre>
+type AnyDay  = Weekday | Weekend</code></pre>
                 </section>
 
                 <section>
@@ -178,22 +174,19 @@ type AnyDay  = Weekday | Weekend
 
                 <section>
                     <h3>Intersection Types are the new `with`</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
-trait A {
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait A {
   def foo: Int
 }
 trait B {
   def bar: Int
 }
 
-def baz(ab: A & B) = ab.foo + ab.bar
-                    </code></pre>
+def baz(ab: A & B) = ab.foo + ab.bar</code></pre>
                 </section>
 
                 <section>
                     <h3>Trait Parameters instead of Early Initializers</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
-trait Super {
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super {
   def x: String
   println(x)
 }
@@ -202,17 +195,14 @@ class Foo extends Super {
 }
 
 new Foo
-// prints: null
-                    </code></pre>
-                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
-trait Super(x: String) {
+// prints: null</code></pre>
+                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super(x: String) {
   println(x)
 }
 class Foo extends Super("hello")
 
 new Foo
-// prints: "hello"
-                    </code></pre>
+// prints: "hello"</code></pre>
                 </section>
 
                 <section>
@@ -401,19 +391,15 @@ new Foo
 
                 <section>
                     <h2>Example</h2>
-                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">
-public double average(int[] data) {
+                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">public double average(int[] data) {
     int sum = 0;
     for(int i = 0; i < data.length; i++) {
         sum += data[i];
     }
     return sum * 1.0d / data.length;
-}
-                    </code></pre>
-                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
-def average(xs: Array[Int]) =
-  xs.reduce(_ + _) * 1.0 / xs.size
-                    </code></pre>
+}</code></pre>
+                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def average(xs: Array[Int]) =
+  xs.reduce(_ + _) * 1.0 / xs.size</code></pre>
                     <table class="fragment">
                         <thead>
                             <td>Java</td>
@@ -430,15 +416,13 @@ def average(xs: Array[Int]) =
 
                 <section>
                     <h2>Java</h2>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">
-public double average(int[] data) {
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">public double average(int[] data) {
     int sum = 0;
     for(int i = 0; i < data.length; i++) {
         sum += data[i];
     }
     return sum * 1.0d / data.length;
-}
-                    </code></pre>
+}</code></pre>
                     <ul>
                         <li>Range check</li>
                         <li>Addition</li>
@@ -448,14 +432,11 @@ public double average(int[] data) {
 
                 <section>
                     <h2>Scala</h2>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
-def average(xs: Array[Int]) =
-  xs.reduce(_ + _) * 1.0 / x.size
-                    </code></pre>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def average(xs: Array[Int]) =
+  xs.reduce(_ + _) * 1.0 / x.size</code></pre>
                 </section>
                 <section>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
-def reduce(op: Function2[Obj, Obj, Obj]): Obj = {
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def reduce(op: Function2[Obj, Obj, Obj]): Obj = {
   var first = true
   var acc: Obj = null
   this.foreach { e =>
@@ -474,16 +455,13 @@ def foreach(f: Funtion1[Obj, Obj]) {
     f.apply(this(i))
     i += 1
   }
-}
-                    </code></pre>
+}</code></pre>
                 </section>
 
                 <section>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
-object Rewrites {
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">object Rewrites {
   // do crazy stuff
-}
-                    </code></pre>
+}</code></pre>
                 </section>
             </div>
         </div>
