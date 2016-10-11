@@ -165,11 +165,10 @@ type AnyDay  = Weekday | Weekend</code></pre>
 
                 <section>
                     <h3>Patternmatch exhaustivity checks</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
-(Saturday: Weekend) match {
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>(Saturday: Weekend) match {
   case Sunday => // incomplete!
-}
-                    </code></pre>
+}</code></pre>
                 </section>
 
                 <section>
@@ -376,6 +375,16 @@ new Foo
                 </section>
 
                 <section>
+                    <h2>Reimplementing our linter</h2>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>@rewrites object rules {
+  def customFancyWarning(x: Int | Double | ... | Numeric[_]) =
+    Warn(pattern = x / 0,
+         msg = "division by zero, you fool!")
+}</code></pre>
+                </section>
+
+                <section>
                     <h2>Why do we need an optimizer?</h2>
                     <h5>Scala provides:</h5>
                     <ul>
@@ -459,9 +468,35 @@ def foreach(f: Funtion1[Obj, Obj]) {
                 </section>
 
                 <section>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">object Rewrites {
-  // do crazy stuff
-}</code></pre>
+                    <h3>Compiler needs to lower generics</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>def plus[T](a: T, b: T)(implicit num: Numeric[T]): T =
+  num.plus(a, b)</code></pre>
+
+                    <div class="fragment">
+                        <h4>After getting rid of generics:</h4>
+                        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>def plus(a: Object, b: Object, num: Numeric): Object =
+  num.plus(a, b)</code></pre>
+                    </div>
+                    <div class="fragment">
+                        <h4>What does:</h4>
+                        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>plus(1, 1)</code></pre>
+                        <h4>look like?</h4>
+                    </div>
+                    <div class="fragment">
+                        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>unbox(plus(box(1), box(1), intNum))</code></pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>Existing solutions for Scala 2</h3>
+                    <ul>
+                        <li><code>@specialized</code></li>
+                        <li>Miniboxing</li>
+                    </ul>
                 </section>
             </div>
         </div>
