@@ -1,0 +1,503 @@
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Deconstructing Dotty</title>
+        <link rel="stylesheet" href="/home/fixel/.pandoc/reveal.js/css/reveal.css">
+        <link rel="stylesheet" href="/home/fixel/.pandoc/reveal.js/css/theme/moon.css">
+        <link rel="stylesheet" href="slides.css">
+        <link rel="stylesheet" href="/home/fixel/.pandoc/reveal.js/plugin/highlight/github.css">
+    </head>
+    <body>
+        <div class="reveal">
+            <a id="twitter-url" href="http://twitter.com/felixmulder">@felixmulder</a>
+            <div class="slides">
+                <section>
+                    <h1>DECONSTRUCTING DOTTY</h1>
+                    <h4>A next generation Scala compiler</h4>
+                    <p class="white">
+                        Felix Mulder
+                    </p>
+                    <p>
+                        <img id="epfl-logo" src="Logo_EPFL-white.svg">
+                    </p>
+                </section>
+
+                <section>
+                    <h3>ABOUT ME</h3>
+                    <ul>
+                        <li><a href="https://github.com/felixmulder">github.com/felixmulder</a></li>
+                        <li class="fragment" data-fragment-index="0">
+                            Graduated last winter from LTH
+                        </li>
+                        <li class="fragment" data-fragment-index="1">
+                            Built the new 2.12.x Scaladoc
+                        </li>
+                        <li class="fragment" data-fragment-index="2">
+                            Research fellow EPFL, working on Dottydoc at LAMP
+                        </li>
+                        <li class="fragment" data-fragment-index="3">
+                            Compiler Engineer working on Dotty with Martin Odersky at LAMP
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <img class="border" src="contribs.png">
+                    /end of bragging
+                </section>
+
+                <section>
+                    <h2>Scala</h2>
+                    Who uses Scala?
+                </section>
+
+                <section>
+                    <h2>Camp I</h2>
+                    <p>"Scala is a better Java, type inference!"</p>
+                    <img class="no-shadow" src="corporate.png">
+                </section>
+
+                <section>
+                    <h2>Camp F</h2>
+                    <p>"Liek OMG, a monad's just a monoid in the category of endofunctors"
+                    <img class="no-shadow" src="hipster.jpg">
+                </section>
+
+                <section>
+                    <blockquote>
+                        &#8220;There is not agreement on what is "best", so all we
+                        can really do is try to find a local optimum. But finding
+                        that optimum is what drives me&#8221;
+                    </blockquote>
+                    <img class="no-shadow" src="martin.png">
+                </section>
+
+                <section>
+                    <h2>WHAT IS DOTTY?</h2>
+                    <ul>
+                        <li>A compiler to try out new language and compiler concepts</li>
+                        <li>Developed at LAMP EPFL</li>
+                        <li>Nearing beta readiness</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>DOTTY'S FOCUS</h2>
+                    <ul>
+                        <li>A proven sound foundation - DOT</li>
+                        <li>Focus on simplification</li>
+                        <li>Compilation speed</li>
+                        <li>Library defined optimizations</li>
+                        <li>Developer usability</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>KEY DIFFERENCES</h2>
+                    <ul>
+                        <li>No more procedure syntax</li>
+                        <li>Union Types</li>
+                        <li>Intersection Types</li>
+                        <li>Trait Parameters</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Procedure Syntax</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+def foo {}
+// error!
+
+def foo = {}
+// res: Unit
+                    </code></pre>
+                    <span class="fragment">But there's a flag for that: <code>-language:Scala2</code></span>
+                </section>
+
+                <section>
+                    <h3>Intersection and Union Types</h3>
+                    <ul>
+                        <li>
+                            <code>A & B</code> is the <i>greatest lower bound</i>: a supertype
+                            of all subtypes of both A and B
+                        </li>
+                        <li>
+                            <code>A | B</code> is the <i>least upper bound</i>: a subtype
+                            of all supertypes of both A and B
+                        </li>
+                    </ul>
+                </section>
+
+<!-- No longer compiles :(
+                <section>
+                    <h3>Union Types in arguments - Scala.js</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+trait A {
+  def name: String = "A"
+}
+
+trait B {
+  def name: String = "B"
+}
+
+def foo(x: A | B): String = x.name
+
+// reduced boilerplate! `foo` is equivalent to:
+def foo$1(x: AnyRef): String =
+  if (x.isInstanceOf[A]) x.asInstanceOf[A].name
+  else x.asInstanceOf[B].name
+                    </code></pre>
+                </section>
+-->
+
+                <section>
+                    <h3>Union Types for Enums</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+case object Monday
+case object Tuesday
+case object Wednesday
+case object Thursday
+case object Friday
+case object Saturday
+case object Sunday
+
+type Weekend = Saturday.type | Sunday.type
+type Weekday = Monday.type | Tuesday.type...
+type AnyDay  = Weekday | Weekend
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Patternmatch exhaustivity checks</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+(Saturday: Weekend) match {
+  case Sunday => // incomplete!
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Intersection Types are the new `with`</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+trait A {
+  def foo: Int
+}
+trait B {
+  def bar: Int
+}
+
+def baz(ab: A & B) = ab.foo + ab.bar
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>Trait Parameters instead of Early Initializers</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+trait Super {
+  def x: String
+  println(x)
+}
+class Foo extends Super {
+  val x = "hello"
+}
+
+new Foo
+// prints: null
+                    </code></pre>
+                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+trait Super(x: String) {
+  println(x)
+}
+class Foo extends Super("hello")
+
+new Foo
+// prints: "hello"
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3>So now the fun stuff - Compiler internals</h3>
+                </section>
+
+                <section>
+                    <h3>javac pipeline</h3>
+                    <ol>
+                        <li>Parse</li>
+                        <li>Enter</li>
+                        <li>Annotate</li>
+                        <li>Attribue</li>
+                        <li>Flow</li>
+                        <li>Desugar</li>
+                        <li>Generate</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h3>dotty pipeline</h3>
+                    <a target="_blank" href="https://github.com/lampepfl/dotty/blob/master/src/dotty/tools/dotc/Compiler.scala">source code</a>
+                </section>
+
+                <section>
+                    <h3>Regular Phases</h3>
+                    <div class="node-container" style="width:216px">
+                        <div class="level">
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="3" class="color fragment" style="background-color:red;"></div>
+                                <div data-fragment-index="6" class="color fragment" style="background-color:blue;"></div>
+                                <div data-fragment-index="9" class="color fragment" style="background-color:green;"></div>
+                                <svg id="dl" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                                <svg id="dr" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                            </div>
+                            <div class="empty-node"></div>
+                        </div>
+                        <div class="level">
+                            <div class="node">
+                                <div data-fragment-index="1" class="color fragment" style="background-color:red;"></div>
+                                <div data-fragment-index="4" class="color fragment" style="background-color:blue;"></div>
+                                <div data-fragment-index="7" class="color fragment" style="background-color:green;"></div>
+                            </div>
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="2" class="color fragment" style="background-color:red;"></div>
+                                <div data-fragment-index="5" class="color fragment" style="background-color:blue;"></div>
+                                <div data-fragment-index="8" class="color fragment" style="background-color:green;"></div>
+                            </div>
+                        </div>
+                        <div class="level desc">
+                            <div class="node" style="background-color:red;margin-left:16px;">
+                                <span class="title">Phase 1</span>
+                            </div>
+                            <div class="node" style="background-color: blue;">
+                                <span class="title">Phase 2</span>
+                            </div>
+                            <div class="node" style="background-color: green;">
+                                <span class="title">Phase 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>Fused Phases</h3>
+                    <div class="node-container" style="width:216px">
+                        <div class="level">
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="7" class="color fragment" style="background-color:red;"></div>
+                                <div data-fragment-index="8" class="color fragment" style="background-color:blue;"></div>
+                                <div data-fragment-index="9" class="color fragment" style="background-color:green;"></div>
+                                <svg id="dl" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                                <svg id="dr" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                            </div>
+                            <div class="empty-node"></div>
+                        </div>
+                        <div class="level">
+                            <div class="node">
+                                <div data-fragment-index="1" class="color fragment" style="background-color:red;"></div>
+                                <div data-fragment-index="2" class="color fragment" style="background-color:blue;"></div>
+                                <div data-fragment-index="3" class="color fragment" style="background-color:green;"></div>
+                            </div>
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="4" class="color fragment" style="background-color:red;"></div>
+                                <div data-fragment-index="5" class="color fragment" style="background-color:blue;"></div>
+                                <div data-fragment-index="6" class="color fragment" style="background-color:green;"></div>
+                            </div>
+                        </div>
+                        <div class="level desc">
+                            <div class="node" style="background-color:red;margin-left:16px;">
+                                <span class="title">Phase 1</span>
+                            </div>
+                            <div class="node" style="background-color: blue;">
+                                <span class="title">Phase 2</span>
+                            </div>
+                            <div class="node" style="background-color: green;">
+                                <span class="title">Phase 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Let's create a MiniPhase!</h2>
+                    <ul>
+                        <li>A simplistic static linter</li>
+                        <li>This linter really cares about division by zero</li>
+                    </ul>
+                    <div class="fragment">
+                    <h4 style="margin-top:1em">So what do we need to do?</h4>
+                        <ol>
+                            <li>Create a MiniPhase</li>
+                            <li>Add the Phase to Compiler</li>
+                            <li>Override the appropriate node transforms</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <section>
+                    <h1>Coding time!</h1>
+                </section>
+
+                <section>
+                    <h3>So why aren't we putting things like this in Dotty?</h3>
+                    <ul>
+                        <li>Principle of least power</li>
+                        <li>Domain specific optimizations</li>
+                        <li>...maybe we have something more fitting?</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Dotty-Linker to the rescue!</h2>
+                    <ul>
+                        <li>Whole program optimization</li>
+                        <li>Call graph</li>
+                        <li>User defined rewrite rules</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Why do we need an optimizer?</h2>
+                    <h5>Scala provides:</h5>
+                    <ul>
+                        <li>higher-order types</li>
+                        <li>generic methods</li>
+                        <li>generic classes</li>
+                        <li>multiple inheritance</li>
+                        <li>pattern matching</li>
+                        <li>lazy evaluation</li>
+                        <li class="fragment highlight-green">garbage collection</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Example</h2>
+                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">
+public double average(int[] data) {
+    int sum = 0;
+    for(int i = 0; i < data.length; i++) {
+        sum += data[i];
+    }
+    return sum * 1.0d / data.length;
+}
+                    </code></pre>
+                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+def average(xs: Array[Int]) =
+  xs.reduce(_ + _) * 1.0 / xs.size
+                    </code></pre>
+                    <table class="fragment">
+                        <thead>
+                            <td>Java</td>
+                            <td>Scala</td>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>45 msec</td>
+                                <td>872 msec</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section>
+                    <h2>Java</h2>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">
+public double average(int[] data) {
+    int sum = 0;
+    for(int i = 0; i < data.length; i++) {
+        sum += data[i];
+    }
+    return sum * 1.0d / data.length;
+}
+                    </code></pre>
+                    <ul>
+                        <li>Range check</li>
+                        <li>Addition</li>
+                        <li>Index increment</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Scala</h2>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+def average(xs: Array[Int]) =
+  xs.reduce(_ + _) * 1.0 / x.size
+                    </code></pre>
+                </section>
+                <section>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+def reduce(op: Function2[Obj, Obj, Obj]): Obj = {
+  var first = true
+  var acc: Obj = null
+  this.foreach { e =>
+    if (first) {
+      acc = e
+      first = false
+    } else acc = op.apply(acc, e)
+  }
+  acc
+}
+
+def foreach(f: Funtion1[Obj, Obj]) {
+  var i = 0
+  val len = length
+  while (i < len) {
+    f.apply(this(i))
+    i += 1
+  }
+}
+                    </code></pre>
+                </section>
+
+                <section>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+object Rewrites {
+  // do crazy stuff
+}
+                    </code></pre>
+                </section>
+            </div>
+        </div>
+        <script src="/home/fixel/.pandoc/reveal.js/js/reveal.js"></script>
+        <script src="/home/fixel/.pandoc/reveal.js/plugin/highlight/highlight.js"></script>
+
+        <script>
+            Reveal.initialize({
+                slideNumber: true,
+                controls: false,
+                history: true,
+            });
+
+            hljs.initHighlightingOnLoad();
+        </script>
+    </body>
+</html>

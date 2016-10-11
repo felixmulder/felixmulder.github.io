@@ -1,0 +1,103 @@
+#epfl-logo {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    width: 250px;
+}
+
+#twitter-url {
+    position: absolute;
+    bottom: 1em;
+    left: 1em;
+    font-size: 21px;
+}
+
+.reveal .slide-number {
+    background-color: transparent;
+    font-size: 16px;
+}
+
+.white {
+    color: white;
+}
+
+.reveal section img.border {
+    background: transparent;
+    box-shadow: -5px 5px 10px rgba(0,0,0,0.4);
+    border-radius: 2px;
+    border: 0;
+}
+
+.small {
+    width: 140px !important;
+}
+
+.no-shadow {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+div.node {
+    width: 2em;
+    height: 2em;
+    border-radius: 50%;
+    background-color: #fff;
+    float: left;
+    position: relative;
+}
+
+div.color {
+    width: 2em;
+    height: 2em;
+    border-radius: 50%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+div.empty-node {
+    width: 2em;
+    height: 2em;
+    background-color: transparent;
+    float: left;
+}
+
+div.level {
+    width: inherit;
+    height: 4em;
+}
+
+div.node-container {
+    margin: 2em auto;
+}
+
+svg#dr {
+    position: absolute;
+    bottom: -65px;
+    right: -34px;
+}
+
+svg#dl {
+    position: absolute;
+    bottom: -65px;
+    left: -34px;
+}
+
+div.node > span.title {
+    position: absolute;
+    bottom: -53px;
+    left: -2px;
+    font-size: 16px;
+    color: #fff;
+}
+
+div.level.desc > div.node {
+    margin-left: 1em;
+    width: 1em;
+    height: 1em;
+}
+
+table {
+    color: #93a1a1;
+}
