@@ -3,13 +3,50 @@ layout: default
 title: ""
 ---
 
-<h1>Talks</h1>
-<ul class="talk-list">
-  <li>
-    <h2>
-        <a class="post-link" href="/talks/deconstructing-dotty/">
-            Deconstructing Dotty
-        </a>
-    </h2>
-  </li>
-</ul>
+<a class="back-button btn" href="/resume">
+    RÉSUMÉ
+</a>
+
+<div class="avatar">
+    <img src="/images/felix.jpg"/>
+</div>
+<h1 class="name">Felix Mulder</h1>
+
+<div class="posts">
+    <div class="talks post">
+        <h1 class="post-title">Talks</h1>
+        <hr class="post-separator">
+        <ul class="talk-list">
+          <li>
+            <h2>
+                <a class="post-link" href="/talks/deconstructing-dotty/">
+                    Deconstructing Dotty
+                </a>
+                <span class="date">- 2016-10-17</span>
+            </h2>
+          </li>
+        </ul>
+
+    </div>
+
+    {% for post in site.posts %}
+    {% if false && post != site.posts[0] %}
+    <hr class="post-separator">
+    {% endif %}
+    <div class="post">
+        {% if post == site.posts[0] %}
+        <h1 class="post-title">Blog</h1>
+        <hr class="post-separator">
+        {% endif %}
+
+        <h1 class="post-title"><a href="{{ post.url }}">{{ post.title }}</a></h1>
+        <h2 class="post-date">{{ post.date | date_to_string }}</h2>
+        {{ post.excerpt }}
+        <div class="fadeout">
+        <a class="to-article" href="{{ post.url }}">Read full post &gt;</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+
