@@ -101,3 +101,7 @@ div.level.desc > div.node {
 table {
     color: #93a1a1;
 }
+
+div.reveal.slide.center {
+    color: #fff;
+}

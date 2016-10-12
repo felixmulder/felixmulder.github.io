@@ -99,6 +99,17 @@
                         <li>Union Types</li>
                         <li>Intersection Types</li>
                         <li>Trait Parameters</li>
+                        <li>TASTY</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>TASTY</h3>
+                    <ul>
+                        <li>Pickling format</li>
+                        <li>Typed Trees</li>
+                        <li>Efficiently stored in bytecode</li>
+                        <li>Interop between binary incompatible compilers</li>
                     </ul>
                 </section>
 
@@ -492,10 +503,122 @@ def foreach(f: Funtion1[Obj, Obj]) {
                 </section>
 
                 <section>
+                    <h3>Specialize all the things!</h3>
+                    <div class="fragment">
+                        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>trait T[A1, A2, ..., An]</code></pre>
+                    how many combinations?
+                    </div>
+                    <div class="fragment"><b>10 ^ n</b></div>
+                    <div class="fragment">
+                        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>trait T[A1, A2, ..., An] {
+    def foo[B1, B2, ..., Bm] = ???
+}</code></pre>
+                    and now?
+                    </div>
+                    <div class="fragment"><b>10 ^ (n + m)</b></div>
+                </section>
+
+                <section>
                     <h3>Existing solutions for Scala 2</h3>
                     <ul>
                         <li><code>@specialized</code></li>
                         <li>Miniboxing</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Specialization</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>def foo[@specialized A](a: A) = ???</code></pre>
+                    Creates one version for each of Scala's 9 primitives:<br>
+                    <code>int</code>, <code>long</code>, <code>short</code>,
+                    <code>byte</code>, <code>char</code>, <code>float</code>,
+                    <code>double</code>, <code>boolean</code>,
+                    <code>"void"</code>
+
+                    <br><br>+ 1 for reference types
+                    <br> == 10 versions
+                </section>
+
+                <section>
+                    <h4>Specialization</h4>
+                    <ul>
+                        <li>Mark types using <code>@specialized</code></li>
+                        <li>Can specify for which types e.g:<br><code>@specialized(Int)</code></li>
+                        <li>10^n</li>
+                        <li>No inheritance</li>
+                    </ul>
+
+                    <h4>Miniboxing</h4>
+                    <ul>
+                        <li>Reduces the factor to: 3^n</li>
+                        <li>Handles inheritance</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>trait Function3[-T1, -T2, -T3, +R]</code></pre>
+                    <h3>Both: how many specializations are needed?</h3>
+                    <ul class="fragment">
+                        <li>Specialization: 10000 classes</li>
+                        <li>Miniboxing: 81 classes</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Are they asking the right question though?</h2>
+                </section>
+
+                <section>
+                    <h2>Dotty Linker's approach</h2>
+                    Don't ask the user what to specialize
+
+                    <div class="fragment">- specialize on what's actually being used.</div>
+                </section>
+
+                <section>
+                    <h2>Auto-Specialization in Dotty Linker</h2>
+                    <ul>
+                        <li>Takes your program <u>&amp; libraries</u>, analyzes how you use them</li>
+                        <li>Sees what instantiations are needed</li>
+                        <li>Specializes them</li>
+                        <li>No need to annotate types</li>
+                    </ul>
+                </section>
+
+                <section>
+                    Types and terms are treated the same for specialization:
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>def foo[T](x: Seq[T], id: Int) = x(id)</code></pre>
+                    <ul>
+                        <li>Type specialization removes boxing</li>
+                        <li>Term specialization removes <span class="fragment">virtual dispatch</span></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Status</h2>
+                    <ul>
+                        <li>
+                            Dotty
+                            <ul>
+                                <li><a href="http://github.com/lampepfl/dotty">http://github.com/lampepfl/dotty</a></li>
+                                <li>Example projects working, libraries are being ported</li>
+                                <li>User experience: nearing beta</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Dotty Linker
+                            <ul>
+                                <li><a href="http://github.com/dotty-linker/dotty">http://github.com/dotty-linker/dotty</a></li>
+                                <li>Rewrite rules are being tested using property based testing</li>
+                                <li>Features being ported to Dotty</li>
+                                <li>User experience: alpha</li>
+                            </ul>
+                        </li>
                     </ul>
                 </section>
             </div>
