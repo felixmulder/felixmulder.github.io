@@ -9,8 +9,60 @@ date: "2016-10-17"
         <meta charset="utf-8"/>
         <title>Dotty - Reconstructing Scala</title>
         <link rel="stylesheet" href="/css/reveal.css">
-        <link rel="stylesheet" href="/css/moon.css">
         <link rel="stylesheet" href="/css/github.css">
+
+        <!-- Start dark theme: -->
+        <link rel="stylesheet" href="/css/reveal/moon.css">
+        <style>
+            .text-color {
+                color: #EEE8D5;
+            }
+        </style>
+        <!-- end dark theme -->
+
+        <!-- Start light theme: -->
+        <!--
+        <link rel="stylesheet" href="/css/reveal/solarized.css">
+        <style>
+            body > div > div.slides > section.present > p.white {
+                color: #586e75 !important;
+            }
+
+            #epfl-logo {
+                background: #586E75 !important;
+                padding: 0.2em;
+                border-radius: 0.2em;
+            }
+
+            div.node > svg {
+                stroke: #586E75 !important;
+                fill: #586E75 !important;
+            }
+            div.node > svg > path {
+                stroke: #586E75 !important;
+                fill: #586E75 !important;
+            }
+            body > div > div.slides > section.present > div > div:nth-child(2) > div:nth-child(3),
+            body > div > div.slides > section.present > div > div:nth-child(2) > div:nth-child(1),
+            body > div > div.slides > section.present > div > div:nth-child(1) > div.node {
+                background-color: #586E75 !important;
+            }
+
+            body > div > div.slides > section.present > div > div.level.desc > div:nth-child(1) {
+                background-color: red;
+            }
+
+            div.node > span.title {
+                color: #586E75 !important;
+            }
+
+            .text-color {
+                color: #586E75;
+            }
+        </style>
+        -->
+        <!-- end light theme -->
+
         <link rel="stylesheet" href="/css/slides.css">
     </head>
     <body>
@@ -29,7 +81,7 @@ date: "2016-10-17"
                 <section>
                     <h2 style="opacity: 0.7">
                         <span style="color:#D64541;text-decoration:line-through">
-                          <span style='color:#EEE8D5'>DECONSTRUCTING DOTTY</span>
+                          <span class="text-color" >DECONSTRUCTING DOTTY</span>
                         </span>
                     </h2>
                     <h1>RECONSTRUCTING SCALA</h1>
