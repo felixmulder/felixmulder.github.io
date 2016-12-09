@@ -590,9 +590,8 @@ def storeUser(u: User): Transaction[User] = {
     } else acc = op.apply(acc, e)
   }
   acc
-}
-
-def foreach(f: Funtion1[Obj, Obj]) {
+}</code></pre>
+                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def foreach(f: Funtion1[Obj, Obj]) {
   var i = 0
   val len = length
   while (i < len) {
