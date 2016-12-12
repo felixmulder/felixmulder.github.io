@@ -84,6 +84,11 @@ date: "2016-10-17"
                           <span class="text-color" >DECONSTRUCTING DOTTY</span>
                         </span>
                     </h2>
+                    <h4 style="opacity: 0.7">
+                        <span style="color:#D64541;text-decoration:line-through">
+                          <span class="text-color" >A NEXT GENERATION SCALA COMPILER</span>
+                        </span>
+                    </h4>
                     <h1>RECONSTRUCTING SCALA</h1>
                     <h4>THE TALE OF DOTTY SO FAR</h4>
                     <p class="white">
@@ -151,7 +156,7 @@ new Tester
 
                 <section>
                     <h3>Conclusion:</h3>
-                    <code class="scala">"wat" == null</code>
+                    <pre style="width: 10em;"><code style="padding: 1em;border-radius: 0.2em;" class="scala">"wat" == null</code></pre>
                     <h4 style="margin-top: 1em" class="fragment">jk, this isn't JavaScript...</h4>
                 </section>
 
@@ -229,6 +234,43 @@ public class Tester implements Super {
                     <h1>SLOW COMPILE TIMES</h1>
                 </section>
 
+                <section>
+                    <h3>Moar Quiz</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
+
+  def foldLeft1[B](z: B, f: (B, A) => B) = ???
+  foldLeft1(List.empty, (b, a) => b)           // 1
+  foldLeft1(List.empty, (b, a) => a :: b)      // 2
+
+
+  def foldLeft2[B](z: B)(f: (B, A) => B) = ???
+  foldLeft2(List.empty) { (b, a) => b }        // 3
+  foldLeft2(List.empty) { (b, a) => a :: b }   // 4
+
+}</code></pre>
+scalac compiles what?
+                </section>
+                <section>
+                    <h3>Moar Quiz</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
+
+  def foldLeft1[B](z: B, f: (B, A) => B) = ???
+  foldLeft1(List.empty, (b, a) => b)           // 1
+  foldLeft1(List.empty, (b, a) => a :: b)      // 2
+
+
+  def foldLeft2[B](z: B)(f: (B, A) => B) = ???
+  <mark>foldLeft2(List.empty) { (b, a) => b }</mark>        // 3
+  foldLeft2(List.empty) { (b, a) => a :: b }   // 4
+
+}</code></pre>
+scalac compiles what?
+                </section>
+
+                <section>
+                    <h1>The Fear of Nothing</h1>
+                </section>
+
 
                 <section>
                     <h2>WHAT TEXT EDITOR / IDE DO YOU USE?</h2>
@@ -258,6 +300,10 @@ public class Tester implements Super {
                 </section>
 
                 <section>
+                    <h1>THE GREAT DIVIDE</h1>
+                </section>
+
+                <section>
                     <blockquote>
                         &#8220;There is not agreement on what is "best", so all we
                         can really do is try to find a local optimum. But finding
@@ -280,12 +326,13 @@ public class Tester implements Super {
                 <section>
                     <h2>KEY DIFFERENCES</h2>
                     <ul>
+                        <li>No old-style macros - embrace the meta!</li>
                         <li>No more procedure syntax</li>
+                        <li>Implicit functions</li>
                         <li>Union Types</li>
                         <li>Intersection Types</li>
                         <li>Trait Parameters</li>
                         <li>TASTY</li>
-                        <li>Implicit functions</li>
                     </ul>
                 </section>
 
@@ -369,21 +416,21 @@ def baz(ab: A & B) = ab.foo + ab.bar</code></pre>
                     <h3>Trait Parameters instead of Early Initializers</h3>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super {
   def x: String
-  println(x)
+  println(s"initialized with $x")
 }
 class Foo extends Super {
-  val x = "hello"
+  val x = "wat."
 }
 
 new Foo
-// prints: null</code></pre>
+// prints: "initialized with null"</code></pre>
                     <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super(x: String) {
   println(x)
 }
-class Foo extends Super("hello")
+class Foo extends Super("wat.")
 
 new Foo
-// prints: "hello"</code></pre>
+// prints: "initialized with wat."</code></pre>
                 </section>
 
                 <section>
@@ -393,18 +440,18 @@ new Foo
                 </section>
 
                 <section>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">// In user code:
-def storeUser(u: User)(implicit ctx: Context): User =
-  withContext { implicit ctx =>
-    // moar boilerplate
-  }
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">type DBIO[T] = (c: Context) => DBIO[T]
+// In user code:
+def storeUser(u: User): DBIO[User] = withContext { implicit ctx =>
+  // moar boilerplate
+}
 </code></pre>
                     <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">// In the api somwehere:
 type Transaction[T] = implicit Context => T
 
 // In user code:
 def storeUser(u: User): Transaction[User] = {
-  // moar boilerplate
+  // ctx available!
 }
 </code></pre>
                     <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def ctx: Transaction[Context] = implicitly[Context]
@@ -430,7 +477,7 @@ def storeUser(u: User): Transaction[User] = {
 
                 <section>
                     <h3>dotty pipeline</h3>
-                    <a target="_blank" href="https://github.com/lampepfl/dotty/blob/master/src/dotty/tools/dotc/Compiler.scala">source code</a>
+                    <a target="_blank" href="https://github.com/lampepfl/dotty/blob/master/compiler/src/dotty/tools/dotc/Compiler.scala">source code</a>
                 </section>
 
                 <section>
@@ -569,6 +616,7 @@ def storeUser(u: User): Transaction[User] = {
                 <section>
                     <h2>Dotty-Linker to the rescue!</h2>
                     <ul>
+                        <li>Dmitry Petrashko, <a href="https://github.com/DarkDimius/">@DarkDimius</a>
                         <li>Whole program optimization</li>
                         <li>Call graph</li>
                         <li>User defined rewrite rules</li>
@@ -579,6 +627,10 @@ def storeUser(u: User): Transaction[User] = {
                     <h2>Implementing a linter</h2>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
 >@rewrites object rules {
+  def toIsEmpty[T](xs: List[T]) =
+    Rewrite(from = xs.length == 0,
+            to = xs.isEmpty)
+
   def customFancyWarning(x: Int | Double | ... | Numeric[_]) =
     Warn(pattern = x / 0,
          msg = "division by zero, you fool!")
@@ -677,6 +729,21 @@ def storeUser(u: User): Transaction[User] = {
                     </div>
                 </section>
 
+
+                <section>
+                    <h3>Specialization</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>def foo[@specialized A](a: A) = ???</code></pre>
+                    Creates one version for each of Scala's 9 primitives:<br>
+                    <code>int</code>, <code>long</code>, <code>short</code>,
+                    <code>byte</code>, <code>char</code>, <code>float</code>,
+                    <code>double</code>, <code>boolean</code>,
+                    <code>"void"</code>
+
+                    <br><br>+ 1 for reference types
+                    <br> == 10 versions
+                </section>
+
                 <section>
                     <h3>Specialize all the things!</h3>
                     <div class="fragment">
@@ -710,20 +777,6 @@ def storeUser(u: User): Transaction[User] = {
                         </li>
                         <li>Miniboxing</li>
                     </ul>
-                </section>
-
-                <section>
-                    <h3>Specialization</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
->def foo[@specialized A](a: A) = ???</code></pre>
-                    Creates one version for each of Scala's 9 primitives:<br>
-                    <code>int</code>, <code>long</code>, <code>short</code>,
-                    <code>byte</code>, <code>char</code>, <code>float</code>,
-                    <code>double</code>, <code>boolean</code>,
-                    <code>"void"</code>
-
-                    <br><br>+ 1 for reference types
-                    <br> == 10 versions
                 </section>
 
                 <section>
@@ -785,6 +838,7 @@ def storeUser(u: User): Transaction[User] = {
 
                 <section>
                     <h2>Developer Usability</h2>
+                    <p class="fragment">Get involved today!</p>
                 </section>
 
                 <section style="text-align: left;">
@@ -802,7 +856,7 @@ def storeUser(u: User): Transaction[User] = {
                 </section>
 
                 <section>
-                    <h2>Status</h2>
+                    <h2>STATUS</h2>
                     <ul>
                         <li>
                             Dotty
