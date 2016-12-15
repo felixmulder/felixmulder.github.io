@@ -467,6 +467,39 @@ def foo = {}
                 </section>
 
                 <section>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait A
+trait B
+trait C extends B with A // ==> A & B is a supertype of C
+</code></pre>
+                </section>
+
+                <section>
+                    <h3>Intersection and Union Types</h3>
+
+                    <h3><code>A & B</code></h3>
+                    the <i>greatest lower bound</i>: a supertype
+                    of all subtypes of both A and B
+
+                    <h3><code>A | B</code></h3>
+                    the <i>least upper bound</i>: a subtype
+                    of all supertypes of both A and B
+                </section>
+
+                <section>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">class A(val i: Int)
+class B(val i: Int)
+
+def p1(implicit ev: (A | B) <:< AnyRef) = ???
+
+def p2(implicit ev: A <:< (A | B)) = ???
+
+def p3(implicit ev: B <:< (A | B)) = ???
+
+def p4(implicit ev: (A | B) <:< AnyVal) = ??? // does not compile
+</code></pre>
+                </section>
+
+                <section>
                     <h3>Union Types for Enums</h3>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">case object Monday
 case object Tuesday
