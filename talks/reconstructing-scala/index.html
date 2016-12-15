@@ -230,19 +230,19 @@ class Tester extends Super {
                 <section>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">public interface Super {
     default public void $init$() {
-        System.out.println("initialized with: " + x());
+        println("initialized with: " + x());
     }
 
     public String x();
 }
 
 public class Tester implements Super {
-    private final String x$$local;
+    private final String x;
     public Tester() {
         Super.super.$init$();
-        x$$local = "wat";
+        x = "wat";
     }
-    public String x() { return this.x$$local; }
+    public String x() { return this.x; }
 }
 </code></pre>
                 </section>
