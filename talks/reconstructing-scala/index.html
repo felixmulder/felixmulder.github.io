@@ -171,6 +171,11 @@ date: "2016-10-17"
                 </section>
 
                 <section>
+                    Quiz is actually motivation in disguise:
+                    <h1>Surprising Behavior</h1>
+                </section>
+
+                <section>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super {
   def x: String
   println(s"initialized with: $x")
@@ -211,8 +216,15 @@ class C extends T {
                 </section>
 
                 <section>
-                    Haha! Quiz was actually motivation in disguise:
-                    <h1>Surprising Behavior</h1>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super {
+  def x: String
+  println(s"initialized with: $x")
+}
+
+class Tester extends Super {
+  val x = "wat"
+}
+</code></pre>
                 </section>
 
                 <section>
@@ -225,8 +237,11 @@ class C extends T {
 }
 
 public class Tester implements Super {
-    private final String x$$local = "wat";
-    public Tester() { Super.super.$init$(); }
+    private final String x$$local;
+    public Tester() {
+        Super.super.$init$();
+        x$$local = "wat";
+    }
     public String x() { return this.x$$local; }
 }
 </code></pre>
