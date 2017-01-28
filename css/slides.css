@@ -1,3 +1,7 @@
+body {
+    background-color: #1d213c;
+}
+
 #epfl-logo {
     border: 0;
     background: transparent;
@@ -5,15 +9,29 @@
     width: 250px;
 }
 
+.reveal, .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+    color: #eee;
+}
+
 mark {
     background-color: #6fa06a;
 }
 
-#twitter-url {
+a#twitter-url {
     position: absolute;
     bottom: 1em;
     left: 1em;
     font-size: 21px;
+    z-index: 99;
+}
+
+.reveal a {
+    color: rgba(10, 157, 232, 0.7);
+}
+
+a#twitter-url:hover,
+.reveal a:hover {
+    color: rgba(10, 157, 232, 1);
 }
 
 .reveal .slide-number {

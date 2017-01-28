@@ -72,86 +72,32 @@ date: "2016-10-17"
                 <section>
                     <h1>DECONSTRUCTING DOTTY</h1>
                     <h4>A NEXT GENERATION SCALA COMPILER</h4>
-                    <p class="white">
-                        Felix Mulder
-                    </p>
-                    <p><img id="epfl-logo" src="Logo_EPFL-white.svg"></p>
-                </section>
-
-                <section>
-                    <h2 style="opacity: 0.7">
-                        <span style="color:#D64541;text-decoration:line-through">
-                          <span class="text-color" >DECONSTRUCTING DOTTY</span>
-                        </span>
-                    </h2>
-                    <h4 style="opacity: 0.7">
-                        <span style="color:#D64541;text-decoration:line-through">
-                          <span class="text-color" >A NEXT GENERATION SCALA COMPILER</span>
-                        </span>
-                    </h4>
-                    <h1>RECONSTRUCTING SCALA</h1>
-                    <h4>DOTTY: A NEXT GENERATION SCALA COMPILER</h4>
-                    <p class="white">
-                        Felix Mulder
-                    </p>
-                    <p><img id="epfl-logo" src="Logo_EPFL-white.svg"></p>
-                </section>
-
-                <section>
-                    <h2 style="opacity: 0.7">
-                        <span style="color:#D64541;text-decoration:line-through">
-                          <span class="text-color" >DECONSTRUCTING DOTTY</span>
-                        </span>
-                    </h2>
-                    <h4 style="opacity: 0.7">
-                        <span style="color:#D64541;text-decoration:line-through">
-                          <span class="text-color" >DOTTY: A NEXT GENERATION SCALA COMPILER</span>
-                        </span>
-                    </h4>
-                    <h1>RECONSTRUCTING SCALA</h1>
-                    <h4 style="opacity: 0.7">
-                        <span style="color:#D64541;text-decoration:line-through">
-                          <span class="text-color" >THE TALE OF DOTTY SO FAR</span>
-                        </span>
-                    </h4>
-                    <h4>DOTTY: TIME TRAVELLING SUPER COMPILER</h4>
                     <p class="white">Felix Mulder</p>
                     <p><img id="epfl-logo" src="Logo_EPFL-white.svg"></p>
                 </section>
 
                 <section>
-                    <h2 style="opacity: 0.7">
-                        <span style="color:#D64541;text-decoration:line-through">
-                          <span class="text-color" >DECONSTRUCTING DOTTY</span>
-                        </span>
-                    </h2>
-                    <h4 style="opacity: 0.7">
-                        <span style="color:#D64541;text-decoration:line-through">
-                          <span class="text-color" >DOTTY: A NEXT GENERATION SCALA COMPILER</span>
-                        </span>
-                    </h4>
                     <h1>RECONSTRUCTING SCALA</h1>
-                    <h4 style="opacity: 0.7">
-                        <span style="color:#D64541;text-decoration:line-through">
-                          <span class="text-color" >THE TALE OF DOTTY SO FAR</span>
-                        </span>
-                    </h4>
-                    <h4>DOTTY: TIME TRAVELLING SUPER COMPILER FROM THE FUTURE!</h4>
+                    <h4>DOTTY: THE TIME TRAVELLING SUPER COMPILER</h4>
                     <p class="white">Felix Mulder</p>
                     <p><img id="epfl-logo" src="Logo_EPFL-white.svg"></p>
+                </section>
+
+                <section>
+                    Slides on: <a href="http://felixmulder.com">felixmulder.com</a>
                 </section>
 
                 <section>
                     <h3>ABOUT ME</h3>
                     <ul>
                         <li><a href="https://github.com/felixmulder">github.com/felixmulder</a></li>
-                        <li class="fragment" data-fragment-index="1">
-                            <strike>Built</strike> Upstreamed new 2.12 Scaladoc
+                        <li>
+                            Built the 2.12 Scaladoc
                         </li>
-                        <li class="fragment" data-fragment-index="2">
+                        <li>
                             Research fellow EPFL, working on Dottydoc at LAMP
                         </li>
-                        <li class="fragment" data-fragment-index="3">
+                        <li>
                             Dotty Compiler Engineer with Martin Odersky and LAMP
                         </li>
                     </ul>
@@ -159,20 +105,42 @@ date: "2016-10-17"
 
                 <section>
                     <img class="border" src="contribs.png">
-                    /end of bragging
+                    &lt;/bragging&gt;
                 </section>
 
                 <section>
-                    <h2>SO, DOTTY... WHY?!</h2>
+                    <h1>ALL GOOD STORIES HAVE A BEGINNING</h1>
+                    <!--
+                    * Strong opinions held lightly
+
+                    * I first heard about scala during my 2nd year of
+                      engineering school, or my fifth year of programming
+
+                    * I didn't like the sound of it at first - something that
+                      was easier to learn, no semicolons - were they trying to
+                      take my future job away from me?
+
+                    * Then I saw the light, after a masters course in FP
+
+                    * The joy of learning a new language, it's like your mind
+                      starts working in completely new ways.
+                    -->
                 </section>
 
                 <section>
-                    <h1>QUIZ TIME</h1>
+                    <img class="border" src="awwyiss.gif">
                 </section>
 
                 <section>
-                    Quiz is actually motivation in disguise:
-                    <h1>Surprising Behavior</h1>
+                    <h1>FP WITHOUT THE FUD</h1>
+                </section>
+
+                <section>
+                    <img class="border" src="power.gif">
+                </section>
+
+                <section>
+                    <h1>&lt;SURPRISES&gt;</h1>
                 </section>
 
                 <section>
@@ -185,30 +153,31 @@ class Tester extends Super {
   val x = "wat"
 }
 </code></pre>
-                </section>
-
-                <section>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait T {
-  def str: String
-  def foo: String = str
-}
-
-class C extends T {
-  val str = foo
-}
+                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">"initializd with: null"
 </code></pre>
                 </section>
 
                 <section>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super {
-  def x: String
-  println(s"initialized with: $x")
-}
+                    <h2>DON'T WORRY SCALA, I STILL LOVE YOU</h2>
+                    <h2>WE CAN WORK AROUND THIS</h2>
+                </section>
 
-class Tester extends Super {
-  val x = "wat"
-}
-</code></pre>
+                <section>
+                    <h2>"Solutions"</h2>
+                    <ul>
+                        <li>Early Initializers</li>
+                        <li>Compromised Immutability</li>
+                        <li>Lazification hell</li>
+                        <li>Refactor, maybe dump the trait</li>
+                    </ul>
+                    <!--
+                    maybe none of the above, but you still feel betrayed
+                    because you thought you knew the semantics
+                     -->
+                </section>
+
+                <section>
+                    <img class="border" src="regret.gif">
                 </section>
 
                 <section>
@@ -232,68 +201,26 @@ public class Tester implements Super {
                 </section>
 
                 <section>
-                    <h3>How do you solve this?</h3>
-                    <ul class="fragment">
-                        <li>Reordering Lines</li>
-                        <li>Give into the single inheritance model (use a class, buh)</li>
-                        <li>Lazy Hell</li>
-                    </ul>
+                    <h1>TYPE INFERENCE</h1>
                 </section>
 
                 <section>
-                    <h2>Is there a way to know if your code is going to compile?</h2>
+                    <h2>TYPE INFERENCE</h2>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def merp[A,B](a: A, f: A => B): B = f(a)
+
+merp(1, x => x * 2) // error: missing parameter type
+</code></pre>
                 </section>
 
                 <section>
-                    <h1>Yes!</h1>
-                    <h3>Run it through the compiler</h3>
-                </section>
+                    <h2>TYPE INFERENCE</h2>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def merp[A,B](a: A)(f: A => B): B = f(a)
 
-                <section><img src="fp1.jpg"></section>
-                <section><img src="fp2.jpg"></section>
-                <section><img src="fp3.jpg"></section>
-                <section><img src="fp4.jpg"></section>
-                <section><img src="fp5.jpg"></section>
-                <section><img src="fp6.jpg"></section>
-                <section><img src="fp7.png"></section>
-                <section><img src="fp8.jpg"></section>
-                <section><img src="fp9.jpg"></section>
-                <section><img src="fp10.jpg"></section>
-                <section><img src="fp11.jpg"></section>
-                <section><img src="fp12.jpg"></section>
-                <section><img src="fp13.jpg"></section>
-
-                <section>
-                    <h1>No but seriously...</h1>
-                    <h3>Is there a way to know if your code is going to compile?</h3>
+merp(1)(x => x * 2) // 2
+</code></pre>
                 </section>
 
                 <section>
-                    <h1>Yes!</h1>
-                    <h3>Compiler takes longer than three seconds to report errors</h3>
-                </section>
-
-                <section><img src="fp1.jpg"></section>
-                <section><img src="fp2.jpg"></section>
-                <section><img src="fp3.jpg"></section>
-                <section><img src="fp4.jpg"></section>
-                <section><img src="fp5.jpg"></section>
-                <section><img src="fp6.jpg"></section>
-                <section><img src="fp7.png"></section>
-                <section><img src="fp8.jpg"></section>
-                <section><img src="fp9.jpg"></section>
-                <section><img src="fp10.jpg"></section>
-                <section><img src="fp11.jpg"></section>
-                <section><img src="fp12.jpg"></section>
-                <section><img src="fp13.jpg"></section>
-
-                <section>
-                    <!-- show of hands, compile times bother you -->
-                    <h1>SLOW COMPILE TIMES</h1>
-                </section>
-
-                <section>
-                    <h3>Moar Quiz</h3>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
 
   def foldLeft1[B](z: B, f: (B, A) => B) = ???
@@ -310,7 +237,6 @@ scalac compiles what?
                 </section>
 
                 <section>
-                    <h3>Moar Quiz</h3>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
 
   def foldLeft1[B](z: B, f: (B, A) => B) = ???
@@ -327,7 +253,6 @@ scalac compiles what?
                 </section>
 
                 <section>
-                    <h3>Moar Quiz</h3>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
 
   def foldLeft1[B](z: B, f: (B, A) => B) = ???
@@ -344,7 +269,6 @@ Dotty compiles what?
                 </section>
 
                 <section>
-                    <h3>Moar Quiz</h3>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
 
   def foldLeft1[B](z: B, f: (B, A) => B) = ???
@@ -357,14 +281,15 @@ Dotty compiles what?
   <mark>foldLeft2(List.empty) { (b, a) => a :: b }</mark>   // 4
 
 }</code></pre>
+Dotty compiles.
                 </section>
 
                 <section>
-                    <h1>The Fear of Nothing</h1>
+                    <h1>INSTANTIATE AS LATE AS POSSIBLE</h1>
                 </section>
 
                 <section>
-                    <h3>Fear Nothing</h3>
+                    <h3>BUT NOT TOO LATE</h3>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
 
   def foldLeft1[B](z: B, f: (B, A) => B) = ???
@@ -380,67 +305,40 @@ Dotty compiles what?
                 </section>
 
                 <section>
-                    <h2>WHAT TEXT EDITOR / IDE DO YOU USE?</h2>
-                    <span style="font-size: 10px">(vim master race, huzzah!)</span>
+                    <h1>&lt;/SURPRISES&gt;</h1>
                 </section>
 
                 <section>
-                    <h2 style="">IDE Tooling</h2>
+                    <!-- show of hands, compile times bother you -->
+                    <h1>SLOW COMPILE TIMES</h1>
+                </section>
+
+                <section>
+                    <h5>Scala provides:</h5>
                     <ul>
-                        <li>Division between APIs</li>
-                        <li>UI-thread blocking</li>
-                        <li>The "I can do this better"-syndrome</li>
+                        <li>higher-order types</li>
+                        <li>generic methods</li>
+                        <li>generic classes</li>
+                        <li>multiple inheritance</li>
+                        <li>pattern matching</li>
+                        <li>lazy evaluation</li>
+                        <li class="fragment highlight-green">garbage collection</li>
                     </ul>
                 </section>
 
                 <section>
-                    <h2>TOOLING COULD BE BETTER</h2>
+                    <h1>Dotty</h1>
                 </section>
 
                 <section>
-                    <h1>BUILD TOOLS</h1>
-                    <p>DANGER AREA, let's just agree...</p>
-                </section>
-
-                <section>
-                    <h2>TOOLING COULD BE BETTER</h2>
-                </section>
-
-                <section>
-                    <h1>THE GREAT DIVIDE</h1>
-                </section>
-
-                <section>
-                    <blockquote>
-                        &#8220;There is not agreement on what is "best", so all we
-                        can really do is try to find a local optimum. But finding
-                        that optimum is what drives me&#8221;
-                    </blockquote>
-                    <img class="no-shadow" src="martin.png">
-                </section>
-
-                <section>
-                    <h2>DOTTY GOALS</h2>
+                    <h2>LANGUAGE IMPROVEMENTS</h2>
                     <ul>
-                        <li>No more surprising behavior - simplification and DOT</li>
-                        <li>Fast compile times</li>
-                        <li>Awesome tooling &amp; developer experience!</li>
-                        <li class="fragment">New features</li>
-                        <li class="fragment">Truly optimized code</li>
-                        <li class="fragment">No Python 3</li>
-                    </ul>
-                </section>
-
-                <section>
-                    <h2>KEY DIFFERENCES</h2>
-                    <ul>
-                        <li>No old-style macros - embrace the meta!</li>
+                        <li>Trait Parameters</li>
                         <li>No more procedure syntax</li>
-                        <li>Implicit functions</li>
+                        <li>No old style macros, embrace the <a href="http://scalameta.org/">meta</a>!</li>
                         <li>Union Types</li>
                         <li>Intersection Types</li>
-                        <li>Trait Parameters</li>
-                        <li>TASTY</li>
+                        <li>Implicit functions</li>
                     </ul>
                 </section>
 
@@ -489,14 +387,24 @@ trait C extends B with A // ==> A & B is a supertype of C
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">class A(val i: Int)
 class B(val i: Int)
 
-def p1(implicit ev: (A | B) <:< AnyRef) = ???
+def p1(implicit ev: A <:< (A | B)) = ???
 
-def p2(implicit ev: A <:< (A | B)) = ???
+def p2(implicit ev: B <:< (A | B)) = ???
 
-def p3(implicit ev: B <:< (A | B)) = ???
+def p3(implicit ev: (A | B) <:< AnyRef) = ???
 
 def p4(implicit ev: (A | B) <:< AnyVal) = ??? // does not compile
 </code></pre>
+                </section>
+
+                <section>
+                    <h3>Supercharged Any</h3>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>final class SuperHipsterInternalAPI {
+  def foo(a: Any) = ??? // NO!
+  def foo(a: TypeA | TypeB) = ??? // YES!
+}</code></pre>
+                    <a href="https://www.youtube.com/watch?v=h8KBLF0AgUc">Precise Types Bring Performance</a> - Dmitry Petrashko
                 </section>
 
                 <section>
@@ -523,16 +431,6 @@ type AnyDay  = Weekday | Weekend</code></pre>
                 </section>
 
                 <section>
-                    <h3>Supercharged Any</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
->final class SuperHipsterInternalAPI {
-  def foo(a: Any) = ??? // NO!
-  def foo(a: TypeA | TypeB) = ??? // YES!
-}</code></pre>
-                    <a href="https://www.youtube.com/watch?v=h8KBLF0AgUc">Precise Types Bring Performance</a> - Dmitry Petrashko
-                </section>
-
-                <section>
                     <h3>Intersection Types are the new `with`</h3>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait A {
   def foo: Int
@@ -550,16 +448,16 @@ def baz(ab: A & B) = ab.foo + ab.bar</code></pre>
   def x: String
   println(s"initialized with $x")
 }
-class Foo extends Super {
-  val x = "wat."
+class Tester extends Super {
+  val x = "wat"
 }
 
-new Foo
+new Tester
 // prints: "initialized with null"</code></pre>
                     <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super(x: String) {
   println(x)
 }
-class Foo extends Super("wat.")
+class Foo extends Super("wat")
 
 new Foo
 // prints: "initialized with wat."</code></pre>
@@ -583,7 +481,11 @@ new Foo
 
                 <section>
                     <h3>ENTER IMPLICIT FUNCTIONS</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">implicit Context => T
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">implicit Context => R
+</code></pre>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ImplicitFunction1[-T,+R] {
+  def apply(i: T): R
+}
 </code></pre>
                 </section>
 
@@ -599,11 +501,69 @@ def storeUser(u: User): DBIO[User] = {
 </code></pre>
                     <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def ctx: Transaction[Context] = implicitly[Context]
 </code></pre>
-                    <span class="fragment"><a href="http://scala-lang.org/blog/2016/12/07/implicit-function-types.html">Implicit Functions</a> - Martin Odersky</span>
+                    <span class="fragment"><a href="http://scala-lang.org/blog/2016/12/07/implicit-function-types.html">Implicit Functions</a> - Martin Odersky</span><br>
+                    <span class="fragment"><a href="https://gist.github.com/OlivierBlanvillain/48bb5c66dbb0557da50465809564ee80">Tagless Final Interpreters in Dotty</a> - Olivier Blanvillain</span>
                 </section>
 
                 <section>
-                    <h1>REPL</h1>
+                    <h2>&lt;/SYNTAX DIFFERENCES&gt;</h2>
+                </section>
+
+                <section>
+                    <h2>REPL</h2>
+                    <h3>&amp;</h3>
+                    <h2>ERROR MESSAGES</h2>
+                    <a href="https://www.youtube.com/watch?v=oYk8CKH7OhE">Let's Be Mainstream! - Evan Czaplicki</a>
+                </section>
+
+
+                <section>
+                    <h1>SCALADOC</h1>
+                </section>
+
+                <section>
+                    <h1>BUILD TOOLS</h1>
+                </section>
+
+                <section>
+                    <h1>LANGUAGE SERVER</h1>
+                </section>
+
+                <section>
+                    <img class="border" src="impl-resolution.jpg">
+                </section>
+
+                <section>
+                    <h1>CROSS BUILDING LIBRARIES</h1>
+                </section>
+
+                <section>
+                    <h3>TASTY</h3>
+                    <ul>
+                        <li>Pickling format</li>
+                        <li>Typed Trees</li>
+                        <li>Efficiently stored in bytecode</li>
+                        <li>Interop between binary incompatible compilers</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Developer Usability</h2>
+                    <p class="fragment">Get involved today!</p>
+                </section>
+
+                <section style="text-align: left;">
+                    <div style="float: left; width: 50%; height: 100%;">
+                        <h2 style="margin-bottom: 0; margin-top: 0.5em;">REPL</h2>
+                        <a target="_blank" href="https://github.com/lampepfl/dotty/issues?q=is%3Aopen+is%3Aissue+label%3Aarea%3Arepl">Issues</a>
+                        <h2 style="margin-bottom: 0; margin-top: 0.5em;">ERROR MESSAGES</h2>
+                        <a target="_blank" href="http://github.com/lampepfl/dotty/issues/1589">Issue #1589</a>
+                    </div>
+                    <div style="float: left; width: 50%; height: 100%;">
+                        <h2 style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">IDEs &amp; TOOLING</h2>
+                        <a target="_blank" href="https://github.com/lampepfl/dotty/labels/area%3Atooling">Issues</a>
+                        <h2 style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">Build Tools</h2>
+                    </div>
                 </section>
 
                 <section>
@@ -639,9 +599,9 @@ def storeUser(u: User): DBIO[User] = {
                         <div class="level">
                             <div class="empty-node"></div>
                             <div class="node">
-                                <div data-fragment-index="3" class="color fragment" style="background-color:red;"></div>
-                                <div data-fragment-index="6" class="color fragment" style="background-color:blue;"></div>
-                                <div data-fragment-index="9" class="color fragment" style="background-color:green;"></div>
+                                <div data-fragment-index="3" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="6" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="9" class="color fragment" style="background-color:#1f753a;"></div>
                                 <svg id="dl" width="50" height="60">
                                     <defs>
                                         <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
@@ -663,25 +623,25 @@ def storeUser(u: User): DBIO[User] = {
                         </div>
                         <div class="level">
                             <div class="node">
-                                <div data-fragment-index="1" class="color fragment" style="background-color:red;"></div>
-                                <div data-fragment-index="4" class="color fragment" style="background-color:blue;"></div>
-                                <div data-fragment-index="7" class="color fragment" style="background-color:green;"></div>
+                                <div data-fragment-index="1" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="4" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="7" class="color fragment" style="background-color:#1f753a;"></div>
                             </div>
                             <div class="empty-node"></div>
                             <div class="node">
-                                <div data-fragment-index="2" class="color fragment" style="background-color:red;"></div>
-                                <div data-fragment-index="5" class="color fragment" style="background-color:blue;"></div>
-                                <div data-fragment-index="8" class="color fragment" style="background-color:green;"></div>
+                                <div data-fragment-index="2" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="5" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="8" class="color fragment" style="background-color:#1f753a;"></div>
                             </div>
                         </div>
                         <div class="level desc">
-                            <div class="node" style="background-color:red;margin-left:16px;">
+                            <div class="node" style="background-color:#c73434;margin-left:16px;">
                                 <span class="title">Phase 1</span>
                             </div>
-                            <div class="node" style="background-color: blue;">
+                            <div class="node" style="background-color: #265fca;">
                                 <span class="title">Phase 2</span>
                             </div>
-                            <div class="node" style="background-color: green;">
+                            <div class="node" style="background-color: #1f753a;">
                                 <span class="title">Phase 3</span>
                             </div>
                         </div>
@@ -694,9 +654,9 @@ def storeUser(u: User): DBIO[User] = {
                         <div class="level">
                             <div class="empty-node"></div>
                             <div class="node">
-                                <div data-fragment-index="7" class="color fragment" style="background-color:red;"></div>
-                                <div data-fragment-index="8" class="color fragment" style="background-color:blue;"></div>
-                                <div data-fragment-index="9" class="color fragment" style="background-color:green;"></div>
+                                <div data-fragment-index="7" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="8" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="9" class="color fragment" style="background-color:#1f753a;"></div>
                                 <svg id="dl" width="50" height="60">
                                     <defs>
                                         <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
@@ -718,25 +678,25 @@ def storeUser(u: User): DBIO[User] = {
                         </div>
                         <div class="level">
                             <div class="node">
-                                <div data-fragment-index="1" class="color fragment" style="background-color:red;"></div>
-                                <div data-fragment-index="2" class="color fragment" style="background-color:blue;"></div>
-                                <div data-fragment-index="3" class="color fragment" style="background-color:green;"></div>
+                                <div data-fragment-index="1" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="2" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="3" class="color fragment" style="background-color:#1f753a;"></div>
                             </div>
                             <div class="empty-node"></div>
                             <div class="node">
-                                <div data-fragment-index="4" class="color fragment" style="background-color:red;"></div>
-                                <div data-fragment-index="5" class="color fragment" style="background-color:blue;"></div>
-                                <div data-fragment-index="6" class="color fragment" style="background-color:green;"></div>
+                                <div data-fragment-index="4" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="5" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="6" class="color fragment" style="background-color:#1f753a;"></div>
                             </div>
                         </div>
                         <div class="level desc">
-                            <div class="node" style="background-color:red;margin-left:16px;">
+                            <div class="node" style="background-color:#c73434;margin-left:16px;">
                                 <span class="title">Phase 1</span>
                             </div>
-                            <div class="node" style="background-color: blue;">
+                            <div class="node" style="background-color: #265fca;">
                                 <span class="title">Phase 2</span>
                             </div>
-                            <div class="node" style="background-color: green;">
+                            <div class="node" style="background-color: #1f753a;">
                                 <span class="title">Phase 3</span>
                             </div>
                         </div>
@@ -744,31 +704,7 @@ def storeUser(u: User): DBIO[User] = {
                 </section>
 
                 <section>
-                    <h3>TASTY</h3>
-                    <ul>
-                        <li>Pickling format</li>
-                        <li>Typed Trees</li>
-                        <li>Efficiently stored in bytecode</li>
-                        <li>Interop between binary incompatible compilers</li>
-                    </ul>
-                </section>
-
-                <section>
                     <h1>Optimized Scala Code</h1>
-                </section>
-
-                <section>
-                    <h2>Why do we need an optimizer?</h2>
-                    <h5>Scala provides:</h5>
-                    <ul>
-                        <li>higher-order types</li>
-                        <li>generic methods</li>
-                        <li>generic classes</li>
-                        <li>multiple inheritance</li>
-                        <li>pattern matching</li>
-                        <li>lazy evaluation</li>
-                        <li class="fragment highlight-green">garbage collection</li>
-                    </ul>
                 </section>
 
                 <section>
@@ -992,25 +928,6 @@ def storeUser(u: User): DBIO[User] = {
                         <li>Type specialization removes boxing</li>
                         <li>Term specialization removes <span class="fragment">virtual dispatch</span></li>
                     </ul>
-                </section>
-
-                <section>
-                    <h2>Developer Usability</h2>
-                    <p class="fragment">Get involved today!</p>
-                </section>
-
-                <section style="text-align: left;">
-                    <div style="float: left; width: 50%; height: 100%;">
-                        <h2 style="margin-bottom: 0; margin-top: 0.5em;">REPL</h2>
-                        <a target="_blank" href="https://github.com/lampepfl/dotty/issues?q=is%3Aopen+is%3Aissue+label%3Aarea%3Arepl">Issues</a>
-                        <h2 style="margin-bottom: 0; margin-top: 0.5em;">ERROR MESSAGES</h2>
-                        <a target="_blank" href="http://github.com/lampepfl/dotty/issues/1589">Issue #1589</a>
-                    </div>
-                    <div style="float: left; width: 50%; height: 100%;">
-                        <h2 style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">IDEs &amp; TOOLING</h2>
-                        <a target="_blank" href="https://github.com/lampepfl/dotty/labels/area%3Atooling">Issues</a>
-                        <h2 style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">Build Tools</h2>
-                    </div>
                 </section>
 
                 <section>
