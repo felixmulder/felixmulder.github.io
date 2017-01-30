@@ -109,7 +109,7 @@ date: "2016-10-17"
                 </section>
 
                 <section>
-                    <h1>ALL GOOD STORIES HAVE A BEGINNING</h1>
+                    <h1>ALL (GOOD) STORIES HAVE A BEGINNING</h1>
                     <!--
                     * Strong opinions held lightly
 
@@ -331,6 +331,159 @@ Dotty compiles.
                 </section>
 
                 <section>
+                    <h3>javac pipeline</h3>
+                    <ol>
+                        <li>Parse</li>
+                        <li>Enter</li>
+                        <li>Annotate</li>
+                        <li>Attribue</li>
+                        <li>Flow</li>
+                        <li>Desugar</li>
+                        <li>Generate</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h3>dotty pipeline</h3>
+                    <a target="_blank" href="https://github.com/lampepfl/dotty/blob/master/compiler/src/dotty/tools/dotc/Compiler.scala">source code</a>
+                </section>
+
+                <section>
+                    <h2>But, but, but compilation speed?</h2>
+                    <span style="font-size: 12px">You said Dotty would be faster!</span>
+                </section>
+
+                <section>
+                    <h2>Compilers crash course</h2>
+                    <ul>
+                        <li>Tokenize Source</li>
+                        <li>Build Trees (AST)</li>
+                        <li>Typecheck</li>
+                        <li>Simplify</li>
+                        <li>Bytecode!</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre style="width: 5em;"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">1 + 2</pre></code>
+                    <pre class="fragment" style="width: 6.25em;"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">  (+)
+  / \
+(1) (2)</pre></code>
+                    <pre class="fragment" style="width: 27em"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">Apply(Select(Lit(1), $plus), List(Lit(2)))</pre></code>
+                </section>
+
+                <section>
+                    <h3>Regular Phases</h3>
+                    <div class="node-container" style="width:216px">
+                        <div class="level">
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="3" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="6" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="9" class="color fragment" style="background-color:#1f753a;"></div>
+                                <svg id="dl" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                                <svg id="dr" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                            </div>
+                            <div class="empty-node"></div>
+                        </div>
+                        <div class="level">
+                            <div class="node">
+                                <div data-fragment-index="1" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="4" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="7" class="color fragment" style="background-color:#1f753a;"></div>
+                            </div>
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="2" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="5" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="8" class="color fragment" style="background-color:#1f753a;"></div>
+                            </div>
+                        </div>
+                        <div class="level desc">
+                            <div class="node" style="background-color:#c73434;margin-left:16px;">
+                                <span class="title">Phase 1</span>
+                            </div>
+                            <div class="node" style="background-color: #265fca;">
+                                <span class="title">Phase 2</span>
+                            </div>
+                            <div class="node" style="background-color: #1f753a;">
+                                <span class="title">Phase 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>Fused Phases</h3>
+                    <div class="node-container" style="width:216px">
+                        <div class="level">
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="7" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="8" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="9" class="color fragment" style="background-color:#1f753a;"></div>
+                                <svg id="dl" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                                <svg id="dr" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                            </div>
+                            <div class="empty-node"></div>
+                        </div>
+                        <div class="level">
+                            <div class="node">
+                                <div data-fragment-index="1" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="2" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="3" class="color fragment" style="background-color:#1f753a;"></div>
+                            </div>
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="4" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="5" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="6" class="color fragment" style="background-color:#1f753a;"></div>
+                            </div>
+                        </div>
+                        <div class="level desc">
+                            <div class="node" style="background-color:#c73434;margin-left:16px;">
+                                <span class="title">Phase 1</span>
+                            </div>
+                            <div class="node" style="background-color: #265fca;">
+                                <span class="title">Phase 2</span>
+                            </div>
+                            <div class="node" style="background-color: #1f753a;">
+                                <span class="title">Phase 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <section>
                     <h2>LANGUAGE IMPROVEMENTS</h2>
                     <ul>
                         <li>Trait Parameters</li>
@@ -474,7 +627,7 @@ new Foo
 }
 </code></pre>
                     <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def storeUser(u: User): DBIO[User] = {
-  // minimal amount of boilerplate
+  // impossibru in scalac
 }
 </code></pre>
                 </section>
@@ -567,144 +720,7 @@ def storeUser(u: User): DBIO[User] = {
                 </section>
 
                 <section>
-                    <h3>So now the fun stuff - Compiler internals</h3>
-                </section>
-
-                <section>
-                    <h3>javac pipeline</h3>
-                    <ol>
-                        <li>Parse</li>
-                        <li>Enter</li>
-                        <li>Annotate</li>
-                        <li>Attribue</li>
-                        <li>Flow</li>
-                        <li>Desugar</li>
-                        <li>Generate</li>
-                    </ol>
-                </section>
-
-                <section>
-                    <h3>dotty pipeline</h3>
-                    <a target="_blank" href="https://github.com/lampepfl/dotty/blob/master/compiler/src/dotty/tools/dotc/Compiler.scala">source code</a>
-                </section>
-
-                <section>
-                    <h2>But, but, but compilation speed?</h2>
-                    <span style="font-size: 12px">You said Dotty would be faster!</span>
-                </section>
-
-                <section>
-                    <h3>Regular Phases</h3>
-                    <div class="node-container" style="width:216px">
-                        <div class="level">
-                            <div class="empty-node"></div>
-                            <div class="node">
-                                <div data-fragment-index="3" class="color fragment" style="background-color:#c73434;"></div>
-                                <div data-fragment-index="6" class="color fragment" style="background-color:#265fca;"></div>
-                                <div data-fragment-index="9" class="color fragment" style="background-color:#1f753a;"></div>
-                                <svg id="dl" width="50" height="60">
-                                    <defs>
-                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
-                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
-                                        </marker>
-                                    </defs>
-                                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
-                                </svg>
-                                <svg id="dr" width="50" height="60">
-                                    <defs>
-                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
-                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
-                                        </marker>
-                                    </defs>
-                                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
-                                </svg>
-                            </div>
-                            <div class="empty-node"></div>
-                        </div>
-                        <div class="level">
-                            <div class="node">
-                                <div data-fragment-index="1" class="color fragment" style="background-color:#c73434;"></div>
-                                <div data-fragment-index="4" class="color fragment" style="background-color:#265fca;"></div>
-                                <div data-fragment-index="7" class="color fragment" style="background-color:#1f753a;"></div>
-                            </div>
-                            <div class="empty-node"></div>
-                            <div class="node">
-                                <div data-fragment-index="2" class="color fragment" style="background-color:#c73434;"></div>
-                                <div data-fragment-index="5" class="color fragment" style="background-color:#265fca;"></div>
-                                <div data-fragment-index="8" class="color fragment" style="background-color:#1f753a;"></div>
-                            </div>
-                        </div>
-                        <div class="level desc">
-                            <div class="node" style="background-color:#c73434;margin-left:16px;">
-                                <span class="title">Phase 1</span>
-                            </div>
-                            <div class="node" style="background-color: #265fca;">
-                                <span class="title">Phase 2</span>
-                            </div>
-                            <div class="node" style="background-color: #1f753a;">
-                                <span class="title">Phase 3</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <h3>Fused Phases</h3>
-                    <div class="node-container" style="width:216px">
-                        <div class="level">
-                            <div class="empty-node"></div>
-                            <div class="node">
-                                <div data-fragment-index="7" class="color fragment" style="background-color:#c73434;"></div>
-                                <div data-fragment-index="8" class="color fragment" style="background-color:#265fca;"></div>
-                                <div data-fragment-index="9" class="color fragment" style="background-color:#1f753a;"></div>
-                                <svg id="dl" width="50" height="60">
-                                    <defs>
-                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
-                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
-                                        </marker>
-                                    </defs>
-                                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
-                                </svg>
-                                <svg id="dr" width="50" height="60">
-                                    <defs>
-                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
-                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
-                                        </marker>
-                                    </defs>
-                                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
-                                </svg>
-                            </div>
-                            <div class="empty-node"></div>
-                        </div>
-                        <div class="level">
-                            <div class="node">
-                                <div data-fragment-index="1" class="color fragment" style="background-color:#c73434;"></div>
-                                <div data-fragment-index="2" class="color fragment" style="background-color:#265fca;"></div>
-                                <div data-fragment-index="3" class="color fragment" style="background-color:#1f753a;"></div>
-                            </div>
-                            <div class="empty-node"></div>
-                            <div class="node">
-                                <div data-fragment-index="4" class="color fragment" style="background-color:#c73434;"></div>
-                                <div data-fragment-index="5" class="color fragment" style="background-color:#265fca;"></div>
-                                <div data-fragment-index="6" class="color fragment" style="background-color:#1f753a;"></div>
-                            </div>
-                        </div>
-                        <div class="level desc">
-                            <div class="node" style="background-color:#c73434;margin-left:16px;">
-                                <span class="title">Phase 1</span>
-                            </div>
-                            <div class="node" style="background-color: #265fca;">
-                                <span class="title">Phase 2</span>
-                            </div>
-                            <div class="node" style="background-color: #1f753a;">
-                                <span class="title">Phase 3</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <h1>Optimized Scala Code</h1>
+                    <h1>OPTIMIZED SCALA CODE</h1>
                 </section>
 
                 <section>
