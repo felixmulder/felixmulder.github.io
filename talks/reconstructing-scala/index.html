@@ -887,6 +887,9 @@ def storeUser(u: User): DBIO[User] = {
                         <li>
                             <code>@specialized</code>
                             <ul>
+                                <li>Mark types using <code>@specialized</code></li>
+                                <li>Can specify for which types e.g:<br><code>@specialized(Int)</code></li>
+                                <li>10^n</li>
                                 <li>
                                     <a href="http://axel22.github.io/2013/11/03/specialization-quirks.html">
                                         Quirks of Scala Specialization - Alex Prokopec
@@ -894,23 +897,13 @@ def storeUser(u: User): DBIO[User] = {
                                 </li>
                             </ul>
                         </li>
-                        <li>Miniboxing</li>
-                    </ul>
-                </section>
-
-                <section>
-                    <h4>Specialization</h4>
-                    <ul>
-                        <li>Mark types using <code>@specialized</code></li>
-                        <li>Can specify for which types e.g:<br><code>@specialized(Int)</code></li>
-                        <li>10^n</li>
-                        <li>No inheritance</li>
-                    </ul>
-
-                    <h4>Miniboxing</h4>
-                    <ul>
-                        <li>Reduces the factor to: 3^n</li>
-                        <li>Handles inheritance</li>
+                        <li style="margin-top:20px">
+                            <a href="http://scala-miniboxing.org/">Miniboxing</a> - Vlad Ureche
+                            <ul>
+                                <li>Reduces the factor to: 3^n</li>
+                                <li>Handles inheritance</li>
+                            </ul>
+                        </li>
                     </ul>
                 </section>
 
@@ -922,10 +915,6 @@ def storeUser(u: User): DBIO[User] = {
                         <li>Specialization: 10000 classes</li>
                         <li>Miniboxing: 81 classes</li>
                     </ul>
-                </section>
-
-                <section>
-                    <h2>Are they asking the right question though?</h2>
                 </section>
 
                 <section>
@@ -963,7 +952,7 @@ def storeUser(u: User): DBIO[User] = {
                             <ul>
                                 <li><a href="http://github.com/lampepfl/dotty">http://github.com/lampepfl/dotty</a></li>
                                 <li>Example projects working, libraries are being ported</li>
-                                <li>User experience: nearing beta</li>
+                                <li>Nearing beta</li>
                             </ul>
                         </li>
                         <li>
@@ -972,7 +961,6 @@ def storeUser(u: User): DBIO[User] = {
                                 <li><a href="http://github.com/dotty-linker/dotty">http://github.com/dotty-linker/dotty</a></li>
                                 <li>Rewrite rules are being tested using property based testing</li>
                                 <li>Features being ported to Dotty</li>
-                                <li>User experience: alpha</li>
                             </ul>
                         </li>
                     </ul>
