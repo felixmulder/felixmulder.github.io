@@ -7,7 +7,7 @@ date: "2016-10-17"
 <html>
     <head>
         <meta charset="utf-8"/>
-        <title>Dotty - Reconstructing Scala</title>
+        <title>Dotty - Thoughts on Scala 3</title>
         <link rel="stylesheet" href="/css/reveal.css">
         <link rel="stylesheet" href="/css/github.css">
 
@@ -84,12 +84,20 @@ date: "2016-10-17"
                 </section>
 
                 <section>
+                    <h1>THOUGHTS ON SCALA 3</h1>
+                    <h4>HOW DOTTY SHOULD RESHAPE DEV EXPERIENCE</h4>
+                    <p class="white">Felix Mulder</p>
+                    <p><img id="epfl-logo" src="Logo_EPFL-white.svg"></p>
+                </section>
+
+                <section>
                     Slides on: <a href="http://felixmulder.com">felixmulder.com</a>
                 </section>
 
                 <section>
                     <h3>ABOUT ME</h3>
                     <ul>
+                        <li><a href="https://twitter.com/felixmulder">@felixmulder</a></li>
                         <li><a href="https://github.com/felixmulder">github.com/felixmulder</a></li>
                         <li>
                             Built the 2.12 Scaladoc
@@ -109,22 +117,15 @@ date: "2016-10-17"
                 </section>
 
                 <section>
+                    <h1>Who in here knows Scala?</h1>
+                </section>
+
+                <section>
+                    <h1>Who uses it professionally?</h1>
+                </section>
+
+                <section>
                     <h1>ALL (GOOD) STORIES HAVE A BEGINNING</h1>
-                    <!--
-                    * Strong opinions held lightly
-
-                    * I first heard about scala during my 2nd year of
-                      engineering school, or my fifth year of programming
-
-                    * I didn't like the sound of it at first - something that
-                      was easier to learn, no semicolons - were they trying to
-                      take my future job away from me?
-
-                    * Then I saw the light, after a masters course in FP
-
-                    * The joy of learning a new language, it's like your mind
-                      starts working in completely new ways.
-                    -->
                 </section>
 
                 <section>
@@ -137,10 +138,10 @@ date: "2016-10-17"
 
                 <section>
                     <ul>
+                        <li>Beautiful syntax</li>
                         <li>Less boilerplate</li>
                         <li>FP without the FUD</li>
-                        <li>Beautiful syntax</li>
-                        <li class="fragment" style="color: red;">or...</li>
+                        <li class="fragment" style="color: yellow;">but then again...</li>
                     </ul>
                 </section>
 
@@ -172,17 +173,12 @@ class Tester extends Super {
                 </section>
 
                 <section>
-                    <h2>"Solutions"</h2>
+                    <h2>Newbie "Solutions"</h2>
                     <ul>
-                        <li>Early Initializers</li>
                         <li>Compromised Immutability</li>
                         <li>Lazification hell</li>
                         <li>Refactor, maybe dump the trait</li>
                     </ul>
-                    <!--
-                    maybe none of the above, but you still feel betrayed
-                    because you thought you knew the semantics
-                     -->
                 </section>
 
                 <section>
@@ -336,33 +332,6 @@ Dotty compiles.
                 </section>
 
                 <section>
-                    <h1>Dotty</h1>
-                </section>
-
-                <section>
-                    <h3>javac pipeline</h3>
-                    <ol>
-                        <li>Parse</li>
-                        <li>Enter</li>
-                        <li>Annotate</li>
-                        <li>Attribue</li>
-                        <li>Flow</li>
-                        <li>Desugar</li>
-                        <li>Generate</li>
-                    </ol>
-                </section>
-
-                <section>
-                    <h3>dotty pipeline</h3>
-                    <a target="_blank" href="https://github.com/lampepfl/dotty/blob/master/compiler/src/dotty/tools/dotc/Compiler.scala">source code</a>
-                </section>
-
-                <section>
-                    <h2>But, but, but compilation speed?</h2>
-                    <span style="font-size: 12px">You said Dotty would be faster!</span>
-                </section>
-
-                <section>
                     <h2>Compilers crash course</h2>
                     <ul>
                         <li>Tokenize Source</li>
@@ -382,7 +351,6 @@ Dotty compiles.
                 </section>
 
                 <section>
-                    <h3>Regular Phases</h3>
                     <div class="node-container" style="width:216px">
                         <div class="level">
                             <div class="empty-node"></div>
@@ -434,6 +402,30 @@ Dotty compiles.
                             </div>
                         </div>
                     </div>
+                </section>
+
+
+                <section>
+                    <h3>javac pipeline</h3>
+                    <ol>
+                        <li>Parse</li>
+                        <li>Enter</li>
+                        <li>Annotate</li>
+                        <li>Attribue</li>
+                        <li>Flow</li>
+                        <li>Desugar</li>
+                        <li>Generate</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h1>dotty pipeline</h1>
+                    <a target="_blank" href="https://github.com/lampepfl/dotty/blob/master/compiler/src/dotty/tools/dotc/Compiler.scala">source code</a>
+                </section>
+
+                <section>
+                    <h2>But, but, but compilation speed?</h2>
+                    <span style="font-size: 12px">You said Dotty would be faster!</span>
                 </section>
 
                 <section>
@@ -534,18 +526,6 @@ trait C extends B with A // ==> A & B is a supertype of C
                 </section>
 
                 <section>
-                    <h3>Intersection and Union Types</h3>
-
-                    <h3><code>A & B</code></h3>
-                    the <i>greatest lower bound</i>: a supertype
-                    of all subtypes of both A and B
-
-                    <h3><code>A | B</code></h3>
-                    the <i>least upper bound</i>: a subtype
-                    of all supertypes of both A and B
-                </section>
-
-                <section>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">class A(val i: Int)
 class B(val i: Int)
 
@@ -567,41 +547,6 @@ def p4(implicit ev: (A | B) <:< AnyVal) = ??? // does not compile
   def foo(a: TypeA | TypeB) = ??? // YES!
 }</code></pre>
                     <a href="https://www.youtube.com/watch?v=h8KBLF0AgUc">Precise Types Bring Performance</a> - Dmitry Petrashko
-                </section>
-
-                <section>
-                    <h3>Union Types for Enums</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">case object Monday
-case object Tuesday
-case object Wednesday
-case object Thursday
-case object Friday
-case object Saturday
-case object Sunday
-
-type Weekend = Saturday.type | Sunday.type
-type Weekday = Monday.type | Tuesday.type...
-type AnyDay  = Weekday | Weekend</code></pre>
-                </section>
-
-                <section>
-                    <h3>Patternmatch exhaustivity checks</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
->(Saturday: Weekend) match {
-  case Sunday => // incomplete!
-}</code></pre>
-                </section>
-
-                <section>
-                    <h3>Intersection Types are the new `with`</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait A {
-  def foo: Int
-}
-trait B {
-  def bar: Int
-}
-
-def baz(ab: A & B) = ab.foo + ab.bar</code></pre>
                 </section>
 
                 <section>
@@ -629,10 +574,6 @@ new Foo
                     <h3>YOUR AVERAGE BOILERPLATED LIBRARY</h3>
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def storeUser(u: User): DBIO[User] = withCtx { implicit transact =>
   // much boilerplate
-}
-</code></pre>
-                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def storeUser(u: User): DBIO[User] = { implicit transact =>
-  // average amount of boilerplate
 }
 </code></pre>
                     <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def storeUser(u: User): DBIO[User] = {
@@ -681,6 +622,11 @@ def storeUser(u: User): DBIO[User] = {
 
                 <section>
                     <h1>SCALADOC</h1>
+                    <q>
+                    "Documentation cannot - and so need not - say everything.
+                    Its purpose is to help the next programmer build an
+                    accurate theory about the system." - Peter Naur
+                    </q>
                 </section>
 
                 <section>
@@ -692,11 +638,8 @@ def storeUser(u: User): DBIO[User] = {
                 </section>
 
                 <section>
+                    <h2>CROSS BUILDING LIBRARIES</h2>
                     <img class="border" src="impl-resolution.jpg">
-                </section>
-
-                <section>
-                    <h1>CROSS BUILDING LIBRARIES</h1>
                 </section>
 
                 <section>
@@ -733,7 +676,7 @@ def storeUser(u: User): DBIO[User] = {
                 </section>
 
                 <section>
-                    <h2>Dotty-Linker to the rescue!</h2>
+                    <h2>Dotty Optimizer</h2>
                     <ul>
                         <li>Dmitry Petrashko, <a href="https://github.com/DarkDimius/">@DarkDimius</a>
                         <li>Call graph</li>
@@ -825,45 +768,6 @@ def storeUser(u: User): DBIO[User] = {
                 </section>
 
                 <section>
-                    <h3>Compiler needs to lower generics</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
->def plus[T](a: T, b: T)(implicit num: Numeric[T]): T =
-  num.plus(a, b)</code></pre>
-
-                    <div class="fragment">
-                        <h4>After getting rid of generics:</h4>
-                        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
->def plus(a: Object, b: Object, num: Numeric): Object =
-  num.plus(a, b)</code></pre>
-                    </div>
-                    <div class="fragment">
-                        <h4>What does:</h4>
-                        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
->plus(1, 1)</code></pre>
-                        <h4>look like?</h4>
-                    </div>
-                    <div class="fragment">
-                        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
->unbox(plus(box(1), box(1), intNum))</code></pre>
-                    </div>
-                </section>
-
-
-                <section>
-                    <h3>Specialization</h3>
-                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
->def foo[@specialized A](a: A) = ???</code></pre>
-                    Creates one version for each of Scala's 9 primitives:<br>
-                    <code>int</code>, <code>long</code>, <code>short</code>,
-                    <code>byte</code>, <code>char</code>, <code>float</code>,
-                    <code>double</code>, <code>boolean</code>,
-                    <code>"void"</code>
-
-                    <br><br>+ 1 for reference types
-                    <br> == 10 versions
-                </section>
-
-                <section>
                     <h3>Specialize all the things!</h3>
                     <div class="fragment">
                         <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
@@ -911,10 +815,6 @@ def storeUser(u: User): DBIO[User] = {
                     <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
 >trait Function3[-T1, -T2, -T3, +R]</code></pre>
                     <h3>Both: how many specializations are needed?</h3>
-                    <ul class="fragment">
-                        <li>Specialization: 10000 classes</li>
-                        <li>Miniboxing: 81 classes</li>
-                    </ul>
                 </section>
 
                 <section>
@@ -956,7 +856,7 @@ def storeUser(u: User): DBIO[User] = {
                             </ul>
                         </li>
                         <li>
-                            Dotty Linker
+                            Dotty Optimizer alias Dotty Linker
                             <ul>
                                 <li><a href="http://github.com/dotty-linker/dotty">http://github.com/dotty-linker/dotty</a></li>
                                 <li>Rewrite rules are being tested using property based testing</li>
