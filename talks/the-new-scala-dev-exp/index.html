@@ -1,0 +1,448 @@
+---
+layout: null
+title: "Dotty - Reconstructing Scala"
+date: "2016-10-17"
+---
+
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Dotty - And The new Scala Developer Experience</title>
+        <link rel="stylesheet" href="/css/reveal.css">
+        <link rel="stylesheet" href="/css/github.css">
+
+        <!-- Start dark theme: -->
+        <link rel="stylesheet" href="/css/reveal/moon.css">
+        <style>
+            .text-color {
+                color: #EEE8D5;
+            }
+        </style>
+        <!-- end dark theme -->
+
+        <!-- Start light theme: -->
+        <!--
+        <link rel="stylesheet" href="/css/reveal/solarized.css">
+        <style>
+            body > div > div.slides > section.present > p.white {
+                color: #586e75 !important;
+            }
+
+            #epfl-logo {
+                background: #586E75 !important;
+                padding: 0.2em;
+                border-radius: 0.2em;
+            }
+
+            div.node > svg {
+                stroke: #586E75 !important;
+                fill: #586E75 !important;
+            }
+            div.node > svg > path {
+                stroke: #586E75 !important;
+                fill: #586E75 !important;
+            }
+            body > div > div.slides > section.present > div > div:nth-child(2) > div:nth-child(3),
+            body > div > div.slides > section.present > div > div:nth-child(2) > div:nth-child(1),
+            body > div > div.slides > section.present > div > div:nth-child(1) > div.node {
+                background-color: #586E75 !important;
+            }
+
+            body > div > div.slides > section.present > div > div.level.desc > div:nth-child(1) {
+                background-color: red;
+            }
+
+            div.node > span.title {
+                color: #586E75 !important;
+            }
+
+            .text-color {
+                color: #586E75;
+            }
+        </style>
+        -->
+        <!-- end light theme -->
+
+        <link rel="stylesheet" href="/css/slides.css">
+    </head>
+    <body>
+        <div class="reveal">
+            <a id="twitter-url" href="http://twitter.com/felixmulder">@felixmulder</a>
+            <div class="slides">
+                <section>
+                    <h1>DOTTY</h1>
+                    <h4>AND THE NEW SCALA DEVELOPER EXPERIENCE</h4>
+                    <p class="white">Felix Mulder</p>
+                    <p><img id="epfl-logo" src="Logo_EPFL-white.svg"></p>
+                    <hr>
+                    <h4>Dotty と新しい Scala 開発エクスペリエンス</h4>
+                </section>
+
+                <section>
+                    Slides: <a href="http://felixmulder.com">felixmulder.com</a>
+                </section>
+
+                <section>
+                    <h3>ABOUT ME</h3>
+                    <ul>
+                        <li><a href="https://twitter.com/felixmulder">@felixmulder</a></li>
+                        <li><a href="https://github.com/felixmulder">github.com/felixmulder</a></li>
+                        <li>
+                            Built the 2.12 Scaladoc
+                        </li>
+                        <li>
+                            Research fellow LAMP EPFL
+                        </li>
+                        <li>
+                            Dotty Compiler Engineer
+                        </li>
+                    </ul>
+
+                    <hr>
+                    <div class="japanese">
+                        <ul>
+                            <li>
+                                2.12 Scaladocを構築しました
+                            </li>
+                            <li>
+                                LAMP EPFLの研究員
+                            </li>
+                            <li>
+                                Dottyコンパイラエンジニア
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section>
+                    <img class="border" src="contribs.png">
+                    &lt;/bragging&gt;
+                </section>
+
+                <section>
+                    <h2>A LANGUAGE IS ONLY AS</h2>
+                    <h2>GOOD AS ITS TOOLING</h2>
+
+                    <hr>
+                    <div class="japanese">
+                        プログラミング言語は、そのトーリングと同じくらい良いです
+                    </div>
+                </section>
+
+
+                <section>
+                    <h1>ROUGH EDGES</h1>
+
+                    <hr>
+                    <div class="japanese">
+                        縁が荒く
+                    </div>
+                </section>
+
+                <section>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super {
+  def x: String
+  println(s"initialized with: $x")
+}
+
+class Tester extends Super {
+  val x = "hello!"
+}
+</code></pre>
+                    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">"initialized with: null"
+</code></pre>
+                </section>
+
+                <section>
+                    <h2>DON'T WORRY SCALA, I STILL LOVE YOU</h2>
+                    <h2>WE CAN WORK AROUND THIS</h2>
+
+                    <hr>
+                    <div class="japanese">
+                        心配しないで、Scala、僕はまだあなたを愛している
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Newbie "Solutions"</h2>
+                    <ul>
+                        <li>Compromised Immutability</li>
+                        <li>Lazification hell</li>
+                        <li>Refactor, maybe dump the trait</li>
+                    </ul>
+
+                    <hr>
+                    <div class="japanese">
+                        <h3>初心者のソリューション</h3>
+                        <ul>
+                            <li>不変性を損なった</li>
+                            <li>lazy 地獄</li>
+                            <li>コードをリファクタリングし、traitを削除</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section>
+                    <img class="border" src="regret.gif">
+
+                    <hr>
+                    <div class="japanese">
+                        僕はすぐにこの決定を後悔します
+                    </div>
+                </section>
+
+                <section>
+                    <h1>TYPE INFERENCE</h1>
+                    <hr>
+                    <h2>型推論</h2>
+                </section>
+
+                <section>
+                    <h2>TYPE INFERENCE</h2>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def ap1[A,B](a: A, f: A => B): B = f(a)
+
+ap1(1, x => x * 2) // error: missing parameter type
+</code></pre>
+                </section>
+
+                <section>
+                    <h2>TYPE INFERENCE</h2>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def ap2[A,B](a: A)(f: A => B): B = f(a)
+
+ap2(1)(x => x * 2) // 2
+</code></pre>
+                </section>
+
+                <section>
+                    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">class Foo { def bar: Int = ??? }
+val foo = new Foo
+// ...
+foo.barr
+</code></pre>
+                </section>
+
+                <section>
+                    <img style="height: 80%" class="border" src="fu.png">
+                </section>
+
+                <section>
+                    <h1>AWESOME ERROR MESSAGES</h1>
+
+                    <hr>
+                    <div class="japanese">
+                        すばらしいエラーメッセージ
+                    </div>
+                </section>
+
+                <section>
+                    <h1>SLOW COMPILE TIMES</h1>
+                    <hr>
+                    <h2>長いコンパイル時間</h2>
+                </section>
+
+                <section>
+                    <h2>Compilers crash course</h2>
+                    <ul>
+                        <li>Tokenize Source</li>
+                        <li>Build Trees (AST)</li>
+                        <li>Typecheck</li>
+                        <li class="fragment highlight-red">Simplify</li>
+                        <li>Bytecode!</li>
+                    </ul>
+
+                    <hr>
+                    <div class="japanese">
+                        <ul>
+                            <li>tokenizeソースコード</li>
+                            <li>抽象構文木を作る</li>
+                            <li>型チェック</li>
+                            <li>簡略化する</li>
+                            <li>バイトコード！</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>Compiler Phases</h3>
+                    <div class="node-container" style="width:216px">
+                        <div class="level">
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="3" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="6" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="9" class="color fragment" style="background-color:#1f753a;"></div>
+                                <svg id="dl" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                                <svg id="dr" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                            </div>
+                            <div class="empty-node"></div>
+                        </div>
+                        <div class="level">
+                            <div class="node">
+                                <div data-fragment-index="1" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="4" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="7" class="color fragment" style="background-color:#1f753a;"></div>
+                            </div>
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="2" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="5" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="8" class="color fragment" style="background-color:#1f753a;"></div>
+                            </div>
+                        </div>
+                        <div class="level desc">
+                            <div class="node" style="background-color:#c73434;margin-left:16px;">
+                                <span class="title">Phase 1</span>
+                            </div>
+                            <div class="node" style="background-color: #265fca;">
+                                <span class="title">Phase 2</span>
+                            </div>
+                            <div class="node" style="background-color: #1f753a;">
+                                <span class="title">Phase 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>FUSED PHASES</h3>
+                    <div class="node-container" style="width:216px">
+                        <div class="level">
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="7" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="8" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="9" class="color fragment" style="background-color:#1f753a;"></div>
+                                <svg id="dl" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                                <svg id="dr" width="50" height="60">
+                                    <defs>
+                                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                                        </marker>
+                                    </defs>
+                                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                                </svg>
+                            </div>
+                            <div class="empty-node"></div>
+                        </div>
+                        <div class="level">
+                            <div class="node">
+                                <div data-fragment-index="1" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="2" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="3" class="color fragment" style="background-color:#1f753a;"></div>
+                            </div>
+                            <div class="empty-node"></div>
+                            <div class="node">
+                                <div data-fragment-index="4" class="color fragment" style="background-color:#c73434;"></div>
+                                <div data-fragment-index="5" class="color fragment" style="background-color:#265fca;"></div>
+                                <div data-fragment-index="6" class="color fragment" style="background-color:#1f753a;"></div>
+                            </div>
+                        </div>
+                        <div class="level desc">
+                            <div class="node" style="background-color:#c73434;margin-left:16px;">
+                                <span class="title">Phase 1</span>
+                            </div>
+                            <div class="node" style="background-color: #265fca;">
+                                <span class="title">Phase 2</span>
+                            </div>
+                            <div class="node" style="background-color: #1f753a;">
+                                <span class="title">Phase 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h1>SCALADOC</h1>
+                    <q>
+                    "Documentation cannot - and so need not - say everything.
+                    Its purpose is to help the next programmer build an
+                    accurate theory about the system." - Peter Naur
+                    </q>
+                </section>
+
+                <section>
+                    <h1>LANGUAGE SERVER</h1>
+
+                    <hr>
+                    <div class="japanese">
+                        プログラミング言語サーバー
+                    </div>
+                </section>
+
+                <section>
+                    <h3>TASTY</h3>
+                    <ul>
+                        <li>Pickling format</li>
+                        <li>Typed Trees</li>
+                        <li>Efficiently stored in bytecode</li>
+                        <li>Interop between binary incompatible compilers</li>
+                    </ul>
+
+                    <hr>
+                    <div class="japanese">
+                        <ul>
+                            <li>抽象構文木のシリアライズ形式</li>
+                            <li>型付き抽象構文木</li>
+                            <li>効率的にバイトコードに格納</li>
+                            <li>バイナリ互換性のないコンパイラ間の相互運用性を提供する</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Developer Usability</h2>
+                    <p>Get involved today!</p>
+
+                    <hr>
+                    <div class="japanese">
+                        <h3>開発者のユーザビリテ</h3>
+                        今日は参加しましょう！
+                    </div>
+                </section>
+
+                <section>
+                    <h1>Thank you!</h1>
+
+                    <hr>
+                    <div class="japanese">
+                        <h3>どうもありがとうございました！</h3>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <script src="/js/reveal.js"></script>
+        <script src="/js/highlight.pack.js"></script>
+
+        <script>
+            Reveal.initialize({
+                slideNumber: true,
+                controls: false,
+                history: true,
+                transition: "none",
+            });
+
+            hljs.initHighlightingOnLoad();
+        </script>
+    </body>
+</html>
