@@ -1,3 +1,40 @@
+div#regular-resume {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 500px;
+    top: 550px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    text-align: center;
+}
+
+div#regular-resume > a {
+    text-decoration: none;
+    font-size: 0.8em;
+    color: #9EABB3;
+    background-color: #fff;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    height: 3em;
+    padding: 0.65em 0.40em;
+    transition: 0.3s;
+}
+
+div#regular-resume > a:visited,
+div#regular-resume > a:focus {
+    text-decoration: none;
+}
+
+div#regular-resume > a:hover {
+    background-color: transparent;
+    color: #9EABB3;
+    border: 1px solid #9EABB3;
+    transition: 0.3s;
+}
+
 div#mario-container {
     position: absolute;
     left: 0;
@@ -56,11 +93,38 @@ div.content-container > h1 {
     color: white;
 }
 
-div#greeting > h1 {
+div#greeting {
+    width: 1000px;
+}
+
+div#greeting > div#hello {
     position: absolute;
-    top: 160px;
-    left: 340px;
-    width: 100%;
+    top: 140px;
+    left: 0;
+    right: 0;
+    width: 600px;
+    height: 105px;
+    border-radius: 10px;
+    padding-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-size: 70px;
+    background-color: white;
+    color: #b380ff;
+}
+
+div#greeting > div#hello:before {
+   content:"";
+   position: absolute;
+   right: calc(100% + 50px);
+   bottom: -172px;
+   width: 0;
+   height: 0;
+   border-top: 214px solid transparent;
+   border-right: 30px solid white;
+   border-bottom: -100px solid transparent;
+   transform: rotate(-135deg);
 }
 
 div#greeting > div#instructions {
@@ -75,8 +139,8 @@ div#greeting > div#instructions {
 
 div#greeting > div#go-right {
     position: absolute;
-    right: -360px;
-    top: 200px;
+    right: 0px;
+    top: 170px;
     color: white;
     font-size: 60px;
     text-shadow: 2px 2px #b380ff;

@@ -2557,7 +2557,9 @@ $c_Lcom_felixmulder_cvgame_Content$.prototype.init___ = (function() {
       var jsx$8 = $m_s_xml_TopScope$();
       var $$buf = new $c_s_xml_NodeBuffer().init___();
       $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n        "));
-      var jsx$3 = $m_s_xml_Null$();
+      var $$md$2 = $m_s_xml_Null$();
+      $$md$2 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("id", new $c_s_xml_Text().init___T("hello"), $$md$2, null);
+      var jsx$3 = $$md$2;
       var jsx$2 = $m_s_xml_TopScope$();
       var $$buf$2 = new $c_s_xml_NodeBuffer().init___();
       $$buf$2.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n          Hello, "));
@@ -2568,11 +2570,11 @@ $c_Lcom_felixmulder_cvgame_Content$.prototype.init___ = (function() {
       var until = $uI($$this.length);
       $$buf$2.$$amp$plus__O__s_xml_XmlElementEmbeddable__s_xml_NodeBuffer(jsx$1.replaceAll__T__T__T__T($m_sci_StringOps$().slice$extension__T__I__I__T(this$4.repr$1, 1, until), "\\+", " "), null);
       $$buf$2.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("!\n        "));
-      $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Elem().init___T__T__s_xml_MetaData__s_xml_Scope__Z__sc_Seq(null, "h1", jsx$3, jsx$2, false, $$buf$2));
+      $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Elem().init___T__T__s_xml_MetaData__s_xml_Scope__Z__sc_Seq(null, "div", jsx$3, jsx$2, false, $$buf$2));
       $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n\n        "));
-      var $$md$2 = $m_s_xml_Null$();
-      $$md$2 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("id", new $c_s_xml_Text().init___T("go-right"), $$md$2, null);
-      var jsx$5 = $$md$2;
+      var $$md$3 = $m_s_xml_Null$();
+      $$md$3 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("id", new $c_s_xml_Text().init___T("go-right"), $$md$3, null);
+      var jsx$5 = $$md$3;
       var jsx$4 = $m_s_xml_TopScope$();
       var $$buf$3 = new $c_s_xml_NodeBuffer().init___();
       $$buf$3.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n          "));
@@ -2580,10 +2582,10 @@ $c_Lcom_felixmulder_cvgame_Content$.prototype.init___ = (function() {
       $$buf$3.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n        "));
       $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Elem().init___T__T__s_xml_MetaData__s_xml_Scope__Z__sc_Seq(null, "div", jsx$5, jsx$4, false, $$buf$3));
       $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n\n        "));
-      var $$md$3 = $m_s_xml_Null$();
-      $$md$3 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("style", new $c_s_StringContext().init___sc_Seq(new $c_sjs_js_WrappedArray().init___sjs_js_Array(["font-size: ", "px;"])).s__sc_Seq__T(new $c_sjs_js_WrappedArray().init___sjs_js_Array([pulse])), $$md$3, null);
-      $$md$3 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("id", new $c_s_xml_Text().init___T("instructions"), $$md$3, null);
-      var jsx$7 = $$md$3;
+      var $$md$4 = $m_s_xml_Null$();
+      $$md$4 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("style", new $c_s_StringContext().init___sc_Seq(new $c_sjs_js_WrappedArray().init___sjs_js_Array(["font-size: ", "px;"])).s__sc_Seq__T(new $c_sjs_js_WrappedArray().init___sjs_js_Array([pulse])), $$md$4, null);
+      $$md$4 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("id", new $c_s_xml_Text().init___T("instructions"), $$md$4, null);
+      var jsx$7 = $$md$4;
       var jsx$6 = $m_s_xml_TopScope$();
       var $$buf$4 = new $c_s_xml_NodeBuffer().init___();
       $$buf$4.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n          Press the arrow keys to navigate!\n        "));
@@ -2623,9 +2625,9 @@ $c_Lcom_felixmulder_cvgame_Content$.prototype.init___ = (function() {
       $$buf$2$1.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n        "));
       $$buf$1.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Elem().init___T__T__s_xml_MetaData__s_xml_Scope__Z__sc_Seq(null, "div", jsx$11, jsx$10, false, $$buf$2$1));
       $$buf$1.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n\n        "));
-      var $$md$4 = $m_s_xml_Null$();
-      $$md$4 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("id", new $c_s_xml_Text().init___T("headshot-tower"), $$md$4, null);
-      var jsx$13 = $$md$4;
+      var $$md$4$1 = $m_s_xml_Null$();
+      $$md$4$1 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("id", new $c_s_xml_Text().init___T("headshot-tower"), $$md$4$1, null);
+      var jsx$13 = $$md$4$1;
       var jsx$12 = $m_s_xml_TopScope$();
       var $$buf$3$1 = new $c_s_xml_NodeBuffer().init___();
       $$buf$3$1.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n          "));
@@ -2987,9 +2989,7 @@ $c_Lcom_felixmulder_cvgame_Mario$.prototype.physics__D__Lcom_felixmulder_cvgame_
   var x$16 = (mario.x$1 + (dt * mario.vx$1));
   var that = (mario.y$1 + (dt * mario.vy$1));
   var x$17 = $uD($g.Math.max(0.0, that));
-  var jsx$1 = mario.actualX$1;
-  var that$1 = keys.x$1;
-  var x$18 = (jsx$1 + (dt * $uD($g.Math.max(0.0, that$1))));
+  var x$18 = (mario.actualX$1 + (dt * keys.x$1));
   var x$19 = mario.vx$1;
   var x$20 = mario.vy$1;
   var x$21 = mario.dir$1;
@@ -3021,11 +3021,11 @@ $c_Lcom_felixmulder_cvgame_Mario$.prototype.drawBackground__Lcom_felixmulder_cvg
   $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Elem().init___T__T__s_xml_MetaData__s_xml_Scope__Z__sc_Seq(null, "div", jsx$6, jsx$5, false, $$buf$2));
   $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n      "));
   var $$md$3 = $m_s_xml_Null$();
-  var jsx$9 = new $c_s_StringContext().init___sc_Seq(new $c_sjs_js_WrappedArray().init___sjs_js_Array(["|height: ", "px;\n            |width: ", "px;\n            |margin-left: -", "px;\n            |margin-top: -", "px;\n         "]));
+  var jsx$9 = new $c_s_StringContext().init___sc_Seq(new $c_sjs_js_WrappedArray().init___sjs_js_Array(["|height: ", "px;\n            |width: ", "px;\n            |margin-left: -", "px;\n            |margin-top: ", "px;\n         "]));
   var jsx$8 = this.viewportHeight$1;
   var jsx$7 = $m_Lcom_felixmulder_cvgame_Content$().size$1;
   var x$2 = (0.8 * (m.actualX$1 - (((this.viewportWidth$1 / 3) | 0) << 1)));
-  var x$3 = jsx$9.s__sc_Seq__T(new $c_sjs_js_WrappedArray().init___sjs_js_Array([jsx$8, jsx$7, $uD($g.Math.max(x$2, 0.0)), (0.1 * m.y$1)]));
+  var x$3 = jsx$9.s__sc_Seq__T(new $c_sjs_js_WrappedArray().init___sjs_js_Array([jsx$8, jsx$7, $uD($g.Math.max(x$2, 0.0)), (0.5 * m.y$1)]));
   var this$8 = new $c_sci_StringOps().init___T(x$3);
   $$md$3 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("style", $f_sci_StringLike__stripMargin__C__T(this$8, 124), $$md$3, null);
   $$md$3 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("id", new $c_s_xml_Text().init___T("scrolling-content"), $$md$3, null);
@@ -3039,16 +3039,6 @@ $c_Lcom_felixmulder_cvgame_Mario$.prototype.drawBackground__Lcom_felixmulder_cvg
   $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n    "));
   return new $c_s_xml_Elem().init___T__T__s_xml_MetaData__s_xml_Scope__Z__sc_Seq(null, "div", jsx$13, jsx$12, false, $$buf)
 });
-$c_Lcom_felixmulder_cvgame_Mario$.prototype.step0__Lcom_felixmulder_cvgame_Mario$Model__T2__Lcom_felixmulder_cvgame_Mario$Model = (function(m, i) {
-  if ((i === null)) {
-    throw new $c_s_MatchError().init___O(i)
-  };
-  var x1$2 = i.$$und1__O();
-  var x2 = i.$$und2__O();
-  var dt = $uD(x1$2);
-  var keys = $as_Lcom_felixmulder_cvgame_Mario$Keys(x2);
-  return $as_Lcom_felixmulder_cvgame_Mario$Model(this.step__D__Lcom_felixmulder_cvgame_Mario$Keys__F1(dt, keys).apply__O__O(m))
-});
 $c_Lcom_felixmulder_cvgame_Mario$.prototype.gravity__D__Lcom_felixmulder_cvgame_Mario$Model__Lcom_felixmulder_cvgame_Mario$Model = (function(dt, mario) {
   var x$9 = ((mario.y$1 > 0) ? (mario.vy$1 - (dt / 24)) : 0.0);
   var x$10 = mario.x$1;
@@ -3058,6 +3048,16 @@ $c_Lcom_felixmulder_cvgame_Mario$.prototype.gravity__D__Lcom_felixmulder_cvgame_
   var x$14 = mario.actualX$1;
   var x$15 = mario.actualVx$1;
   return new $c_Lcom_felixmulder_cvgame_Mario$Model().init___D__D__D__D__Lcom_felixmulder_cvgame_Mario$Direction__D__D(x$10, x$11, x$12, x$9, x$13, x$14, x$15)
+});
+$c_Lcom_felixmulder_cvgame_Mario$.prototype.step0__Lcom_felixmulder_cvgame_Mario$Model__T2__Lcom_felixmulder_cvgame_Mario$Model = (function(m, i) {
+  if ((i === null)) {
+    throw new $c_s_MatchError().init___O(i)
+  };
+  var x1$2 = i.$$und1__O();
+  var x2 = i.$$und2__O();
+  var dt = $uD(x1$2);
+  var keys = $as_Lcom_felixmulder_cvgame_Mario$Keys(x2);
+  return $as_Lcom_felixmulder_cvgame_Mario$Model(this.step__D__Lcom_felixmulder_cvgame_Mario$Keys__F1(dt, keys).apply__O__O(m))
 });
 $c_Lcom_felixmulder_cvgame_Mario$.prototype.step__D__Lcom_felixmulder_cvgame_Mario$Keys__F1 = (function(dt, keys) {
   var this$1 = new $c_sjsr_AnonFunction1().init___sjs_js_Function1((function($this, dt$1) {
@@ -12306,13 +12306,29 @@ function $h_Lcom_felixmulder_cvgame_Main$() {
 $h_Lcom_felixmulder_cvgame_Main$.prototype = $c_Lcom_felixmulder_cvgame_Main$.prototype;
 $c_Lcom_felixmulder_cvgame_Main$.prototype.init___ = (function() {
   $n_Lcom_felixmulder_cvgame_Main$ = this;
-  var jsx$2 = $m_s_xml_Null$();
-  var jsx$1 = $m_s_xml_TopScope$();
+  var jsx$6 = $m_s_xml_Null$();
+  var jsx$5 = $m_s_xml_TopScope$();
   var $$buf = new $c_s_xml_NodeBuffer().init___();
   $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n      "));
   $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer($m_Lcom_felixmulder_cvgame_Mario$().app__s_xml_Node());
+  $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n      "));
+  var $$md = $m_s_xml_Null$();
+  $$md = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("id", new $c_s_xml_Text().init___T("regular-resume"), $$md, null);
+  var jsx$4 = $$md;
+  var jsx$3 = $m_s_xml_TopScope$();
+  var $$buf$2 = new $c_s_xml_NodeBuffer().init___();
+  $$buf$2.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n        Regular, less interactive, but still really awesome\n        "));
+  var $$md$2 = $m_s_xml_Null$();
+  $$md$2 = new $c_s_xml_UnprefixedAttribute().init___T__O__s_xml_MetaData__s_xml_XmlAttributeEmbeddable("href", new $c_s_xml_Text().init___T("http://felixmulder.com/resume"), $$md$2, null);
+  var jsx$2 = $$md$2;
+  var jsx$1 = $m_s_xml_TopScope$();
+  var $$buf$3 = new $c_s_xml_NodeBuffer().init___();
+  $$buf$3.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("R\u00c9SUM\u00c9"));
+  $$buf$2.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Elem().init___T__T__s_xml_MetaData__s_xml_Scope__Z__sc_Seq(null, "a", jsx$2, jsx$1, false, $$buf$3));
+  $$buf$2.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n      "));
+  $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Elem().init___T__T__s_xml_MetaData__s_xml_Scope__Z__sc_Seq(null, "div", jsx$4, jsx$3, false, $$buf$2));
   $$buf.$$amp$plus__s_xml_Node__s_xml_NodeBuffer(new $c_s_xml_Text().init___T("\n    "));
-  this.mainApp$1 = new $c_s_xml_Elem().init___T__T__s_xml_MetaData__s_xml_Scope__Z__sc_Seq(null, "div", jsx$2, jsx$1, false, $$buf);
+  this.mainApp$1 = new $c_s_xml_Elem().init___T__T__s_xml_MetaData__s_xml_Scope__Z__sc_Seq(null, "div", jsx$6, jsx$5, false, $$buf);
   return this
 });
 $c_Lcom_felixmulder_cvgame_Main$.prototype.main__V = (function() {
@@ -45670,11 +45686,11 @@ $c_sci_Range.prototype.isInclusive__Z = (function() {
 $c_sci_Range.prototype.head__O = (function() {
   return this.head__I()
 });
-$c_sci_Range.prototype.toSeq__sci_Seq = (function() {
-  return this
-});
 $c_sci_Range.prototype.apply__I__O = (function(idx) {
   return this.apply$mcII$sp__I__I(idx)
+});
+$c_sci_Range.prototype.toSeq__sci_Seq = (function() {
+  return this
 });
 $c_sci_Range.prototype.thisCollection__sc_Iterable = (function() {
   return this
@@ -45906,11 +45922,11 @@ $c_sci_Range.prototype.isExact__p4__Z = (function() {
 $c_sci_Range.prototype.drop__I__O = (function(n) {
   return this.drop__I__sci_Range(n)
 });
-$c_sci_Range.prototype.thisCollection__sc_Seq = (function() {
-  return this
-});
 $c_sci_Range.prototype.tail__O = (function() {
   return this.tail__sci_Range()
+});
+$c_sci_Range.prototype.thisCollection__sc_Seq = (function() {
+  return this
 });
 $c_sci_Range.prototype.last__I = (function() {
   if (this.isEmpty$4) {
@@ -47146,11 +47162,11 @@ $c_sci_List.prototype.seq__sc_TraversableOnce = (function() {
 $c_sci_List.prototype.takeRight__I__sci_List = (function(n) {
   return this.loop$2__p4__sci_List__sci_List__sci_List(this.drop__I__sci_List(n), this)
 });
-$c_sci_List.prototype.apply__I__O = (function(n) {
-  return $f_sc_LinearSeqOptimized__apply__I__O(this, n)
-});
 $c_sci_List.prototype.toSeq__sci_Seq = (function() {
   return this
+});
+$c_sci_List.prototype.apply__I__O = (function(n) {
+  return $f_sc_LinearSeqOptimized__apply__I__O(this, n)
 });
 $c_sci_List.prototype.thisCollection__sc_Iterable = (function() {
   return this
@@ -47279,6 +47295,9 @@ $c_sci_List.prototype.reverse__O = (function() {
 $c_sci_List.prototype.$$plus$colon__O__scg_CanBuildFrom__O = (function(elem, bf) {
   return ($is_scg_GenTraversableFactory$GenericCanBuildFrom(bf) ? new $c_sci_$colon$colon().init___O__sci_List(elem, this) : $f_sc_SeqLike__$$plus$colon__O__scg_CanBuildFrom__O(this, elem, bf))
 });
+$c_sci_List.prototype.iterator__sc_Iterator = (function() {
+  return new $c_sc_LinearSeqLike$$anon$1().init___sc_LinearSeqLike(this)
+});
 $c_sci_List.prototype.drop__I__sci_List = (function(n) {
   var these = this;
   var count = n;
@@ -47287,9 +47306,6 @@ $c_sci_List.prototype.drop__I__sci_List = (function(n) {
     count = (((-1) + count) | 0)
   };
   return these
-});
-$c_sci_List.prototype.iterator__sc_Iterator = (function() {
-  return new $c_sc_LinearSeqLike$$anon$1().init___sc_LinearSeqLike(this)
 });
 $c_sci_List.prototype.$$plus$plus__sc_GenTraversableOnce__scg_CanBuildFrom__O = (function(that, bf) {
   return ((bf === $m_sci_List$().ReusableCBFInstance$2) ? that.seq__sc_TraversableOnce().toList__sci_List().$$colon$colon$colon__sci_List__sci_List(this) : $f_sc_TraversableLike__$$plus$plus__sc_GenTraversableOnce__scg_CanBuildFrom__O(this, that, bf))
@@ -48364,11 +48380,11 @@ $c_sci_WrappedString.prototype.drop__I__O = (function(n) {
   var until = $uI(thiz.length);
   return this.slice__I__I__sci_WrappedString(n, until)
 });
-$c_sci_WrappedString.prototype.tail__O = (function() {
-  return $f_sc_IndexedSeqOptimized__tail__O(this)
-});
 $c_sci_WrappedString.prototype.thisCollection__sc_Seq = (function() {
   return this
+});
+$c_sci_WrappedString.prototype.tail__O = (function() {
+  return $f_sc_IndexedSeqOptimized__tail__O(this)
 });
 $c_sci_WrappedString.prototype.isDefinedAt__O__Z = (function(x) {
   var idx = $uI(x);
