@@ -1,0 +1,186 @@
+---
+layout: presentation
+title: "Dotty - Reconstructing Scala"
+date: "2016-10-17"
+---
+
+<section>
+    <h1>ABSTRACTIONS IN DOTTY</h1>
+    <h2>FOR FUN AND PROFIT</h2>
+    <p class="white">Felix Mulder</p>
+    <p><img id="epfl-logo" src="Logo_EPFL-white.svg"></p>
+</section>
+
+<section>
+    Slides: <a href="http://felixmulder.com">felixmulder.com</a>
+</section>
+
+<section>
+    <h3>ABOUT ME</h3>
+    <ul>
+        <li><a href="https://twitter.com/felixmulder">@felixmulder</a></li>
+        <li><a href="https://github.com/felixmulder">github.com/felixmulder</a></li>
+        <li>
+            Built the 2.12 Scaladoc
+        </li>
+        <li>
+            Research fellow LAMP EPFL
+        </li>
+        <li>
+            Dotty Compiler Engineer
+        </li>
+    </ul>
+</section>
+
+<section>
+    <img class="border" src="contribs.png">
+    &lt;/bragging&gt;
+</section>
+
+<section>
+    <h1>HOW NOT TO WRITE CODE</h1>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape class="scala">trait Exp[T]
+case class Lit[T](t: T) extends Exp[T]
+case class Neg[T](t: T) extends Exp[T]
+case class Add[T](t1: T, t2: T)</code></pre>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape class="scala">trait Exp[T]
+case class Lit[T](t: T) extends Exp[T]
+case class Neg[T](t: T) extends Exp[T]
+case class Add[T](t1: T, t2: T) <mark>extends Exp[T]</mark></code></pre>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape class="scala"><mark>sealed</mark> trait Exp[T]
+<mark>final</mark> case class Lit[T](t: T) extends Exp[T]
+<mark>final</mark> case class Neg[T](t: T) extends Exp[T]
+<mark>final</mark> case class Add[T](t1: T, t2: T) <mark>extends Exp[T]</mark></code></pre>
+</section>
+
+<section>
+    <h1>ENUMS</h1>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape class="scala">enum Exp[T] {
+  case Lit(t: T)
+  case Add(t1: T, t2: T)
+  case Neg(t: T)
+}
+</code></pre>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">enum Option[+T] {
+  case Some(t: T) // extends Option[T]
+  case None // extends Option[Nothing]
+}</code></pre>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape class="scala">enum Option[+T] {
+  case Some(t: T)
+  case None
+}
+
+object Option {
+  def apply[T](t: T) =
+    if (t != null) Some(t) else None
+}</code></pre>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape class="scala">enum class Option[+T] extends Serializable {
+  def isDefined: Boolean
+}
+
+object Option {
+  def apply[T](t: T) =
+    if (t != null) Some(t) else None
+
+  case Some(t: T) { def isDefined = true  }
+  case None       { def isDefined = false }
+}</code></pre>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape class="scala">enum Maybe[T] {
+  case Just(t: T)
+  case Nope()
+}</code></pre>
+
+    <pre class="fragment"><code data-trim data-noescape class="scala">object Maybe {
+  implicit val functor: Functor[Maybe] = new Functor[Maybe] {
+    def map[A, B](fa: Maybe[A])(f: A => B): Maybe[B] = fa match {
+      case Just(a) => Just(f(a))
+      case nope => nope
+    }
+  }
+}</code></pre>
+</section>
+
+<section>
+    <h3>Wait a tick, why no apply?</h3>
+    <pre class="fragment"><code data-trim data-noescape class="scala">val x = Just(1) // x: Maybe[Int]
+</code></pre>
+    <pre class="fragment"><code data-trim data-noescape class="scala">val y = new Just(1) // y: Maybe.Some[Int]
+</code></pre>
+</section>
+
+<section>
+    <h2>Paramater Dependent Types,</h2>
+    <h2>and why Aux was born</h2>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape class="scala">trait Parser[From] {
+  type To
+}
+
+def parse[A](a: A)(implicit p: Parser[A]): p.To = ???
+</code></pre>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape class="scala">type StringToMarkdown = Parser[String] { type To = Markdown }
+type MarkdownToHtml = Parser[Markdown] { type To = Html }
+</code></pre>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape class="scala">def stringToHtml(s: String)(implicit ...): Html
+</code></pre>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape class="scala">type Aux[A,B0] = Parser[A] { type B = B0 }
+</code></pre>
+    <pre class="fragment"><code data-trim data-noescape class="scala">def parse2Steps[T, R](t: T)
+                     (implicit a1: Aux[T, R], p: Parser[R]): p.B
+</code></pre>
+</section>
+
+<section>
+    <h2>Wow, I can't believe I had to learn that...</h2>
+</section>
+
+<section>
+    <h2>In Dotty:</h2>
+    <pre><code data-trim data-noescape class="scala">def parse2Steps[T](t: T)
+                  (implicit p1: Parser[T], p2: Parser[p1.To]): p2.To
+</code></pre>
+</section>
+
+<section>
+    <h2>Developer Usability</h2>
+    <p>Get involved today!</p>
+</section>
+
+<section>
+    <h1>Thank you!</h1>
+</section>

@@ -127,3 +127,8 @@ table {
 div.reveal.slide.center {
     color: #fff;
 }
+
+pre > code.scala {
+    padding: 1em;
+    border-radius: 0.2em;
+}
