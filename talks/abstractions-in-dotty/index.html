@@ -46,21 +46,21 @@ date: "2016-10-17"
 </section>
 
 <section>
-    <pre><code data-trim data-noescape class="scala">trait Exp[T]
+    <pre><code class="scala">trait Exp[T]
 case class Lit[T](t: T) extends Exp[T]
 case class Neg[T](t: T) extends Exp[T]
 case class Add[T](t1: T, t2: T)</code></pre>
 </section>
 
 <section>
-    <pre><code data-trim data-noescape class="scala">trait Exp[T]
+    <pre><code class="scala">trait Exp[T]
 case class Lit[T](t: T) extends Exp[T]
 case class Neg[T](t: T) extends Exp[T]
 case class Add[T](t1: T, t2: T) <mark>extends Exp[T]</mark></code></pre>
 </section>
 
 <section>
-    <pre><code data-trim data-noescape class="scala"><mark>sealed</mark> trait Exp[T]
+    <pre><code class="scala"><mark>sealed</mark> trait Exp[T]
 <mark>final</mark> case class Lit[T](t: T) extends Exp[T]
 <mark>final</mark> case class Neg[T](t: T) extends Exp[T]
 <mark>final</mark> case class Add[T](t1: T, t2: T) <mark>extends Exp[T]</mark></code></pre>
@@ -71,7 +71,7 @@ case class Add[T](t1: T, t2: T) <mark>extends Exp[T]</mark></code></pre>
 </section>
 
 <section>
-    <pre><code data-trim data-noescape class="scala">enum Exp[T] {
+    <pre><code class="scala">enum Exp[T] {
   case Lit(t: T)
   case Add(t1: T, t2: T)
   case Neg(t: T)
@@ -80,31 +80,38 @@ case class Add[T](t1: T, t2: T) <mark>extends Exp[T]</mark></code></pre>
 </section>
 
 <section>
-    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">enum Option[+T] {
+    <pre><code class="scala">enum Option[+T] {
   case Some(t: T) // extends Option[T]
-  case None // extends Option[Nothing]
+  case None       // extends Option[Nothing]
 }</code></pre>
 </section>
 
 <section>
-    <pre><code data-trim data-noescape class="scala">enum Option[+T] {
+    <pre><code class="scala">enum Option[+T] extends Serializable {
+case Some(t: T)
+  case None
+}</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">enum Option[+T] extends Serializable {
   case Some(t: T)
   case None
 }
 
 object Option {
-  def apply[T](t: T) =
+  def apply[T](t: T): Option[T] =
     if (t != null) Some(t) else None
 }</code></pre>
 </section>
 
 <section>
-    <pre><code data-trim data-noescape class="scala">enum class Option[+T] extends Serializable {
+    <pre><code class="scala">enum class Option[+T] extends Serializable {
   def isDefined: Boolean
 }
 
 object Option {
-  def apply[T](t: T) =
+  def apply[T](t: T): Option[T] =
     if (t != null) Some(t) else None
 
   case Some(t: T) { def isDefined = true  }
@@ -113,12 +120,12 @@ object Option {
 </section>
 
 <section>
-    <pre><code data-trim data-noescape class="scala">enum Maybe[T] {
+    <pre><code class="scala">enum Maybe[T] {
   case Just(t: T)
   case Nope()
 }</code></pre>
 
-    <pre class="fragment"><code data-trim data-noescape class="scala">object Maybe {
+    <pre class="fragment"><code class="scala">object Maybe {
   implicit val functor: Functor[Maybe] = new Functor[Maybe] {
     def map[A, B](fa: Maybe[A])(f: A => B): Maybe[B] = fa match {
       case Just(a) => Just(f(a))
@@ -130,9 +137,9 @@ object Option {
 
 <section>
     <h3>Wait a tick, why no apply?</h3>
-    <pre class="fragment"><code data-trim data-noescape class="scala">val x = Just(1) // x: Maybe[Int]
+    <pre class="fragment"><code class="scala">val x = Just(1) // x: Maybe[Int]
 </code></pre>
-    <pre class="fragment"><code data-trim data-noescape class="scala">val y = new Just(1) // y: Maybe.Some[Int]
+    <pre class="fragment"><code class="scala">val y = new Just(1) // y: Maybe.Some[Int]
 </code></pre>
 </section>
 
@@ -142,42 +149,142 @@ object Option {
 </section>
 
 <section>
-    <pre><code data-trim data-noescape class="scala">trait Parser[From] {
-  type To
-}
+    <pre><code class="scala">def foo[A <: AnyRef](a: A): a.type = a</code></pre>
+    <pre class="fragment"><code class="scala">trait Foo[A] { type X }
 
-def parse[A](a: A)(implicit p: Parser[A]): p.To = ???
+def bar[A <: AnyRef](a1: A)
+                    (implicit a2: Foo[a1.type]): a2.X
+</code></pre>
+    <pre class="fragment"><code class="scala">def bar[A <: AnyRef](a1: A)
+                    (implicit a2: Foo[a1.type])
+                    <mark class="red">(implicit a3: Foo[a2.X]): a3.X</mark>
 </code></pre>
 </section>
 
 <section>
-    <pre><code data-trim data-noescape class="scala">type StringToMarkdown = Parser[String] { type To = Markdown }
-type MarkdownToHtml = Parser[Markdown] { type To = Html }
+    <pre><code class="scala">type Aux[A, B0] = Foo[A] { type X = B0 }
+
+def bar[A <: AnyRef, B](a1: A)
+                       (implicit a2: Aux[a1.type,B], a3: Foo[B]): a3.X
 </code></pre>
 </section>
 
 <section>
-    <pre><code data-trim data-noescape class="scala">def stringToHtml(s: String)(implicit ...): Html
-</code></pre>
-</section>
+    <pre><code class="scala"><mark class="red">type Aux[A, B0] = Foo[A] { type X = B0 }</mark>
 
-<section>
-    <pre><code data-trim data-noescape class="scala">type Aux[A,B0] = Parser[A] { type B = B0 }
+def bar[A <: AnyRef, <mark class="red">B</mark>](a1: A)
+                       (implicit a2: <mark class="red">Aux[a1.type,B]</mark>, a3: Foo[<mark class="red">B</mark>]): a3.X
 </code></pre>
-    <pre class="fragment"><code data-trim data-noescape class="scala">def parse2Steps[T, R](t: T)
-                     (implicit a1: Aux[T, R], p: Parser[R]): p.B
-</code></pre>
-</section>
-
-<section>
-    <h2>Wow, I can't believe I had to learn that...</h2>
 </section>
 
 <section>
     <h2>In Dotty:</h2>
-    <pre><code data-trim data-noescape class="scala">def parse2Steps[T](t: T)
-                  (implicit p1: Parser[T], p2: Parser[p1.To]): p2.To
+    <pre><code class="scala">def bar[A <: AnyRef](a1: A)
+                    (implicit a2: Foo[a1.type], a3: Foo[a2.X]): a3.X
 </code></pre>
+</section>
+
+<section>
+    <h3>TYPE INFERENCE</h3>
+    <a href="https://www.youtube.com/watch?v=YIQjfCKDR5A">Dotty and Types: The Story So Far</a>
+    <h4 style="margin-top: 20px">by Guillaume Martres</h4>
+</section>
+
+<section>
+    <h1>Implicit Functions</h1>
+</section>
+
+<section>
+    <code class="scala">implicit A => B</code>
+</section>
+
+<section>
+    <pre><code class="scala">type DBIO[T] = implicit DBContext => T
+
+def saveUser(u: User): DBIO[User] = {
+  // here we have an implicit DBContext available, yay!
+  u
+}
+</code></pre>
+
+    <pre class="fragment"><code class="scala">def saveUser(u: User): DBIO[User] =
+  implicit ctx => u
+</code></pre>
+</section>
+
+<section>
+    <h2>Fun fun applications</h2>
+    <h3 class="fragment">Tagless Final Interpreters</h3>
+</section>
+
+<section>
+    <pre><code class="scala">trait Exp[T] {
+  def add(t1: T, t2: T): T
+  def lit(i: Int) = T
+}
+
+implicit val intExp: Exp[Int] = new Exp[Int] {
+  def add(t1: Int, t2: Int) = t1 + t2
+  def lit(i: Int) = i
+}
+
+// 8 + (2 + 2 + 2)
+def expr1[T](implicit e: Exp[T]) =
+  e.add(e.lit(8), e.add(e.lit(2), e.add(e.lit(2), e.lit(2))))
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">object ExpSyntax {
+  def lit[T](i: Int)(implicit e: Exp[T]): T = e.lit(i)
+  def add[T](l: T, r: T)(implicit e: Exp[T]): T = e.add(l, r)
+}
+import ExpSyntax._
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">trait Exp[T] {
+  def add(t1: T, t2: T): T
+  def lit(i: Int) = T
+}
+
+implicit val intExp: Exp[Int] = new Exp[Int] {
+  def add(t1: Int, t2: Int) = t1 + t2
+  def lit(i: Int) = i
+}
+
+// 8 + (2 + 2 + 2)
+def expr1[T: Exp] =
+  add(lit(8), add(lit(2), add(lit(2), lit(2))))
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">trait Mul[T] {
+  def mul(t1: T, t2: T): T
+}
+
+implicit val intMul: Mul[Int] = new Mul[Int] {
+  def mul(i1: Int, i2: Int) = i1 * i2
+}
+
+// 8 + 3 * 2
+def expr2[T : Exp : Mul] =
+  add(lit(8), mul(lit(3), lit(2)))
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">type Ring[T] = implicit (Exp[T], Mul[T]) => T
+
+// 8 + 3 * 2
+def expr2: Ring[T] =
+  add(lit(8), mul(lit(3), lit(2)))
+</code></pre>
+
+<a href="https://gist.github.com/OlivierBlanvillain/48bb5c66dbb0557da50465809564ee80">Revisiting Tagless Final Interpreters</a> - Olivier Blanvillain
+
 </section>
 
 <section>

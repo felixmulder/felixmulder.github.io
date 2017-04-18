@@ -17,6 +17,14 @@ mark {
     background-color: #6fa06a;
 }
 
+mark.green {
+    background-color: #6fa06a;
+}
+
+mark.red {
+    background-color: #ce3b56;
+}
+
 a#twitter-url {
     position: absolute;
     bottom: 1em;
