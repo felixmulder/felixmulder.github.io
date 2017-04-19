@@ -23,6 +23,12 @@ mark.green {
 
 mark.red {
     background-color: #ce3b56;
+    color: #fff;
+}
+
+mark.green > span.hljs-comment,
+mark.red > span.hljs-comment {
+    color: #fff;
 }
 
 a#twitter-url {

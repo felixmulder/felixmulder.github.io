@@ -47,23 +47,23 @@ date: "2016-10-17"
 
 <section>
     <pre><code class="scala">trait Exp[T]
-case class Lit[T](t: T) extends Exp[T]
-case class Neg[T](t: T) extends Exp[T]
-case class Add[T](t1: T, t2: T)</code></pre>
+class Lit[T](t: T) extends Exp[T]
+class Neg[T](t: T) extends Exp[T]
+class Add[T](t1: T, t2: T)</code></pre>
 </section>
 
 <section>
     <pre><code class="scala">trait Exp[T]
-case class Lit[T](t: T) extends Exp[T]
-case class Neg[T](t: T) extends Exp[T]
-case class Add[T](t1: T, t2: T) <mark>extends Exp[T]</mark></code></pre>
+<mark>case</mark> class Lit[T](t: T) extends Exp[T]
+<mark>case</mark> class Neg[T](t: T) extends Exp[T]
+<mark>case</mark> class Add[T](t1: T, t2: T) <mark>extends Exp[T]</mark></code></pre>
 </section>
 
 <section>
     <pre><code class="scala"><mark>sealed</mark> trait Exp[T]
-<mark>final</mark> case class Lit[T](t: T) extends Exp[T]
-<mark>final</mark> case class Neg[T](t: T) extends Exp[T]
-<mark>final</mark> case class Add[T](t1: T, t2: T) <mark>extends Exp[T]</mark></code></pre>
+<mark>final case</mark> class Lit[T](t: T) extends Exp[T]
+<mark>final case</mark> class Neg[T](t: T) extends Exp[T]
+<mark>final case</mark> class Add[T](t1: T, t2: T) <mark>extends Exp[T]</mark></code></pre>
 </section>
 
 <section>
@@ -88,7 +88,7 @@ case class Add[T](t1: T, t2: T) <mark>extends Exp[T]</mark></code></pre>
 
 <section>
     <pre><code class="scala">enum Option[+T] extends Serializable {
-case Some(t: T)
+  case Some(t: T)
   case None
 }</code></pre>
 </section>
@@ -102,20 +102,6 @@ case Some(t: T)
 object Option {
   def apply[T](t: T): Option[T] =
     if (t != null) Some(t) else None
-}</code></pre>
-</section>
-
-<section>
-    <pre><code class="scala">enum class Option[+T] extends Serializable {
-  def isDefined: Boolean
-}
-
-object Option {
-  def apply[T](t: T): Option[T] =
-    if (t != null) Some(t) else None
-
-  case Some(t: T) { def isDefined = true  }
-  case None       { def isDefined = false }
 }</code></pre>
 </section>
 
@@ -149,38 +135,76 @@ object Option {
 </section>
 
 <section>
+    <h2>IS WAT?</h2>
     <pre><code class="scala">def foo[A <: AnyRef](a: A): a.type = a</code></pre>
-    <pre class="fragment"><code class="scala">trait Foo[A] { type X }
+</section>
+
+
+<section>
+    <pre ><code class="scala">trait Foo[A] { type X }
 
 def bar[A <: AnyRef](a1: A)
-                    (implicit a2: Foo[a1.type]): a2.X
-</code></pre>
-    <pre class="fragment"><code class="scala">def bar[A <: AnyRef](a1: A)
-                    (implicit a2: Foo[a1.type])
-                    <mark class="red">(implicit a3: Foo[a2.X]): a3.X</mark>
+                    (implicit a2: Foo[a1.type]): a2.X = a
 </code></pre>
 </section>
 
 <section>
-    <pre><code class="scala">type Aux[A, B0] = Foo[A] { type X = B0 }
+    <pre ><code class="scala">trait Foo[A] { type X }
 
 def bar[A <: AnyRef, B](a1: A)
-                       (implicit a2: Aux[a1.type,B], a3: Foo[B]): a3.X
+                       (implicit a2: Foo[a1.type]{ type X = B },
+                                 a3: Foo[B]): a3.X = a
 </code></pre>
 </section>
 
 <section>
-    <pre><code class="scala"><mark class="red">type Aux[A, B0] = Foo[A] { type X = B0 }</mark>
+    <pre ><code class="scala">trait Foo[A] { type X }
+
+def bar[A <: AnyRef, B, C](a1: A)
+                          (implicit a2: Foo[a1.type]{ type X = B },
+                                    a3: Foo[B      ]{ type X = C },
+                                    a3: Foo[C      ]): a3.X = a
+</code></pre>
+</section>
+
+<section>
+    <pre ><code class="scala">trait Foo[A] { type X }
+
+def bar[A <: AnyRef, B, C, D](a1: A)
+                             (implicit a2: Foo[a1.type]{ type X = B },
+                                       a3: Foo[B      ]{ type X = C },
+                                       a4: Foo[C      ]{ type X = D },
+                                       a5: Foo[D      ]): a5.X = a
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">trait Foo[A] { type X }
+
+type Aux[A, B0] = Foo[A] { type X = B0 }
+
+def bar[A <: AnyRef, B](a1: A)
+                       (implicit a2: Aux[a1.type, B],
+                                 a3: Foo[B]): a3.X = a
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">trait Foo[A] { type X }
+
+<mark class="red">type Aux[A, B0] = Foo[A] { type X = B0 }</mark>
 
 def bar[A <: AnyRef, <mark class="red">B</mark>](a1: A)
-                       (implicit a2: <mark class="red">Aux[a1.type,B]</mark>, a3: Foo[<mark class="red">B</mark>]): a3.X
+                       (implicit a2: <mark class="red">Aux[a1.type, B]</mark>,
+                                 a3: Foo[<mark class="red">B</mark>]): a3.X = a
 </code></pre>
 </section>
 
 <section>
     <h2>In Dotty:</h2>
     <pre><code class="scala">def bar[A <: AnyRef](a1: A)
-                    (implicit a2: Foo[a1.type], a3: Foo[a2.X]): a3.X
+                    (implicit a2: Foo[a1.type],
+                              a3: Foo[a2.X]): a3.X = a
 </code></pre>
 </section>
 
@@ -188,6 +212,28 @@ def bar[A <: AnyRef, <mark class="red">B</mark>](a1: A)
     <h3>TYPE INFERENCE</h3>
     <a href="https://www.youtube.com/watch?v=YIQjfCKDR5A">Dotty and Types: The Story So Far</a>
     <h4 style="margin-top: 20px">by Guillaume Martres</h4>
+</section>
+
+<section>
+    <pre><code class="scala">trait List[+A] {
+  def foldRight[B](z: B)(f: (A, B) => B): B = ???
+}
+
+List(1, 2, 3).foldRight(List.empty)(_ :: _) <mark class="red fragment">// scalac: nope </mark>
+                                            <mark class="green fragment">//  dotty:  yep </mark>
+</code></pre>
+</section>
+
+<section>
+    <h2>Why though?</h2>
+</section>
+
+<section>
+    <h2>Union types and intersection types</h2>
+</section>
+
+<section>
+    <h3>Can we ditch coproducts in favor of or-types?</h3>
 </section>
 
 <section>
@@ -206,7 +252,6 @@ def saveUser(u: User): DBIO[User] = {
   u
 }
 </code></pre>
-
     <pre class="fragment"><code class="scala">def saveUser(u: User): DBIO[User] =
   implicit ctx => u
 </code></pre>
@@ -280,11 +325,8 @@ def expr2[T : Exp : Mul] =
 
 // 8 + 3 * 2
 def expr2: Ring[T] =
-  add(lit(8), mul(lit(3), lit(2)))
-</code></pre>
-
-<a href="https://gist.github.com/OlivierBlanvillain/48bb5c66dbb0557da50465809564ee80">Revisiting Tagless Final Interpreters</a> - Olivier Blanvillain
-
+  add(lit(8), mul(lit(3), lit(2)))</code></pre>
+    <a href="https://gist.github.com/OlivierBlanvillain/48bb5c66dbb0557da50465809564ee80">Revisiting Tagless Final Interpreters</a> - Olivier Blanvillain
 </section>
 
 <section>
