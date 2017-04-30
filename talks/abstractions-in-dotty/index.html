@@ -20,15 +20,9 @@ date: "2016-10-17"
     <ul>
         <li><a href="https://twitter.com/felixmulder">@felixmulder</a></li>
         <li><a href="https://github.com/felixmulder">github.com/felixmulder</a></li>
-        <li>
-            Built the 2.12 Scaladoc
-        </li>
-        <li>
-            Research fellow LAMP EPFL
-        </li>
-        <li>
-            Dotty Compiler Engineer
-        </li>
+        <li>Built the 2.12 Scaladoc</li>
+        <li>Research fellow LAMP EPFL</li>
+        <li>Dotty Compiler Engineer</li>
     </ul>
 </section>
 
@@ -71,12 +65,28 @@ class Add[T](t1: T, t2: T)</code></pre>
 </section>
 
 <section>
+    <pre><code class="scala">enum Color {
+  case Red
+  case Green
+  case Blue
+}</code></pre>
+    <pre class="fragment"><code class="scala">enum Color { case Red, Green, Blue }</code></pre>
+</section>
+
+
+<section>
+    <pre><code class="scala">sealed trait Exp[T]
+final case class Lit[T](t: T) extends Exp[T]
+final case class Neg[T](t: T) extends Exp[T]
+final case class Add[T](t1: T, t2: T) extends Exp[T]</code></pre>
+</section>
+
+<section>
     <pre><code class="scala">enum Exp[T] {
   case Lit(t: T)
   case Add(t1: T, t2: T)
   case Neg(t: T)
-}
-</code></pre>
+}</code></pre>
 </section>
 
 <section>
@@ -94,51 +104,64 @@ class Add[T](t1: T, t2: T)</code></pre>
 </section>
 
 <section>
-    <pre><code class="scala">enum Option[+T] extends Serializable {
-  case Some(t: T)
-  case None
-}
+    <pre><code class="scala">enum class Option[+T] extends Serializable
 
 object Option {
+  case Some(t: T)
+  case None
+
   def apply[T](t: T): Option[T] =
     if (t != null) Some(t) else None
 }</code></pre>
 </section>
 
 <section>
-    <pre><code class="scala">enum Maybe[T] {
-  case Just(t: T)
-  case Nope()
-}</code></pre>
-
-    <pre class="fragment"><code class="scala">object Maybe {
-  implicit val functor: Functor[Maybe] = new Functor[Maybe] {
-    def map[A, B](fa: Maybe[A])(f: A => B): Maybe[B] = fa match {
-      case Just(a) => Just(f(a))
-      case _       => Nope()
-    }
-  }
-}</code></pre>
+    <h3>Enum Applys</h3>
+    <pre class="fragment"><code class="scala">val x = Some(1)     // x: Option[Int]
+<span class="fragment">val y = new Some(1) // y: Option.Some[Int]</span>
+</code></pre>
 </section>
 
 <section>
-    <h3>Wait a tick, why no apply?</h3>
-    <pre class="fragment"><code class="scala">val x = Just(1) // x: Maybe[Int]
-</code></pre>
-    <pre class="fragment"><code class="scala">val y = new Just(1) // y: Maybe.Some[Int]
-</code></pre>
+    <h2>Waddler's Law</h2>
+    <blockquote>
+        <p>
+            In any language design, the total time spent discussing a
+            feature in this list is proportional to two raised to the power
+            of its position.
+        </p>
+
+        <ul>
+            <li>0. Semantics</li>
+            <li>1. Syntax</li>
+            <li>2. Lexical syntax</li>
+            <li>3. Lexical syntax of comments</li>
+        </ul>
+    </blockquote>
+</section>
+
+<section>
+    <h1>Implement a proposal!</h1>
+</section>
+
+<section>
+    <h3>Implement a proposal!</h3>
+    <ul>
+        <li><a href="https://github.com/lampepfl/dotty/issues/1970">Add enum construct - issue#1970</a></li>
+        <li>Martin's proposal (<a href="https://github.com/lampepfl/dotty/pull/1958">PR#1958</a>) is merged</li>
+        <li>User ergonomics with enums</li>
+    </ul>
 </section>
 
 <section>
     <h2>Paramater Dependent Types,</h2>
-    <h2>and why Aux was born</h2>
+    <h2>and why we use Aux</h2>
 </section>
 
 <section>
     <h2>IS WAT?</h2>
     <pre><code class="scala">def foo[A <: AnyRef](a: A): a.type = a</code></pre>
 </section>
-
 
 <section>
     <pre ><code class="scala">trait Foo[A] { type X }
@@ -222,10 +245,6 @@ def bar[A <: AnyRef, <mark class="red">B</mark>](a1: A)
 List(1, 2, 3).foldRight(List.empty)(_ :: _) <mark class="red fragment">// scalac: nope </mark>
                                             <mark class="green fragment">//  dotty:  yep </mark>
 </code></pre>
-</section>
-
-<section>
-    <h2>Why though?</h2>
 </section>
 
 <section>
@@ -330,8 +349,50 @@ def expr2: Ring[T] =
 </section>
 
 <section>
+    <ul>
+        <li>
+            <h4>Dottydoc</h4>
+            <ul style="margin-bottom: 20px;">
+                <li>Markdown</li>
+                <li>Jekyll-like static site generation</li>
+                <li>Cross referencing</li>
+                <li>Compiled examples à la tut</li>
+            </ul>
+        </li>
+        <li>
+            <h4>Awesome Error Messages</h4>
+            <ul style="margin-bottom: 20px;">
+                <li>Presentation</li>
+                <li>Semantic info</li>
+                <li>Detailed explanations</li>
+            </ul>
+        </li>
+        <li>
+            <h4>TBA REPL</h4>
+        </li>
+        <li>
+            <h4>VSC Language Server</h4>
+        </li>
+    </ul>
+</section>
+
+<section>
     <h2>Developer Usability</h2>
     <p>Get involved today!</p>
+</section>
+
+<section style="text-align: left;">
+    <div style="float: left; width: 50%; height: 100%;">
+        <h2 style="margin-bottom: 0; margin-top: 0.5em;">REPL</h2>
+        <a target="_blank" href="https://github.com/lampepfl/dotty/issues?q=is%3Aopen+is%3Aissue+label%3Aarea%3Arepl">Issues</a>
+        <h2 style="margin-bottom: 0; margin-top: 0.5em;">ERROR MESSAGES</h2>
+        <a target="_blank" href="http://github.com/lampepfl/dotty/issues/1589">Issue #1589</a>
+    </div>
+    <div style="float: left; width: 50%; height: 100%;">
+        <h2 style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">IDEs &amp; TOOLING</h2>
+        <a target="_blank" href="https://github.com/lampepfl/dotty/labels/area%3Atooling">Issues</a>
+        <h2 style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">Build Tools</h2>
+    </div>
 </section>
 
 <section>

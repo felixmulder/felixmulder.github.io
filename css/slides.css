@@ -146,3 +146,15 @@ pre > code.scala {
     padding: 1em;
     border-radius: 0.2em;
 }
+
+blockquote {
+    padding: 0 1em 0.5em !important;
+}
+
+blockquote * {
+    text-align: left;
+}
+
+blockquote ul {
+    margin-left: 0 !important;
+}
