@@ -67,6 +67,7 @@
             </div>
         </div>
 
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/0.96/head.min.js"></script>
         <script src="/js/reveal.js"></script>
         <script src="/js/highlight.pack.js"></script>
 
@@ -76,6 +77,9 @@
                 controls: false,
                 history: true,
                 transition: "none",
+                dependencies: [
+                    { src: '/plugin/notes/notes.js', async: true }
+                ],
             });
 
             hljs.initHighlightingOnLoad();

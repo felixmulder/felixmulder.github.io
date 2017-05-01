@@ -24,6 +24,50 @@ date: "2016-10-17"
         <li>Research fellow LAMP EPFL</li>
         <li>Dotty Compiler Engineer</li>
     </ul>
+    <aside class="notes">
+        Oh hey, these are some notes. They'll be hidden in your presentation,
+        but you can see them if you open the speaker notes window (hit 's' on
+        your keyboard).
+    </aside>
+</section>
+
+<section>
+<pre style="width: 100%;"><code class="scala">def spiritOfDoing(you: Programmer, client: DomainExpert): Task[Joy] =
+  for {
+    domain     <- problemDescription(client)
+    goals      <- you.understand(domain)
+    solution   <- goals.attempt
+    conclusion <- conclusion match {
+      case client.Satisfied(conclusion) =>
+        solution // Done!
+      case lessonsLearned =>
+        spiritOfDoing(you + lessonsLearned,
+                      client + lessonsLearned)
+    }
+  } yield conclusion</code></pre>
+</section>
+
+<section>
+<pre style="width: 100%;"><code class="scala">def spiritOfWhatAmIReallyDoing(you: Programmer,
+                               client: DomainExpert): Task[Option[Joy]] =
+  for {
+    domain     <- problemDescription(client)
+    _          =  complainAboutThings(domain)
+    goals      <- you.understand(domain)
+    _          =  complainAboutThings(client)
+    solution   <- goals.attempt
+    _          =  complainAboutThings(solution)
+    conclusion <- conclusion match {
+      case client.Satisfied(conclusion) =>
+        complainAboutThings(BeingDoneFinally())
+        solution // Done!
+      case ex @ you.RageQuit() => Task.fail(ex)
+      case lessonsLearned =>
+        bitchAndMoan()
+        spiritOfDoing(you + lessonsLearned + you.pentUpAggression(solution),
+                      client + lessonsLearned)
+    }
+  } yield conclusion</code></pre>
 </section>
 
 <section>
@@ -33,6 +77,19 @@ date: "2016-10-17"
 <section>
     <img class="border" src="contribs.png">
     &lt;/bragging&gt;
+</section>
+
+<section>
+    <h2>Things so far</h2>
+    <ul>
+        <li>Awesome Error Messages</li>
+        <li>Dottydoc</li>
+        <li>Bugfixes</li>
+    </ul>
+</section>
+
+<section>
+    <h1>Dotty</h1>
 </section>
 
 <section>
