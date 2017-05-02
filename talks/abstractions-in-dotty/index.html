@@ -53,10 +53,10 @@ date: "2016-10-17"
     conclusion <- conclusion match {
       case client.Satisfied(conclusion) =>
         complainAboutThings(BeingDoneFinally())
-        solution // Done!
-      case ex @ you.RageQuit() => Task.fail(ex)
+        solution.pure[Task] // Done!
+      case ex @ you.RageQuit => Task.fail(ex)
       case lessonsLearned =>
-        bitchAndMoan()
+        `b*tchAndMoan`()
         spiritOfDoing(you + lessonsLearned + you.pentUpAggression(solution),
                       client + lessonsLearned)
     }
@@ -73,7 +73,6 @@ date: "2016-10-17"
         </code>
     <h2>
 </section>
-
 
 <section>
     <h2>Things so far</h2>
@@ -430,8 +429,35 @@ def expr2: Ring[T] =
 </section>
 
 <section>
-    <h2>Developer Usability</h2>
-    <p>Get involved today!</p>
+    <h3>Awesome Error Messages</h3>
+    <div class="fragment">
+        <div style="float: left; width: 50%; height: 100%;">
+            <ul>
+                <li><a href="https://github.com/ALPHA-60">@ALPHA-60</a></li>
+                <li><a href="https://github.com/AndrewZurn">@AndrewZurn</a></li>
+                <li><a href="https://github.com/ShaneDelmore">@ShaneDelmore</a></li>
+                <li><a href="https://github.com/abeln">@abeln</a></li>
+                <li><a href="https://github.com/adamtrousdale">@adamtrousdale</a></li>
+                <li><a href="https://github.com/b-studios">@b-studios</a></li>
+                <li><a href="https://github.com/ennru">@ennru</a></li>
+                <li><a href="https://github.com/hhandoko">@hhandoko</a></li>
+                <li><a href="https://github.com/jarrodj">@jarrodj</a></li>
+            </ul>
+        </div>
+        <div style="float: left; width: 50%; height: 100%;">
+            <ul>
+                <li><a href="https://github.com/jozi-k">@jozi-k</a></li>
+                <li><a href="https://github.com/jyotman94">@jyotman94</a></li>
+                <li><a href="https://github.com/ljdelight">@ljdelight</a></li>
+                <li><a href="https://github.com/m-sp">@m-sp</a></li>
+                <li><a href="https://github.com/markusthoemmes">@markusthoemmes</a></li>
+                <li><a href="https://github.com/maseev">@maseev</a></li>
+                <li><a href="https://github.com/rubenpieters">@rubenpieters</a></li>
+                <li><a href="https://github.com/sebastianharko">@sebastianharko</a></li>
+                <li><a href="https://github.com/thiagoandrade6">@thiagoandrade6</a></li>
+            </ul>
+        </div>
+    </div>
 </section>
 
 <section style="text-align: left;">
@@ -446,6 +472,21 @@ def expr2: Ring[T] =
         <a target="_blank" href="https://github.com/lampepfl/dotty/labels/area%3Atooling">Issues</a>
         <h2 style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">Build Tools</h2>
     </div>
+</section>
+
+<section>
+    <h2>Answers</h2>
+    <ul>
+        <li>0.x release - ScalaDays CPH</li>
+        <li>Does it run my project? Try it: <a href="https://github.com/lampepfl/sbt-dotty">sbt-dotty</a></li>
+        <li>SI-2712? Fixed two years ago</li>
+        <li>I have a suggestion!</li>
+        <li>What about feature X?</li>
+    </ul>
+</section>
+
+<section>
+    <h1>Question?</h1>
 </section>
 
 <section>
