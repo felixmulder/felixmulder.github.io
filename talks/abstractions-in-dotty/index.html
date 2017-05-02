@@ -16,23 +16,16 @@ date: "2016-10-17"
 </section>
 
 <section>
-    <h3>ABOUT ME</h3>
-    <ul>
-        <li><a href="https://twitter.com/felixmulder">@felixmulder</a></li>
-        <li><a href="https://github.com/felixmulder">github.com/felixmulder</a></li>
-        <li>Built the 2.12 Scaladoc</li>
-        <li>Research fellow LAMP EPFL</li>
-        <li>Dotty Compiler Engineer</li>
-    </ul>
-    <aside class="notes">
-        Oh hey, these are some notes. They'll be hidden in your presentation,
-        but you can see them if you open the speaker notes window (hit 's' on
-        your keyboard).
-    </aside>
+    <h1>Release Manager</h1>
 </section>
 
 <section>
-<pre style="width: 100%;"><code class="scala">def spiritOfDoing(you: Programmer, client: DomainExpert): Task[Joy] =
+    <img class="border" src="contribs.png">
+    &lt;/bragging&gt;
+</section>
+
+<section>
+    <pre style="width: 100%;"><code class="scala">def spiritOfDoing(you: Programmer, client: DomainExpert): Task[Joy] =
   for {
     domain     <- problemDescription(client)
     goals      <- you.understand(domain)
@@ -48,8 +41,8 @@ date: "2016-10-17"
 </section>
 
 <section>
-<pre style="width: 100%;"><code class="scala">def spiritOfWhatAmIReallyDoing(you: Programmer,
-                               client: DomainExpert): Task[Option[Joy]] =
+    <pre style="width: 100%;"><code class="scala">def spiritOfWhatAmIDoing(you: Programmer,
+                         client: DomainExpert): Task[Option[Joy]] =
   for {
     domain     <- problemDescription(client)
     _          =  complainAboutThings(domain)
@@ -71,20 +64,23 @@ date: "2016-10-17"
 </section>
 
 <section>
-    <h1>Release Manager</h1>
+    <h2>
+        <code>
+            <a style="text-transform: lowercase;" target="_blank"
+            href="https://github.com/lampepfl/dotty/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3A%22help%20wanted%22%20">
+                label:"help wanted"
+            </a>
+        </code>
+    <h2>
 </section>
 
-<section>
-    <img class="border" src="contribs.png">
-    &lt;/bragging&gt;
-</section>
 
 <section>
     <h2>Things so far</h2>
     <ul>
         <li>Awesome Error Messages</li>
         <li>Dottydoc</li>
-        <li>Bugfixes</li>
+        <li>Lots of fixes</li>
     </ul>
 </section>
 
