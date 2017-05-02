@@ -32,7 +32,7 @@ date: "2016-10-17"
     solution   <- goals.attempt
     conclusion <- conclusion match {
       case client.Satisfied(conclusion) =>
-        solution // Done!
+        solution.pure[Task] // Done!
       case lessonsLearned =>
         spiritOfDoing(you + lessonsLearned,
                       client + lessonsLearned)
