@@ -31,16 +31,15 @@ date: "2016-10-17"
 </section>
 
 <section>
-    <h1>Release Manager</h1>
+    <h1>"Release Manager"</h1>
 </section>
 
 <section>
     <img class="border" src="contribs.png">
-    &lt;/bragging&gt;
 </section>
 
 <section>
-    <h2>Ergonomics</h2>
+    <h2>ERRGONOMICS</h2>
     <ul>
         <li>Awesome Error Messages</li>
         <li>Dottydoc</li>
@@ -101,8 +100,9 @@ date: "2016-10-17"
         <li>Implicit Functions</li>
         <li>Enums</li>
         <li>Callgraph, automatic specialization</li>
-        <li>Library rewrites</li>
+        <li>Library defined rewrites</li>
         <li>TASTY</li>
+        <li>IDE using Visual Studio Code</li>
     </ul>
 </section>
 
@@ -117,8 +117,9 @@ date: "2016-10-17"
         <li><mark style="color: white;" class="green">Implicit Functions</mark></li>
         <li><mark style="color: white;" class="green">Enums</mark></li>
         <li>Callgraph, automatic specialization</li>
-        <li>Library rewrites</li>
+        <li>Library defined rewrites</li>
         <li>TASTY</li>
+        <li>IDE using Visual Studio Code</li>
     </ul>
 </section>
 
@@ -127,7 +128,8 @@ date: "2016-10-17"
 </section>
 
 <section>
-    <pre><code class="scala">trait Exp[T]
+    <pre><code class="scala">// 1 + 2 - 3 => Add(Lit(1), Add(Lit(2), Neg(Lit(3))))
+trait Exp[T]
 class Lit[T](t: T) extends Exp[T]
 class Neg[T](t: T) extends Exp[T]
 class Add[T](t1: T, t2: T)</code></pre>
