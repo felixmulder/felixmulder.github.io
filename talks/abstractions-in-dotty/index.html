@@ -16,6 +16,21 @@ date: "2016-10-17"
 </section>
 
 <section>
+    <h1>Dotty</h1>
+</section>
+
+<section>
+    <ul>
+        <li>A proven foundation - DOT</li>
+        <li>Simplification</li>
+        <li>Compilation Speed</li>
+        <li>Library defined rewrites</li>
+        <li>Developer Usability</li>
+        <li class="fragment">Scala 3</li>
+    </ul>
+</section>
+
+<section>
     <h1>Release Manager</h1>
 </section>
 
@@ -31,11 +46,9 @@ date: "2016-10-17"
     goals      <- you.understand(domain)
     solution   <- goals.attempt
     conclusion <- conclusion match {
-      case client.Satisfied(conclusion) =>
-        solution.pure[Task] // Done!
-      case lessonsLearned =>
-        spiritOfDoing(you + lessonsLearned,
-                      client + lessonsLearned)
+      case client.Satisfied(conclusion) => solution.pure[Task] // Done!
+      case lessonsLearned => spiritOfDoing(you + lessonsLearned,
+                                           client + lessonsLearned)
     }
   } yield conclusion</code></pre>
 </section>
@@ -56,7 +69,7 @@ date: "2016-10-17"
         solution.pure[Task] // Done!
       case ex @ you.RageQuit => Task.fail(ex)
       case lessonsLearned =>
-        `b*tchAndMoan`()
+        bitchAndMoan()
         spiritOfDoing(you + lessonsLearned + you.pentUpAggression(solution),
                       client + lessonsLearned)
     }
@@ -64,31 +77,53 @@ date: "2016-10-17"
 </section>
 
 <section>
-    <h2>
-        <code>
-            <a style="text-transform: lowercase;" target="_blank"
-            href="https://github.com/lampepfl/dotty/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3A%22help%20wanted%22%20">
-                label:"help wanted"
-            </a>
-        </code>
-    <h2>
+    <h1>Anyway...Dotty!</h1>
+</section>
+
+<section>
+    <h3>Key Differences</h3>
+    <ul>
+        <li><a href="https://contributors.scala-lang.org/t/implicits-with-inferred-return-type-lead-to-undefined-behavior/615">Explicit Implicits</a></li>
+        <li>No more procedure syntax</li>
+        <li>Union Types</li>
+        <li>Intersection Types</li>
+        <li>Trait Parameters</li>
+        <li>Implicit Functions</li>
+        <li>Enums</li>
+        <li>Callgraph, automatic specialization</li>
+        <li>Library rewrites</li>
+        <li>TASTY</li>
+    </ul>
+</section>
+
+<section>
+    <h3>Key Differences</h3>
+    <ul>
+        <li><a href="https://contributors.scala-lang.org/t/implicits-with-inferred-return-type-lead-to-undefined-behavior/615">Explicit Implicits</a></li>
+        <li>No more procedure syntax</li>
+        <li>Union Types</li>
+        <li>Intersection Types</li>
+        <li>Trait Parameters</li>
+        <li><mark style="color: white;" class="green">Implicit Functions</mark></li>
+        <li><mark style="color: white;" class="green">Enums</mark></li>
+        <li>Callgraph, automatic specialization</li>
+        <li>Library rewrites</li>
+        <li>TASTY</li>
+    </ul>
 </section>
 
 <section>
     <h2>Things so far</h2>
     <ul>
         <li>Awesome Error Messages</li>
+        <li>REPL</li>
         <li>Dottydoc</li>
         <li>Lots of fixes</li>
     </ul>
 </section>
 
 <section>
-    <h1>Dotty</h1>
-</section>
-
-<section>
-    <h1>HOW NOT TO WRITE CODE</h1>
+    <h1>A Trip Down Memory Lane</h1>
 </section>
 
 <section>
@@ -316,21 +351,41 @@ List(1, 2, 3).foldRight(List.empty)(_ :: _) <mark class="red fragment">// scalac
 </section>
 
 <section>
+    <pre><code class="scala">def saveUser(u: User)(implicit dbx: DBContext): DBIO[User] = {
+  ...
+}
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">def saveUser(u: User): DBIO[User] = { dbx =>
+  ...
+}
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">def saveUser(u: User): DBIO[User] = { implicit dbx =>
+  ...
+}
+</code></pre>
+</section>
+
+<section>
     <pre><code class="scala">type DBIO[T] = implicit DBContext => T
 
 def saveUser(u: User): DBIO[User] = {
-  // here we have an implicit DBContext available, yay!
-  u
+  // here we have a DBContext implicitly available, yay!
+  ...
 }
 </code></pre>
-    <pre class="fragment"><code class="scala">def saveUser(u: User): DBIO[User] =
+    <pre><code class="scala">def saveUser(u: User): DBIO[User] =
   implicit ctx => u
 </code></pre>
 </section>
 
 <section>
-    <h2>Fun fun applications</h2>
-    <h3 class="fragment">Tagless Final Interpreters</h3>
+    <h2 class="fragment">Tagless Final Interpreters</h2>
 </section>
 
 <section>
