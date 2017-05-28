@@ -1,0 +1,344 @@
+---
+layout: presentation
+title: "Dotty - Reconstructing Scala"
+date: "2017-05-31"
+---
+
+<style>
+section.scaladays-slide > img {
+    border: 0;
+}
+</style>
+
+<section class="scaladays-slide" data-background="#000">
+    <img src="./slide1.svg"/>
+</section>
+
+<section class="scaladays-slide" data-background="#000">
+    <img src="./slide2.svg"/>
+</section>
+
+<section>
+    Slides: <a href="http://felixmulder.com">felixmulder.com</a>
+</section>
+
+<section>
+    <h2>LET'S TAKE A TRIP DOWN MEMORY LANE</h2>
+</section>
+
+<section style="text-align: left; font-size: 25px;">
+"We'd like to announce availability of the first implementation of the
+Scala programming language. Scala smoothly integrates object-oriented
+and functional programming. It is designed to express common
+programming patterns in a concise, elegant, and type-safe way. Scala
+introduces several innovative language constructs. For instance:
+<ul style="padding: 20px">
+    <li>
+        Abstract types and mixin composition unify ideas from object
+        and module systsems.
+    </li>
+    <li>
+        Pattern matching over class hierarchies unifies functional and
+        object-oriented data access. It greatly simplifies the
+        processing of XML trees.
+    </li>
+    <li>
+        A flexible syntax and type system enables the construction of
+        advanced libraries and new domain specific languages.
+    </li>
+</ul>
+
+At the same time, Scala is compatible with Java. Java libraries and
+frameworks can be used without glue code or additional declarations.
+
+The current implementation of Scala runs on Java VM. It requires JDK
+1.4 and can run on Windows, MacOS, Linux, Solaris, and most other
+operating systems. A .net version of Scala is currently under
+development."
+<p>2004-01-20 by Martin Odersky</p>
+</section>
+
+<section>
+    <h2>Scala 1.x</h2>
+    <ul>
+        <li>Algebraic Data Types</li>
+        <li>Function Values</li>
+        <li>Generics</li>
+        <li>
+            By-name Parameters
+            <pre><code class="scala">def foo(i: => Int): Int = {
+  if (true) 0
+  else i
+}</code></pre>
+        </li>
+    </ul>
+</section>
+<section>
+    <h2>Scala 1.x</h2>
+    <ul>
+        <li>
+            Parameterless methods
+            <pre><code class="scala">def length: Int = ???</code></pre>
+        </li>
+
+        <li>
+            Always eta-expanded functions:
+            <pre><code class="scala">def sum(f: Int => Int)(xs: Iterable[Int]) = ???
+val square = sum(x => x * x)</code></pre>
+    </ul>
+</section>
+
+<section>
+    <h2>Scala 1.x</h2>
+    <ul>
+        <li>
+            Surprising behaviour:
+            <pre><code class="scala">println("wat".length)
+<span class="fragment">// res: &lt;function&gt;</code></pre>
+        </li>
+    </ul>
+</section>
+
+<section>
+    <h3>Scala 2.0 - alias puberty, or "when cake didn't make them fat"</h3>
+</section>
+
+<section>
+    <h3>Scala 2.0 - puberty</h3>
+    <ul>
+        <li>Auto-add <code>()</code> if reference is to a nullary function</li>
+        <li>
+            Eta-expand iff:
+            <ul>
+                <li>Expected type is a function</li>
+                <li>
+                    Missing parameters are specified with "<code>_</code>"
+                    <pre><code class="scala">val square = sum(x => x * x)(_)</code></pre>
+                </li>
+            </ul>
+        </li>
+        <li>New keywords: <code>implicit, match, requires</code> </li>
+        <li>Private qualifiers: <code>private[X]</code>
+        <li>Implicit parameters</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Scala 2.1 - tween</h2>
+    <ul>
+        <li>Multi-line strings</li>
+        <li>Class literals: <code>classOf[X]</code></li>
+        <li>Protected qualifiers: <code>protected[X]</code></li>
+    </ul>
+</section>
+
+<section>
+    <h2>Scala 2.3 - cool phase</h2>
+    <ul>
+        <li>Procedure syntax</li>
+        <li>Tuples</li>
+        <li>Extractors using: <code>unapply</code></li>
+        <li>Current syntax for self-types introduced</li>
+        <li>Case classes cannot be abstract - uh, oh Martin!</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Scala 2.4-2.5</h2>
+    <ul>
+        <li><code>private[this]</code></li>
+        <li>
+            Early initialization
+            <pre><code class="scala">trait T { val x: Int }
+class C extends { val x = 5 } with T { println(x) }
+
+new C // res: 5</code></pre>
+        </li>
+    </ul>
+</section>
+
+<section>
+    <h2>Scala 2.6 - mellow period</h2>
+    <ul>
+        <li>Existential Types</li>
+        <li>Lazy Values</li>
+        <li>Structural Types</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Scala 2.7 - revenge of the case class</h2>
+    <ul>
+        <li>May now be abstract again - hooray Martin!</li>
+        <li>Get extractor methods by default</li>
+        <li>Allowed to have companions</li>
+        <li>Mixing Scala and Java code in the same project is now allowed</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Scala 2.8 - atoning for past mistakes</h2>
+    <ul>
+        <li>Redesigned Collections</li>
+        <li>Specialization using: <code>@specialized</code></li>
+        <li>Named and default arguments</li>
+        <li>Package objects</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Scala 2.9 - beefing up</h2>
+    <ul>
+        <li>Parallel collections</li>
+        <li>DelayedInit</li>
+        <li>App</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Scala 2.10 - all grown up now!</h2>
+    <ul>
+        <li>Value Classes</li>
+        <li>Implicit Classes</li>
+        <li>String Interpolation</li>
+        <li>Dependent Method Types</li>
+        <li>Scala Reflection</li>
+        <li>Macros</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Common theme up until 2.10</h2>
+    <ul>
+        <li>Growth, experimentation, maturing features</li>
+        <li>Nearly nothing removed - lost features replaced</li>
+        <li>Future 2.X versions - more stability-oriented</li>
+    </ul>
+</section>
+
+<section>
+    <h1>Dotty</h1>
+</section>
+
+<section>
+    <ul>
+        <li>Simplification, compilation speed</li>
+        <li>Developer Usability</li>
+        <li>Correctness - proven foundation, "DOT"</li>
+        <li class="fragment">Scala 3</li>
+    </ul>
+</section>
+
+<section>
+    <h1>"Release Manager"</h1>
+</section>
+
+<section>
+    <img class="border" src="contribs.png">
+</section>
+
+<section>
+    <h3>Getting Started with Dotty</h3>
+    <ul style="list-style-type:none;">
+        <li class="fragment">
+            <a target="_blank" href="https://scastie.scala-lang.org/?target=dotty">
+                Scastie
+            </a>
+        </li>
+        <li class="fragment">
+            <code class="scala">$ sbt new lampepfl/dotty.g8</code>
+        </li>
+    </ul>
+</section>
+
+<section>
+    <h1>Let's try setting up a project</h1>
+</section>
+
+<section>
+    <h2>ERRGONOMICS</h2>
+    <ul>
+        <li>Awesome Error Messages</li>
+        <li>Dottydoc Compiler</li>
+    </ul>
+</section>
+
+<section>
+    <h1>Dottydoc Demo</h1>
+</section>
+
+<section>
+    <h2>ERRGONOMICS</h2>
+    <ul>
+        <li>Awesome Error Messages</li>
+        <li>Dottydoc Compiler</li>
+    </ul>
+</section>
+
+<section>
+    <h3>Awesome Error Messages</h3>
+    <div class="fragment">
+        <div style="float: left; width: 50%; height: 100%;">
+            <ul>
+                <li><a href="https://github.com/ALPHA-60">@ALPHA-60</a></li>
+                <li><a href="https://github.com/AndrewZurn">@AndrewZurn</a></li>
+                <li><a href="https://github.com/ShaneDelmore">@ShaneDelmore</a></li>
+                <li><a href="https://github.com/abeln">@abeln</a></li>
+                <li><a href="https://github.com/adamtrousdale">@adamtrousdale</a></li>
+                <li><a href="https://github.com/b-studios">@b-studios</a></li>
+                <li><a href="https://github.com/ennru">@ennru</a></li>
+                <li><a href="https://github.com/hhandoko">@hhandoko</a></li>
+                <li><a href="https://github.com/jarrodj">@jarrodj</a></li>
+            </ul>
+        </div>
+        <div style="float: left; width: 50%; height: 100%;">
+            <ul>
+                <li><a href="https://github.com/jozi-k">@jozi-k</a></li>
+                <li><a href="https://github.com/jyotman94">@jyotman94</a></li>
+                <li><a href="https://github.com/ljdelight">@ljdelight</a></li>
+                <li><a href="https://github.com/m-sp">@m-sp</a></li>
+                <li><a href="https://github.com/markusthoemmes">@markusthoemmes</a></li>
+                <li><a href="https://github.com/maseev">@maseev</a></li>
+                <li><a href="https://github.com/rubenpieters">@rubenpieters</a></li>
+                <li><a href="https://github.com/sebastianharko">@sebastianharko</a></li>
+                <li><a href="https://github.com/thiagoandrade6">@thiagoandrade6</a></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section style="text-align: left;">
+    <div style="float: left; width: 50%; height: 100%;">
+        <h2 style="margin-bottom: 0; margin-top: 0.5em;">REPL</h2>
+        <a target="_blank" href="https://github.com/lampepfl/dotty/issues?q=is%3Aopen+is%3Aissue+label%3Aarea%3Arepl">Issues</a>
+        <h2 style="margin-bottom: 0; margin-top: 0.5em;">ERROR MESSAGES</h2>
+        <a target="_blank" href="http://github.com/lampepfl/dotty/issues/1589">Issue #1589</a>
+    </div>
+    <div style="float: left; width: 50%; height: 100%;">
+        <h2 style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">IDEs &amp; TOOLING</h2>
+        <a target="_blank" href="https://github.com/lampepfl/dotty/labels/area%3Atooling">Issues</a>
+        <h2 style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">Build Tools</h2>
+    </div>
+</section>
+
+<section>
+    <h2>Answers</h2>
+    <ul>
+    </ul>
+</section>
+
+<section>
+    <h1>Question?</h1>
+</section>
+
+<section>
+    <h1>Thank you!</h1>
+</section>
+
+<section class="scaladays-slide" data-background="#000">
+    <img src="./slide1last.svg"/>
+</section>
+
+<section class="scaladays-slide" data-background="#000">
+    <img src="./slide2last.svg"/>
+</section>

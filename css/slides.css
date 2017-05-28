@@ -147,6 +147,10 @@ pre > code.scala {
     border-radius: 0.2em;
 }
 
+.reveal pre {
+    width: 100%;
+}
+
 blockquote {
     padding: 0 1em 0.5em !important;
 }
