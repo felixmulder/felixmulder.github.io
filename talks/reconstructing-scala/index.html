@@ -142,7 +142,7 @@ val square = map(x => x * x)</code></pre>
 </section>
 
 <section>
-    <h2>Scala 2.3 - cool phase</h2>
+    <h2>Scala 2.3 - hipster phase</h2>
     <ul>
         <li>Procedure syntax</li>
         <li>Tuples</li>
@@ -158,8 +158,8 @@ val square = map(x => x * x)</code></pre>
         <li><code>private[this]</code></li>
         <li>
             Early initialization
-            <pre><code class="scala">trait T { val x: Int }
-class C extends { val x = 5 } with T { println(x) }
+            <pre><code class="scala">trait T { val x: Int; println(x) }
+class C extends { val x = 5 } with T
 
 new C // res: 5</code></pre>
         </li>
