@@ -27,35 +27,35 @@ section.scaladays-slide > img {
 </section>
 
 <section style="text-align: left; font-size: 25px;">
-"We'd like to announce availability of the first implementation of the
-Scala programming language. Scala smoothly integrates object-oriented
-and functional programming. It is designed to express common
-programming patterns in a concise, elegant, and type-safe way. Scala
-introduces several innovative language constructs. For instance:
-<ul style="padding: 20px">
-    <li>
-        Abstract types and mixin composition unify ideas from object
-        and module systsems.
-    </li>
-    <li>
-        Pattern matching over class hierarchies unifies functional and
-        object-oriented data access. It greatly simplifies the
-        processing of XML trees.
-    </li>
-    <li>
-        A flexible syntax and type system enables the construction of
-        advanced libraries and new domain specific languages.
-    </li>
-</ul>
+    "We'd like to announce availability of the first implementation of the
+    Scala programming language. Scala smoothly integrates object-oriented
+    and functional programming. It is designed to express common
+    programming patterns in a concise, elegant, and type-safe way. Scala
+    introduces several innovative language constructs. For instance:
+    <ul style="padding: 20px">
+        <li>
+            Abstract types and mixin composition unify ideas from object
+            and module systsems.
+        </li>
+        <li>
+            Pattern matching over class hierarchies unifies functional and
+            object-oriented data access. It greatly simplifies the
+            processing of XML trees.
+        </li>
+        <li>
+            A flexible syntax and type system enables the construction of
+            advanced libraries and new domain specific languages.
+        </li>
+    </ul>
 
-At the same time, Scala is compatible with Java. Java libraries and
-frameworks can be used without glue code or additional declarations.
+    At the same time, Scala is compatible with Java. Java libraries and
+    frameworks can be used without glue code or additional declarations.
 
-The current implementation of Scala runs on Java VM. It requires JDK
-1.4 and can run on Windows, MacOS, Linux, Solaris, and most other
-operating systems. A .net version of Scala is currently under
-development."
-<p>2004-01-20 by Martin Odersky</p>
+    The current implementation of Scala runs on Java VM. It requires JDK
+    1.4 and can run on Windows, MacOS, Linux, Solaris, and most other
+    operating systems. A .net version of Scala is currently under
+    development."
+    <p>2004-01-20 by Martin Odersky</p>
 </section>
 
 <section>
@@ -82,9 +82,9 @@ development."
         </li>
 
         <li>
-            Always eta-expanded functions:
-            <pre><code class="scala">def sum(f: Int => Int)(xs: Iterable[Int]) = ???
-val square = sum(x => x * x)</code></pre>
+            Always eta-expanded partially applied functions:
+            <pre><code class="scala">def map(f: Int => Int)(xs: Iterable[Int]) = ???
+val square = map(x => x * x)</code></pre>
     </ul>
 </section>
 
@@ -100,7 +100,8 @@ val square = sum(x => x * x)</code></pre>
 </section>
 
 <section>
-    <h3>Scala 2.0 - alias puberty, or "when cake didn't make them fat"</h3>
+    <h3>Scala 2.0 - alias puberty,</h3>
+    <h3>or "when cake didn't make them fat"</h3>
 </section>
 
 <section>
@@ -113,7 +114,7 @@ val square = sum(x => x * x)</code></pre>
                 <li>Expected type is a function</li>
                 <li>
                     Missing parameters are specified with "<code>_</code>"
-                    <pre><code class="scala">val square = sum(x => x * x)(_)</code></pre>
+                    <pre><code class="scala">val square = map(x => x * x)(_)</code></pre>
                 </li>
             </ul>
         </li>
@@ -163,21 +164,22 @@ new C // res: 5</code></pre>
         <li>Existential Types</li>
         <li>Lazy Values</li>
         <li>Structural Types</li>
+        <li>Higher-kinded types?</li>
     </ul>
 </section>
 
 <section>
     <h2>Scala 2.7 - revenge of the case class</h2>
     <ul>
-        <li>May now be abstract again - hooray Martin!</li>
-        <li>Get extractor methods by default</li>
-        <li>Allowed to have companions</li>
+        <li>Case classes may now be abstract again - hooray Martin!</li>
+        <li>Case classes get extractor methods by default</li>
+        <li>Case classes allowed to have companions</li>
         <li>Mixing Scala and Java code in the same project is now allowed</li>
     </ul>
 </section>
 
 <section>
-    <h2>Scala 2.8 - atoning for past mistakes</h2>
+    <h2>Scala 2.8 - end of puberty</h2>
     <ul>
         <li>Redesigned Collections</li>
         <li>Specialization using: <code>@specialized</code></li>
@@ -214,6 +216,24 @@ new C // res: 5</code></pre>
         <li>Nearly nothing removed - lost features replaced</li>
         <li>Future 2.X versions - more stability-oriented</li>
     </ul>
+</section>
+
+<section>
+    <h2>Why the rapid growth?</h2>
+    <ul>
+        <li>
+            <p>Adoption</p>
+            <p>- people asked for features</p>
+        </li>
+        <li>
+            <p>It was developed at a University</p>
+            <p>- PhD students wanted to see their work applied</p>
+        </li>
+    </ul>
+</section>
+
+<section>
+    <h2>Lessons learned in 2.10-2.1X</h2>
 </section>
 
 <section>
