@@ -21,3 +21,5 @@ baseurl: "" # the subpath of your site, e.g. /blog
 markdown: kramdown
 theme: minima
 exclude: [vendor]
+gems:
+  - jekyll-feed
