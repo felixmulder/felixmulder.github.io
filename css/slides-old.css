@@ -1,12 +1,5 @@
-@import url('https://fonts.googleapis.com/css?family=Raleway:200,300,400,500');
-@import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
-@import url('https://fonts.googleapis.com/css?family=Inconsolata');
-@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro');
-
-
-
 body {
-    background-color: #eee;
+    background-color: #1d213c;
 }
 
 #epfl-logo {
@@ -16,20 +9,8 @@ body {
     width: 250px;
 }
 
-.reveal, .reveal p,
-.reveal h1, .reveal h2, .reveal h3,
-.reveal h4, .reveal h5, .reveal h6 {
-    color: #22313f;
-    font-family: 'Raleway', sans-serif;
-}
-
-.reveal { font-weight: 100; }
-
-.reveal h1 { font-size: 70px; }
-.reveal h2 { font-size: 40px; }
-.reveal h3 {
-    font-size: 30px;
-    font-weight: 100;
+.reveal, .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+    color: #eee;
 }
 
 mark {
@@ -68,7 +49,6 @@ a#twitter-url:hover,
 }
 
 .reveal .slide-number {
-    color: #22313f;
     background-color: transparent;
     font-size: 16px;
 }
@@ -79,7 +59,7 @@ a#twitter-url:hover,
 
 .reveal section img.border {
     background: transparent;
-    box-shadow: -1px 3px 5px rgba(0,0,0,0.2);
+    box-shadow: -5px 5px 10px rgba(0,0,0,0.4);
     border-radius: 2px;
     border: 0;
 }
@@ -163,26 +143,8 @@ div.reveal.slide.center {
 }
 
 pre > code.scala {
+    padding: 1em;
     border-radius: 0.2em;
-    font-family: 'Roboto Mono', monospace;
-    font-family: 'Inconsolata', monospace;
-    font-family: 'Source Code Pro', monospace;
-}
-
-.reveal pre.clear {
-    border: 0;
-    box-shadow: none;
-    background-color: transparent;
-    display: inline-block;
-    width: auto;
-}
-
-.reveal pre.clear code.hljs {
-    background: none;
-}
-
-code.hljs span.hljs-keyword {
-    color: #998;
 }
 
 .reveal pre {

@@ -1,0 +1,120 @@
+---
+layout: presentation
+title: "Real World Dotty"
+date: "2017-09-20"
+---
+
+<section>
+    <h3>Dotty's new REPL</h3>
+    <h1>Real World Dotty</h1>
+    <h3>Felix Mulder</p>
+</section>
+
+<section>
+    <span style="text-transform: uppercase">
+        Slides: <a href="http://felixmulder.com">felixmulder.com</a>
+    </span>
+</section>
+
+<section>
+    <h1>Questions up front</h1>
+</section>
+
+<section>
+    <h2>Repo Activity</h2>
+    <img class="border" src="./contribs.png">
+    <h3>88 Contributors</h3>
+</section>
+
+<section>
+    <h1>CDD</h1>
+    <h3>
+        <span class="fragment" data-fragment-index="1">Conference -</span>
+        <span class="fragment" data-fragment-index="2">Driven</span>
+        <span class="fragment" data-fragment-index="3">Development</span>
+    </h3>
+    <ul class="fragment" data-fragment-index="3">
+        <li>Scala Matsuri</li>
+        <li>Scala Days</li>
+        <li>Scala World</li>
+    </ul>
+</section>
+
+<section>
+    <h2>In This Talk</h2>
+    <ul>
+        <li>Building a REPL 101</li>
+        <li>The New REPL</li>
+        <li>New Language Features</li>
+    </ul>
+</section>
+
+<section>
+    <h2>So, how do you build a REPL?</h2>
+</section>
+
+<section>
+    <h2>Evaluate expressions <span class="fragment fade-out">& Commands</span></h2>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">Expression => Result</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">IO[String] => Result[String]</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">type Result[T] = ???</code></pre>
+</section>
+
+<section>
+    <h2>Compiler Crash-Course</h2>
+    <ol>
+        <li class="fragment">Tokenize</li>
+        <li class="fragment">Parse</li>
+        <li class="fragment">Typecheck</li>
+        <li class="fragment">...</li>
+        <li class="fragment">Runnable</li>
+    </ol>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">type Result[T] = ValidatedNel[ErrorMessage, T]</code></pre>
+</section>
+
+<section>
+    <img class="border" src="./external-deps.jpg">
+</section>
+
+<section>
+    <h2>Dotty has union types! 💡</h2>
+    <pre class="fragment clear"><code class="scala">type Result[T] = List[ErrorMessage] | T </code></pre>
+</section>
+
+
+<section>
+    <pre class="clear"><code class="scala">type Result[T] = scala.util.Either[List[ErrorMessage], T]</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">def interpret(input: String): Result[String] = ...
+
+val readLine: IO[String] = IO { "val x = 5" }
+
+val pipeline: IO[String] = for {
+  input  <- readLine
+  result =  interpret(input).fold(reportErrors, reportResult)
+} yield result
+
+pipeline.unsafeRunSync() // "val x: String = 5"</code></pre>
+</section>
+
+<section>
+    slide about `type Result[+T] = T | Errors`
+</section>
+
+<section>
+    <h1>Thank you!</h1>
+</section>
