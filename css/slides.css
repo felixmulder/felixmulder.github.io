@@ -32,6 +32,11 @@ body {
     font-weight: 100;
 }
 
+.reveal ul ul {
+    list-style-type: circle;
+    font-size: smaller;
+}
+
 mark {
     background-color: #6fa06a;
 }
@@ -48,6 +53,18 @@ mark.red {
 mark.green > span.hljs-comment,
 mark.red > span.hljs-comment {
     color: #fff;
+}
+
+span.fragment.highlight-blue.visible > span.hljs-comment {
+    color: #1b91ff;
+}
+
+.reveal blockquote {
+    padding: 20px !important;
+    border: 0;
+    background-color: rgba(255,255,255, 0.4);
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
 }
 
 a#twitter-url {
@@ -164,8 +181,9 @@ div.reveal.slide.center {
 
 pre > code.scala {
     border-radius: 0.2em;
-    font-family: 'Roboto Mono', monospace;
-    font-family: 'Inconsolata', monospace;
+}
+
+.reveal code {
     font-family: 'Source Code Pro', monospace;
 }
 

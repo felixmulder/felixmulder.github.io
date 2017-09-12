@@ -43,8 +43,8 @@ date: "2017-09-20"
 <section>
     <h2>In This Talk</h2>
     <ul>
-        <li>Building a REPL 101</li>
-        <li>The New REPL</li>
+        <li class="fragment highlight-blue" data-fragment-index="1">Building a REPL 101</li>
+        <li class="fragment highlight-blue" data-fragment-index="1">The New REPL</li>
         <li>New Language Features</li>
     </ul>
 </section>
@@ -73,7 +73,7 @@ date: "2017-09-20"
     <h2>Compiler Crash-Course</h2>
     <ol>
         <li class="fragment">Tokenize</li>
-        <li class="fragment">Parse</li>
+        <li class="fragment">Parse AST</li>
         <li class="fragment">Typecheck</li>
         <li class="fragment">...</li>
         <li class="fragment">Runnable</li>
@@ -86,13 +86,13 @@ date: "2017-09-20"
 
 <section>
     <img class="border" src="./external-deps.jpg">
+    <p style="font-size: small">*that aren't Java</p>
 </section>
 
 <section>
     <h2>Dotty has union types! 💡</h2>
     <pre class="fragment clear"><code class="scala">type Result[T] = List[ErrorMessage] | T </code></pre>
 </section>
-
 
 <section>
     <h2>A Compromise</h2>
@@ -113,7 +113,357 @@ pipeline.unsafeRunSync() // "val x: String = 5"</code></pre>
 </section>
 
 <section>
-    slide about `type Result[+T] = T | Errors`
+    <pre class="clear"><code class="scala">def interpret(input: String): Result[String] =
+  <span class="fragment" data-fragment-index="1">compile(input).flatMap(evaluate)</span>
+
+<span class="fragment" data-fragment-index="2">def compile(input: String): Result[tpd.Tree] =
+  for {
+    <span class="fragment" data-fragment-index="3">exprs     <- parse(input)</span>
+    <span class="fragment" data-fragment-index="4"><span class="fragment highlight-blue" data-fragment-index="8">contained <- wrap(exprs)</span></span>
+    <span class="fragment" data-fragment-index="5">typed     <- compile(contained)</span>
+  } <span class="fragment" data-fragment-index="6">yield typed</span>
+</span>
+<span class="fragment" data-fragment-index="7">def evaluate(tree: tpd.Tree): Result[String] = {
+  // collect information from `tree` and its symbol
+}</span></code></pre>
+</section>
+
+<section>
+    <h2>Why wrap things?</h2>
+    <h3 class="fragment">Need to run the full compiler pipeline</h3>
+</section>
+
+<section>
+    <h2>What should we be compiling?</h2>
+    <pre class="clear"><code class="scala">scala> val x = 5
+
+<span class="fragment">// =>
+
+object rs$l1 {
+  val x = 5
+}</span></code></pre>
+</section>
+
+<section>
+    <h2>What should we be compiling?</h2>
+    <pre class="clear"><code class="scala">scala> 5
+
+<span class="fragment">// =>
+
+object rs$l2 {
+  val res0 = 5
+}</span></code></pre>
+</section>
+
+<section>
+    <h2>What should we be compiling?</h2>
+    <pre class="clear"><code class="scala">scala> class Foo
+
+<span class="fragment">// =>
+
+object rs$l3 {
+  class Foo
+}</span></code></pre>
+</section>
+
+<section>
+    <h2>Is that it?</h2>
+    <pre class="fragment clear" data-fragment-index="1"><code class="scala">scala> val y = x
+
+<span class="fragment" data-fragment-index="2">// =>
+
+object rs$l4 {
+  <span class="fragment" data-fragment-index="3">import rs$l1._</span>
+  val y = x <span class="fragment fade-out" data-fragment-index="3">// error: not found: value x</span>
+}</span></code></pre>
+</section>
+
+<section>
+    <h2>Is that it?</h2>
+    <pre class="clear"><code class="scala">val y = x
+
+// =>
+
+object rs$l4 {
+  import rs$l1._, rs$l2._, rs$l3._
+  val y = x                             
+}</code></pre>
+</section>
+
+<section>
+    <h2>What about implicits?</h2>
+    <pre class="clear"><code class="scala"><span class="fragment">scala> implicit val x: String = "wrong"</span>
+<span class="fragment">scala> implicit val y: String = "right"</span>
+<span class="fragment">scala> implicitly[String]</span>
+<span class="fragment">
+// =>
+
+object rs$l1 { implicit val x: String = "wrong" }
+
+<span class="fragment">object rs$l2 {
+  import rs$l1._
+  implicit val y: String = "right"
+}</span>
+
+<span class="fragment">object rs$l3 {
+  import rs$l1._, rs$l2._
+  val res0 = implicitly[String] // error: ambiguous implicit values
+}</span>
+</span></code></pre>
+<span class="fragment">🙈</span>
+</section>
+
+<section>
+    <h2>Dotty's Concept of Context</h2>
+    <ul class="fragment">
+        <li><code>Context</code> is analogous to scalac's <code>Global</code></li>
+        <li>Settings</li>
+        <li>Immutable</li>
+        <li>Local</li>
+        <li>Owner</li>
+        <li>Scope</li>
+    </ul>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">package example
+
+class A
+
+class B {
+                                                 
+ def f = ???
+ def g = ???
+}
+
+</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">package example {
+  <span class="fragment">// Context(owner = example, scope = Scope(A, B))</span>
+  class A
+
+  class B {
+   <span class="fragment">// Context(owner = B, scope = Scope(A, B, f, g))</span>
+   def f = ???
+   def g = ???
+  }
+}
+</code></pre>
+</section>
+
+<section>
+<pre class="clear"><code class="scala">
+object rs$l1 { implicit val x: String = "wrong" }
+
+object rs$l2 {
+  <span class="fragment" data-fragment-index="1">// Context(owner = rs$l2, scope = ShadowScope(rs$l1._))</span>
+  <span class="fragment fade-out" data-fragment-index="1">import rs$l1._</span>
+  implicit val y: String = "right"
+}
+
+object rs$l3 {
+  <span class="fragment" data-fragment-index="2">// Context(owner = rs$l2, scope = ShadowScope(rs$l2._, rs$l1._))</span>
+  <span class="fragment fade-out" data-fragment-index="2">import rs$l1._, rs$l2._</span>
+  val res0 = implicitly[String] <span class="fragment" data-fragment-index="2">// val res0: String = "right" 😁👍</span>
+}
+</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">def compile(input: String): Result[tpd.Tree] =
+  for {
+    exprs     <- parse(input)
+    contained <- wrap(exprs)
+    typed     <- compile(contained)
+  } yield typed
+</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">def compile(tree: untpd.Tree)<span class="fragment">(implicit ctx: Context)</span>: tpd.Tree = {
+
+  <span class="fragment">def addMagicImports(initCtx: Context): Context =
+    (initCtx /: lineNumbers) { (ctx, line) =>
+      ctx.setNewScope.setImportInfo(importRef(line))
+    }</span>
+
+  // Use dotty internals to compile the `tree` => then
+  // return the typed version of it
+}</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">def interpret(input: String): Result[String] =
+  compile(input).flatMap(<span class="fragment highlight-blue">evaluate</span>)
+
+<span class="fragment">def evaluate(tree: tpd.Tree): Result[String] = {
+  <span class="fragment">// 1. Render definitions: class, trait, object, type, def</span>
+  <span class="fragment">// 2. Render values: val, var</span>
+}</span></code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">def evaluate(tree: tpd.Tree): Result[String] = {
+  val defs = ctx.atPhase(ctx.typerPhase.next) {
+    tree.symbol
+      .find(isWrapper).toList
+      .map(collectDefs)
+      .map(renderDefs)
+  }
+
+  val values = <span class="fragment highlight-blue">renderValues(tree)</span>
+
+  // Return everything separated by newlines:
+  (defs ++ values).mkString("\n")
+}</code></pre>
+</section>
+
+<section>
+    <h2>What does Haskell do?</h2>
+    <h3 class="fragment">Interpreter</h3>
+</section>
+
+<section>
+    <blockquote>"Let's just use Shapeless" - Scala devs</blockquote>
+    <blockquote class="fragment">"Let's just use Reflection" - Java devs</blockquote>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">def renderValues(tree: tpd.Tree): List[String] = {
+  def valueOf(sym: Symbol): Option[String] = { ...  }
+
+  collectValues(tree).map { symbol =>
+    val dcl = symbol.showUser
+    val res = if (symbol.is(Lazy)) Some("&lt;lazy&gt;") else valueOf(symbol)
+
+    res.map(value => show"$dcl = $value")
+  }
+}
+</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">def valueOf(sym: Symbol): Option[String] = {
+  val wrapperName = sym.owner.name
+  val wrapper = Class.forName(wrapperName, true, classLoader)
+
+  val res =
+    wrapper
+      .getDeclaredMethods.find(_.getName == sym.name + "Show")
+      .map(_.invoke(null).toString)
+
+  if (!sym.is(Flags.Method) && sym.info == defn.UnitType)
+    None
+  else res
+}</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">trait Show[-T] {
+  def show(t: T): String
+}
+</code></pre>
+</section>
+
+<section>
+    <h2>What should we be compiling?</h2>
+    <pre class="clear"><code class="scala">scala> val x = 5
+
+<span class="fragment">// =>
+
+object rs$l1 {
+  val x = 5
+  <span class="fragment">def xShow = x.show</span>
+}</span></code></pre>
+
+    <p><span class="fragment">Trivia - why a <code>def</code>?</span></p>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">def valueOf(sym: Symbol): Option[String] = {
+  val wrapperName = sym.owner.name
+  val wrapper = Class.forName(wrapperName, true, classLoader)
+
+  val res =
+    wrapper
+      .getDeclaredMethods.find(_.getName == sym.name + "Show")
+      .map(_.invoke(null).toString) <span class="fragment">// Initializes the object 🙊</span>
+
+  if (!sym.is(Flags.Method) && sym.info == defn.UnitType)
+    None
+  else res
+}</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">Expression => Result</code></pre>
+    <br/>
+    <pre class="clear fragment"><code>🎩 + 🐿 == `Ship it!`</code></pre>
+</section>
+
+<section>
+    <h2>New Language Features</h2>
+    <h3>And how they were (mis-)used in this project</h3>
+</section>
+
+<section>
+    <h2>Dotty has union types! 💡</h2>
+    <pre class="clear"><code class="scala">type Result[T] = List[ErrorMessage] | T </code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">type Result[T] = List[ErrorMessage] | T
+
+implicit class ResultOps[A](res: Result[A]) extends AnyVal {
+  def flatMap[B](f: A => Result[B]): Result[B] = res match {
+    case err: List[ErrorMessage] => err <span class="fragment" data-fragment-index="1">// warning: type erasure</span>
+    case a: A => f(a)                   <span class="fragment" data-fragment-index="1">// warning: match on generic type</span>
+  }
+}</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">type Result[T] = Errors | T
+private case class Errors(values: List[ErrorMessage])
+
+implicit class ResultOps[A](res: Result[A]) extends AnyVal {
+  def flatMap[B](f: A => Result[B]): Result[B] = res match {
+    case err: Errors => err
+    case a: A @unchecked => f(a)
+  }
+
+  ...
+}</code></pre>
+</section>
+
+<section>
+    <pre class="clear"><code class="scala">for { x <- 1 } yield 1</code></pre>
+    <p class="fragment">🙈</p>
+    <pre class="fragment clear"><code class="scala">1 <:< Result[T]</code></pre><br/>
+    <pre class="fragment clear"><code class="scala">1 <:< (Errors | T)</code></pre><br/>
+    <pre class="fragment clear"><code class="scala">(1 <:< Errors) || (1 <:< T)</code></pre><br/>
+    <pre class="fragment clear"><code class="scala">false || (1 <:< T)</code></pre><br/>
+    <pre class="fragment clear"><code class="scala">true</code></pre>
+</section>
+
+<section>
+    <h2>When not to use a union type</h2>
+    <ul>
+        <li>Instead of <code>Either</code></li>
+        <li>Instead of <code>Coproduct</code></li>
+        <li>When part of the union is generic</li>
+    </ul>
+</section>
+
+<section>
+    <h2>When to use union types</h2>
+    <ul>
+        <li>Unordered disjunctions</li>
+        <li>In place of <code>Any</code></li>
+        ...
+    </ul>
 </section>
 
 <section>
