@@ -69,7 +69,6 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/0.96/head.min.js"></script>
         <script src="/js/reveal.js"></script>
-        <script src="/js/highlight.pack.js"></script>
 
         <script>
             Reveal.initialize({
@@ -78,11 +77,12 @@
                 history: true,
                 transition: "none",
                 dependencies: [
-                    { src: '/plugin/notes/notes.js', async: true }
+                    { src: '/js/highlight.pack.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: '/plugin/notes/notes.js', async: true },
+                    { src: '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
                 ],
             });
-
-            hljs.initHighlightingOnLoad();
         </script>
     </body>
 </html>

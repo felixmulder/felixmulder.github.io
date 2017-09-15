@@ -11,6 +11,14 @@ date: "2017-09-20"
 </section>
 
 <section>
+    <img class="no-bg" src="epfl.svg" width="250"/>
+</section>
+
+<section>
+    <img class="no-bg" src="klarna.svg" width="250"/>
+</section>
+
+<section>
     <span style="text-transform: uppercase">
         Slides: <a href="http://felixmulder.com">felixmulder.com</a>
     </span>
@@ -58,15 +66,15 @@ date: "2017-09-20"
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">Expression => Result</code></pre>
+    <pre><code class="scala">Expression => Result</code></pre>
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">IO[String] => Result[String]</code></pre>
+    <pre><code class="scala">IO[String] => Result[String]</code></pre>
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">type Result[T] = ???</code></pre>
+    <pre><code class="scala">type Result[T] = ???</code></pre>
 </section>
 
 <section>
@@ -81,7 +89,7 @@ date: "2017-09-20"
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">type Result[T] = ValidatedNel[ErrorMessage, T]</code></pre>
+    <pre><code class="scala">type Result[T] = ValidatedNel[ErrorMessage, T]</code></pre>
 </section>
 
 <section>
@@ -96,11 +104,11 @@ date: "2017-09-20"
 
 <section>
     <h2>A Compromise</h2>
-    <pre class="clear"><code class="scala">type Result[T] = scala.util.Either[List[ErrorMessage], T]</code></pre>
+    <pre><code class="scala">type Result[T] = scala.util.Either[List[ErrorMessage], T]</code></pre>
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">def interpret(input: String): Result[String] = ...
+    <pre><code class="scala">def interpret(input: String): Result[String] = ...
 
 val readLine: IO[String] = IO { "val x = 5" }
 
@@ -113,7 +121,7 @@ pipeline.unsafeRunSync() // "val x: String = 5"</code></pre>
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">def interpret(input: String): Result[String] =
+    <pre><code class="scala">def interpret(input: String): Result[String] =
   <span class="fragment" data-fragment-index="1">compile(input).flatMap(evaluate)</span>
 
 <span class="fragment" data-fragment-index="2">def compile(input: String): Result[tpd.Tree] =
@@ -135,7 +143,7 @@ pipeline.unsafeRunSync() // "val x: String = 5"</code></pre>
 
 <section>
     <h2>What should we be compiling?</h2>
-    <pre class="clear"><code class="scala">scala> val x = 5
+    <pre><code class="scala">scala> val x = 5
 
 <span class="fragment">// =>
 
@@ -146,7 +154,7 @@ object rs$l1 {
 
 <section>
     <h2>What should we be compiling?</h2>
-    <pre class="clear"><code class="scala">scala> 5
+    <pre><code class="scala">scala> 5
 
 <span class="fragment">// =>
 
@@ -157,7 +165,7 @@ object rs$l2 {
 
 <section>
     <h2>What should we be compiling?</h2>
-    <pre class="clear"><code class="scala">scala> class Foo
+    <pre><code class="scala">scala> class Foo
 
 <span class="fragment">// =>
 
@@ -180,7 +188,7 @@ object rs$l4 {
 
 <section>
     <h2>Is that it?</h2>
-    <pre class="clear"><code class="scala">val y = x
+    <pre><code class="scala">val y = x
 
 // =>
 
@@ -192,7 +200,7 @@ object rs$l4 {
 
 <section>
     <h2>What about implicits?</h2>
-    <pre class="clear"><code class="scala"><span class="fragment">scala> implicit val x: String = "wrong"</span>
+    <pre><code class="scala"><span class="fragment">scala> implicit val x: String = "wrong"</span>
 <span class="fragment">scala> implicit val y: String = "right"</span>
 <span class="fragment">scala> implicitly[String]</span>
 <span class="fragment">
@@ -226,7 +234,7 @@ object rs$l1 { implicit val x: String = "wrong" }
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">package example
+    <pre><code class="scala">package example
 
 class A
 
@@ -240,7 +248,7 @@ class B {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">package example {
+    <pre><code class="scala">package example {
   <span class="fragment">// Context(owner = example, scope = Scope(A, B))</span>
   class A
 
@@ -254,7 +262,7 @@ class B {
 </section>
 
 <section>
-<pre class="clear"><code class="scala">
+<pre><code class="scala">
 object rs$l1 { implicit val x: String = "wrong" }
 
 object rs$l2 {
@@ -272,7 +280,7 @@ object rs$l3 {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">def compile(input: String): Result[tpd.Tree] =
+    <pre><code class="scala">def compile(input: String): Result[tpd.Tree] =
   for {
     exprs     <- parse(input)
     contained <- wrap(exprs)
@@ -282,7 +290,7 @@ object rs$l3 {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">def compile(tree: untpd.Tree)<span class="fragment">(implicit ctx: Context)</span>: tpd.Tree = {
+    <pre><code class="scala">def compile(tree: untpd.Tree)<span class="fragment">(implicit ctx: Context)</span>: tpd.Tree = {
 
   <span class="fragment">def addMagicImports(initCtx: Context): Context =
     (initCtx /: lineNumbers) { (ctx, line) =>
@@ -295,7 +303,7 @@ object rs$l3 {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">def interpret(input: String): Result[String] =
+    <pre><code class="scala">def interpret(input: String): Result[String] =
   compile(input).flatMap(<span class="fragment highlight-blue">evaluate</span>)
 
 <span class="fragment">def evaluate(tree: tpd.Tree): Result[String] = {
@@ -305,7 +313,7 @@ object rs$l3 {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">def evaluate(tree: tpd.Tree): Result[String] = {
+    <pre><code class="scala">def evaluate(tree: tpd.Tree): Result[String] = {
   val defs = ctx.atPhase(ctx.typerPhase.next) {
     tree.symbol
       .find(isWrapper).toList
@@ -331,7 +339,7 @@ object rs$l3 {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">def renderValues(tree: tpd.Tree): List[String] = {
+    <pre><code class="scala">def renderValues(tree: tpd.Tree): List[String] = {
   def valueOf(sym: Symbol): Option[String] = { ...  }
 
   collectValues(tree).map { symbol =>
@@ -345,7 +353,7 @@ object rs$l3 {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">def valueOf(sym: Symbol): Option[String] = {
+    <pre><code class="scala">def valueOf(sym: Symbol): Option[String] = {
   val wrapperName = sym.owner.name
   val wrapper = Class.forName(wrapperName, true, classLoader)
 
@@ -361,7 +369,7 @@ object rs$l3 {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">trait Show[-T] {
+    <pre><code class="scala">trait Show[-T] {
   def show(t: T): String
 }
 </code></pre>
@@ -369,7 +377,7 @@ object rs$l3 {
 
 <section>
     <h2>What should we be compiling?</h2>
-    <pre class="clear"><code class="scala">scala> val x = 5
+    <pre><code class="scala">scala> val x = 5
 
 <span class="fragment">// =>
 
@@ -382,7 +390,7 @@ object rs$l1 {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">def valueOf(sym: Symbol): Option[String] = {
+    <pre><code class="scala">def valueOf(sym: Symbol): Option[String] = {
   val wrapperName = sym.owner.name
   val wrapper = Class.forName(wrapperName, true, classLoader)
 
@@ -398,9 +406,9 @@ object rs$l1 {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">Expression => Result</code></pre>
+    <pre><code class="scala">Expression => Result</code></pre>
     <br/>
-    <pre class="clear fragment"><code>🎩 + 🐿 == `Ship it!`</code></pre>
+    <pre class="fragment"><code>🎩 + 🐿 == `Ship it!`</code></pre>
 </section>
 
 <section>
@@ -410,11 +418,11 @@ object rs$l1 {
 
 <section>
     <h2>Dotty has union types! 💡</h2>
-    <pre class="clear"><code class="scala">type Result[T] = List[ErrorMessage] | T </code></pre>
+    <pre><code class="scala">type Result[T] = List[ErrorMessage] | T </code></pre>
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">type Result[T] = List[ErrorMessage] | T
+    <pre><code class="scala">type Result[T] = List[ErrorMessage] | T
 
 implicit class ResultOps[A](res: Result[A]) extends AnyVal {
   def flatMap[B](f: A => Result[B]): Result[B] = res match {
@@ -425,7 +433,7 @@ implicit class ResultOps[A](res: Result[A]) extends AnyVal {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">type Result[T] = Errors | T
+    <pre><code class="scala">type Result[T] = Errors | T
 private case class Errors(values: List[ErrorMessage])
 
 implicit class ResultOps[A](res: Result[A]) extends AnyVal {
@@ -439,7 +447,7 @@ implicit class ResultOps[A](res: Result[A]) extends AnyVal {
 </section>
 
 <section>
-    <pre class="clear"><code class="scala">for { x <- 1 } yield 1</code></pre>
+    <pre><code class="scala">for { x <- 1 } yield 1</code></pre>
     <p class="fragment">🙈</p>
     <pre class="fragment clear"><code class="scala">1 <:< Result[T]</code></pre><br/>
     <pre class="fragment clear"><code class="scala">1 <:< (Errors | T)</code></pre><br/>
@@ -460,11 +468,231 @@ implicit class ResultOps[A](res: Result[A]) extends AnyVal {
 <section>
     <h2>When to use union types</h2>
     <ul>
+        <li class="fragment highlight-blue">Anonymous ADTs</li>
         <li>Unordered disjunctions</li>
-        <li>In place of <code>Any</code></li>
-        ...
+        <li>Value Enumerations</li>
+        <li>Dynamic Language Interop</li>
     </ul>
 </section>
+
+<section>
+    <pre><code class="scala">
+<span class="fragment fade-out" data-fragment-index="1">def padLeft[A : Prefix](value: A, padding: Any): A =</span>
+<span class="fragment" data-fragment-index="1">def padLeft[A : Prefix](value: A, padding: String | Int): A =</span>
+  padding match {
+    case padding: String => value.prefix(padding)
+    case padding: Int    => value.prefix(" " * padding)
+  }</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">
+enum Message {
+  case PlainMessage[A](value: A)
+  case ComputableMessage[A](value: () => A)
+  case NoMessage
+}
+
+type SomeMessage[A] = PlainMessage[A] | ComputableMessage[A]
+
+<span class="fragment">def log[A : Broker](msg: SomeMessage): IO[Unit] =
+  msg match {
+    case msg: PlainMessage      => IO { println(msg) }
+    case msg: ComputableMessage => IO { println(msg.compute) }
+  }</span></code></pre>
+</section>
+
+<section>
+    <h2>When to use union types</h2>
+    <ul>
+        <li>Anonymous ADTs</li>
+        <li class="fragment highlight-blue">Unordered disjunctions</li>
+        <li>Value Enumerations</li>
+        <li>Dynamic Language Interop</li>
+    </ul>
+</section>
+
+<section>
+    <pre><code class="scala"><span class="fragment" data-fragment-index="1">(</span>String | Int<span class="fragment" data-fragment-index="1">) =:= (Int | String)</span></pre></code>
+</section>
+
+<section>
+    <h2>When to use union types</h2>
+    <ul>
+        <li>Anonymous ADTs</li>
+        <li>Unordered disjunctions</li>
+        <li class="fragment highlight-blue">Value Enumerations</li>
+        <li>Dynamic Language Interop</li>
+    </ul>
+</section>
+
+<section>
+    <pre><code class="scala">enum Days {
+  case Monday
+  case Tuesday
+  case Wednesday
+  case Thursday
+  case Friday
+  case Saturday
+  case Sunday
+}
+
+type Weekday = Monday.type   | Tuesday.type | ... | Friday.type
+type Weekend = Saturday.type | Sunday.type
+    </pre></code>
+</section>
+
+<section>
+    <h2>Sadly</h2>
+    <div class="fragment">
+        <h3>Allow singleton types in union types</h3>
+        <a href="https://github.com/lampepfl/dotty/issues/1551">#1551</a>
+    </div>
+</section>
+
+<section>
+    <h2>When to use union types</h2>
+    <ul>
+        <li>Anonymous ADTs</li>
+        <li>Unordered disjunctions</li>
+        <li>Value Enumerations</li>
+        <li class="fragment highlight-blue">Dynamic Language Interop</li>
+    </ul>
+</section>
+
+<section>
+    <pre><code class="scala">type UndefOr[A] = A | Unit</pre></code>
+</section>
+
+<section>
+    <h2>Improved Type Inference</h2>
+    <pre><code class="scala">val res: Either[Exception, Int] = Right(1)
+
+<span class="fragment">res.map(_ + 1)</span>
+    </pre></code>
+</section>
+
+<section>
+    <h2>Improved Type Inference</h2>
+    <pre><code class="scala">val res: Either[Exception, (Int, String)] = Right((1, "foo"))
+
+<span class="fragment">res.map((i, str) => (i + 1, str + "bar"))</span>
+<span class="fragment">// error: found (Int, String) => (Int, String),
+//        required ((Int, String)) => ?</span>
+
+<span class="fragment">res.map { case (i, str) => (i + 1, str + "bar") }</span>
+    </pre></code>
+</section>
+
+<section>
+    <pre><code class="scala">implicit class ListOps[A](val xs: List[A]) extends AnyVal {
+  def myFoldLeft1[B](init: B, f: (B, A) => B): B = ...
+
+  <span class="fragment" data-fragment-index="4">def myFoldLeft2[B](init: B)(f: (B, A) => B): B = ...</span>
+}
+
+<span class="fragment" data-fragment-index="5">List(1, 2, 3).myFoldLeft2(0)(_ + _)</span>
+<span class="fragment fade-out" data-fragment-index="4"><span class="fragment" data-fragment-index="1">List(1, 2, 3).myFoldLeft1(0, _ + _)</span>
+<span class="fragment" data-fragment-index="2">// error: missing parameter type for expanded function
+//        ((x$1: <error>, x$2: Int) => x$1.$plus(x$2))</span>
+<span class="fragment" data-fragment-index="3">List(1, 2, 3).myFoldLeft1(0, (a: Int, x: Int) => a + x)
+List(1, 2, 3).myFoldLeft1[Int](0, _ + _)
+</span>
+</span>
+</pre></code>
+</section>
+
+<section>
+    <pre><code class="scala">xs.foldRight(List.empty)(_ :: _)
+// res0: List[Any](1, 2, 3)
+
+<span class="fragment" data-fragment-index="1">def foo: List[Int] = xs.foldRight(List.empty)(_ :: _)</span>
+    </code></pre>
+    <span class="fragment" data-fragment-index="1">🤗</span>
+</section>
+
+<section>
+    <pre><code class="scala">trait Foo[A] { type B }
+
+def foo[A](t: A)
+          (implicit f: Foo[A], m: Monoid[f.B]): f.B = m.zero
+</pre></code>
+</section>
+
+<section>
+    <h2><span class="fragment" data-fragment-index="1">Implicit</span> Functions</h2>
+    <pre><code class="scala"><span class="fragment" data-fragment-index="1">implicit</span> A => B</pre></code>
+    <p class="fragment" data-fragment-index="1">Adds the ability to abstract over contexts</p>
+</section>
+
+<section>
+    <pre><code class="scala">IO[String] => Result[String]</pre></code>
+
+    <p class="fragment">History<span class="fragment">, which is just another word for state 😱</span></p>
+</section>
+
+<section>
+    <pre><code class="scala">case class ReplState(history: Strings,
+                     imports: Imports,
+                      loader: ClassLoader,
+                         run: Run)
+    </code></pre>
+</section>
+
+<section>
+    <h2>Stop!</h2>
+    <h3 class="fragment">We didn't actually go the full nine yards</h3>
+    <span class="fragment"><a href="https://scala-lang.org/blog/2016/12/07/implicit-function-types.html">Implicit Function Types - Odersky</a></span>
+</section>
+
+<section>
+    <h2>A Note on Contraviariance</h2>
+    <pre><code class="scala">trait Show[<span class="fragment">-</span>T] {
+  def apply(t: T): String
+}</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">trait Show[-T] {
+  def apply(t: T): String
+}
+
+class A
+class B extends A
+class C extends B
+
+implicit val showAny = new Show[Any] { def apply(any: Any) = "showing Any" }
+implicit val showA   = new Show[A]   { def apply(a: A)     = "showing A" }
+implicit val showB   = new Show[B]   { def apply(b: B)     = "showing B" }
+implicit val showC   = new Show[C]   { def apply(c: C)     = "showing C" }
+
+implicitly[Show[C]].apply(new C) <span class="fragment">// res: "showing Any"</span>
+</code></pre>
+</section>
+
+<section>
+    <h2>First off</h2>
+    <h3>Let's move the boilerplate to the LHS</h3>
+</section>
+
+<section>
+    <pre><code class="scala">trait Show[-T] {
+  def apply(t: T): String
+}
+
+class A
+class B extends A
+class C extends B
+
+implicit val showAny: Show[Any] = new { def apply(any: Any) = "showing Any" }
+implicit val showA:   Show[A]   = new { def apply(a: A)     = "showing A" }
+implicit val showB:   Show[B]   = new { def apply(b: B)     = "showing B" }
+implicit val showC:   Show[C]   = new { def apply(c: C)     = "showing C" }
+
+implicitly[Show[C]].apply(new C) <span class="fragment">// res: "showing C"</span>
+</code></pre>
+</section>
+
 
 <section>
     <h1>Thank you!</h1>

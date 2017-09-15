@@ -25,6 +25,10 @@ body {
 
 .reveal { font-weight: 100; }
 
+.reveal p {
+    font-size: smaller;
+}
+
 .reveal h1 { font-size: 70px; }
 .reveal h2 { font-size: 40px; }
 .reveal h3 {
@@ -187,7 +191,17 @@ pre > code.scala {
     font-family: 'Source Code Pro', monospace;
 }
 
-.reveal pre.clear {
+code.hljs span.hljs-keyword {
+    color: #998;
+}
+
+.reveal img.no-bg {
+    box-shadow: none;
+    border: 0;
+    background: transparent;
+}
+
+.reveal pre {
     border: 0;
     box-shadow: none;
     background-color: transparent;
@@ -195,16 +209,8 @@ pre > code.scala {
     width: auto;
 }
 
-.reveal pre.clear code.hljs {
+.reveal pre code.hljs {
     background: none;
-}
-
-code.hljs span.hljs-keyword {
-    color: #998;
-}
-
-.reveal pre {
-    width: 100%;
 }
 
 blockquote {
