@@ -11,11 +11,20 @@ date: "2017-09-20"
 </section>
 
 <section>
-    <img class="no-bg" src="epfl.svg" width="250"/>
+    <h2>In This Talk</h2>
+    <ul>
+        <li class="fragment highlight-blue" data-fragment-index="1">Building a REPL 101</li>
+        <li class="fragment highlight-blue" data-fragment-index="1">The New REPL</li>
+        <li>New Language Features</li>
+    </ul>
 </section>
 
 <section>
-    <img class="no-bg" src="klarna.svg" width="250"/>
+    <h2>After this take you'll know</h2>
+    <ul>
+        <li class="fragment">How to build a REPL</li>
+        <li class="fragment">About features in Scala 3</li>
+    </ul>
 </section>
 
 <section>
@@ -26,35 +35,43 @@ date: "2017-09-20"
 
 <section>
     <h1>Questions up front</h1>
+
+    <aside class="notes">
+        <ul>
+            <li>The best time to ask a question is when you have one</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <img class="no-bg" src="epfl.svg" width="250"/>
+
+    <aside class="notes">
+        <ul>
+            <li>Compiler engineer & release manager</li>
+            <li>Big picture</li>
+            <li>Pull in the same dir</li>
+            <li>Get us on to a release schedule</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <img class="no-bg" src="klarna.svg" width="250"/>
 </section>
 
 <section>
     <h2>Repo Activity</h2>
     <img class="border" src="./contribs.png">
     <h3>88 Contributors</h3>
-</section>
 
-<section>
-    <h1>CDD</h1>
-    <h3>
-        <span class="fragment" data-fragment-index="1">Conference -</span>
-        <span class="fragment" data-fragment-index="2">Driven</span>
-        <span class="fragment" data-fragment-index="3">Development</span>
-    </h3>
-    <ul class="fragment" data-fragment-index="3">
-        <li>Scala Matsuri</li>
-        <li>Scala Days</li>
-        <li>Scala World</li>
-    </ul>
-</section>
-
-<section>
-    <h2>In This Talk</h2>
-    <ul>
-        <li class="fragment highlight-blue" data-fragment-index="1">Building a REPL 101</li>
-        <li class="fragment highlight-blue" data-fragment-index="1">The New REPL</li>
-        <li>New Language Features</li>
-    </ul>
+    <aside class="notes">
+        <ul>
+            <li>Making it easy for people to contrib</li>
+            <li>Proper tags, guides for certain parts, better docs</li>
+            <li>Up from a dussin contributors</li>
+        </ul>
+    </aside>
 </section>
 
 <section>
@@ -71,10 +88,23 @@ date: "2017-09-20"
 
 <section>
     <pre><code class="scala">IO[String] => Result[String]</code></pre>
+
+    <aside class="notes">
+        <ul>
+            <li>Try to keep this as pure as possible</li>
+        </ul>
+    </aside>
 </section>
 
 <section>
     <pre><code class="scala">type Result[T] = ???</code></pre>
+
+    <aside class="notes">
+        <ul>
+            <li>Decide upon a datastructure for Res[T]</li>
+            <li>How do we capture failure in a compiler?</li>
+        </ul>
+    </aside>
 </section>
 
 <section>
@@ -86,6 +116,12 @@ date: "2017-09-20"
         <li class="fragment">...</li>
         <li class="fragment">Runnable</li>
     </ol>
+
+    <aside class="notes">
+        <ul>
+            <li>AST represented as ADT</li>
+        </ul>
+    </aside>
 </section>
 
 <section>
@@ -95,11 +131,23 @@ date: "2017-09-20"
 <section>
     <img class="border" src="./external-deps.jpg">
     <p style="font-size: small">*that aren't Java</p>
+
+    <aside class="notes">
+        <ul>
+            <li>Binary compat, but most importantly - bootstrap</li>
+        </ul>
+    </aside>
 </section>
 
 <section>
     <h2>Dotty has union types! 💡</h2>
     <pre class="fragment clear"><code class="scala">type Result[T] = List[ErrorMessage] | T </code></pre>
+
+    <aside class="notes">
+        <ul>
+            <li>Unboxed Either</li>
+        </ul>
+    </aside>
 </section>
 
 <section>
@@ -108,9 +156,17 @@ date: "2017-09-20"
 </section>
 
 <section>
-    <pre><code class="scala">def interpret(input: String): Result[String] = ...
+    <pre><code class="scala">val readLine: IO[String] = IO { "val x = 5" }
 
-val readLine: IO[String] = IO { "val x = 5" }
+<span class="fragment">def interpret(input: String): Result[String] = ...</span>
+    </code></pre>
+    <aside class="notes">
+        This will be what we're trying to evaluate.
+    </aside>
+</section>
+
+<section>
+    <pre><code class="scala">
 
 val pipeline: IO[String] = for {
   input  <- readLine
@@ -131,14 +187,29 @@ pipeline.unsafeRunSync() // "val x: String = 5"</code></pre>
     <span class="fragment" data-fragment-index="5">typed     <- compile(contained)</span>
   } <span class="fragment" data-fragment-index="6">yield typed</span>
 </span>
-<span class="fragment" data-fragment-index="7">def evaluate(tree: tpd.Tree): Result[String] = {
-  // collect information from `tree` and its symbol
-}</span></code></pre>
+<span class="fragment" data-fragment-index="7">def evaluate(tree: tpd.Tree): Result[String] = ...</span></code></pre>
+
+    <aside class="notes">
+        <ul>
+            <li>Interpreting is simply compiling and evaluating</li>
+            <li>Similar to scalac && scala</li>
+            <li>Think back to our pipeline</li>
+            <li>Then we have some evaluation function, to care about later</li>
+            <li>The first non-obvious thing here is the `wrap`</li>
+        </ul>
+    </aside>
 </section>
 
 <section>
     <h2>Why wrap things?</h2>
     <h3 class="fragment">Need to run the full compiler pipeline</h3>
+
+    <aside class="notes">
+        <ul>
+            <li>Can typecheck expression with frontend</lI>
+            <li>Has to be valid scala to be emitted by backend</li>
+        </ul>
+    </aside>
 </section>
 
 <section>
@@ -225,11 +296,11 @@ object rs$l1 { implicit val x: String = "wrong" }
     <h2>Dotty's Concept of Context</h2>
     <ul class="fragment">
         <li><code>Context</code> is analogous to scalac's <code>Global</code></li>
+        <li>Local</li>
+        <li>Scope</li>
+        <li>Owner</li>
         <li>Settings</li>
         <li>Immutable</li>
-        <li>Local</li>
-        <li>Owner</li>
-        <li>Scope</li>
     </ul>
 </section>
 
@@ -277,6 +348,12 @@ object rs$l3 {
   val res0 = implicitly[String] <span class="fragment" data-fragment-index="2">// val res0: String = "right" 😁👍</span>
 }
 </code></pre>
+    <aside class="notes">
+        <ul>
+            <li>When typechecking, we can do so in the context of something</li>
+            <li>Could manipulate the context to make it seem like we have imports or don't</li>
+        </ul>
+    </aside>
 </section>
 
 <section>
@@ -317,7 +394,7 @@ object rs$l3 {
   val defs = ctx.atPhase(ctx.typerPhase.next) {
     tree.symbol
       .find(isWrapper).toList
-      .map(collectDefs)
+      .flatMap(collectDefs)
       .map(renderDefs)
   }
 
@@ -331,10 +408,18 @@ object rs$l3 {
 <section>
     <h2>What does Haskell do?</h2>
     <h3 class="fragment">Interpreter</h3>
+
+    <aside class="notes">
+        <ul>
+            <li>
+                When you find yourself implementing something like this - ask
+                yourself, what does haskell do
+            </li>
+        </ul>
+    </aside>
 </section>
 
 <section>
-    <blockquote>"Let's just use Shapeless" - Scala devs</blockquote>
     <blockquote class="fragment">"Let's just use Reflection" - Java devs</blockquote>
 </section>
 
@@ -477,16 +562,6 @@ implicit class ResultOps[A](res: Result[A]) extends AnyVal {
 
 <section>
     <pre><code class="scala">
-<span class="fragment fade-out" data-fragment-index="1">def padLeft[A : Prefix](value: A, padding: Any): A =</span>
-<span class="fragment" data-fragment-index="1">def padLeft[A : Prefix](value: A, padding: String | Int): A =</span>
-  padding match {
-    case padding: String => value.prefix(padding)
-    case padding: Int    => value.prefix(" " * padding)
-  }</code></pre>
-</section>
-
-<section>
-    <pre><code class="scala">
 enum Message {
   case PlainMessage[A](value: A)
   case ComputableMessage[A](value: () => A)
@@ -582,6 +657,10 @@ type Weekend = Saturday.type | Sunday.type
 
 <span class="fragment">res.map { case (i, str) => (i + 1, str + "bar") }</span>
     </pre></code>
+
+    <aside class="notes">
+        Adapting by auto-tupling
+    </aside>
 </section>
 
 <section>
@@ -600,15 +679,29 @@ List(1, 2, 3).myFoldLeft1[Int](0, _ + _)
 </span>
 </span>
 </pre></code>
+
+    <aside class="notes">
+        <ul>
+            <li>As beginner, implement all the functions</li>
+        </ul>
+    </aside>
 </section>
 
 <section>
     <pre><code class="scala">xs.foldRight(List.empty)(_ :: _)
-// res0: List[Any](1, 2, 3)
+<span class="fragment" data-fragment-index="1">// res0: List[Any](1, 2, 3)</span>
 
-<span class="fragment" data-fragment-index="1">def foo: List[Int] = xs.foldRight(List.empty)(_ :: _)</span>
+<span class="fragment" data-fragment-index="2">def foo: List[Int] = xs.foldRight(List.empty)(_ :: _)</span>
     </code></pre>
-    <span class="fragment" data-fragment-index="1">🤗</span>
+    <span class="fragment" data-fragment-index="2">🤗</span>
+
+    <aside class="notes">
+        <ul>
+            <li>Type bounds, scalac infers Nothing - Dotty chooses different bound.</li>
+            <li>Unconstrained in this case => Any</li>
+            <li>With expected type, you get the correct behaviour</li>
+        </ul>
+    </aside>
 </section>
 
 <section>
@@ -620,58 +713,10 @@ def foo[A](t: A)
 </section>
 
 <section>
-    <h2><span class="fragment" data-fragment-index="1">Implicit</span> Functions</h2>
-    <pre><code class="scala"><span class="fragment" data-fragment-index="1">implicit</span> A => B</pre></code>
-    <p class="fragment" data-fragment-index="1">Adds the ability to abstract over contexts</p>
-</section>
-
-<section>
-    <pre><code class="scala">IO[String] => Result[String]</pre></code>
-
-    <p class="fragment">History<span class="fragment">, which is just another word for state 😱</span></p>
-</section>
-
-<section>
-    <pre><code class="scala">case class ReplState(history: Strings,
-                     imports: Imports,
-                      loader: ClassLoader,
-                         run: Run)
-    </code></pre>
-</section>
-
-<section>
-    <h2>Stop!</h2>
-    <h3 class="fragment">We didn't actually go the full nine yards</h3>
-    <span class="fragment"><a href="https://scala-lang.org/blog/2016/12/07/implicit-function-types.html">Implicit Function Types - Odersky</a></span>
-</section>
-
-<section>
     <h2>A Note on Contraviariance</h2>
     <pre><code class="scala">trait Show[<span class="fragment">-</span>T] {
   def apply(t: T): String
 }</code></pre>
-</section>
-
-<section>
-    <h2>What is contravariance?</h2>
-</section>
-
-<section>
-    <h2>Covariance</h2>
-    <pre><code class="scala">type List[+T]</code></pre></br>
-    <pre class="fragment"><code class="scala">     C  <:<      B  <:<      A</span>
-
-<span class="fragment">List[C] <:< List[B] <:< List[A]</span>
-</code></pre>
-</section>
-
-<section>
-    <h2>Contravariance</h2>
-    <pre><code class="scala">type Show[-T]</code></pre></br>
-    <pre class="fragment"><code class="scala">     C  <:<      B  <:<      A</span>
-
-<span class="fragment">Show[C] >:> Show[B] >:> Show[A]</span>
-</code></pre>
 </section>
 
 <section>
