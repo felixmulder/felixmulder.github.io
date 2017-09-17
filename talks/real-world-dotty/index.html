@@ -653,6 +653,28 @@ def foo[A](t: A)
 </section>
 
 <section>
+    <h2>What is contravariance?</h2>
+</section>
+
+<section>
+    <h2>Covariance</h2>
+    <pre><code class="scala">type List[+T]</code></pre></br>
+    <pre class="fragment"><code class="scala">     C  <:<      B  <:<      A</span>
+
+<span class="fragment">List[C] <:< List[B] <:< List[A]</span>
+</code></pre>
+</section>
+
+<section>
+    <h2>Contravariance</h2>
+    <pre><code class="scala">type Show[-T]</code></pre></br>
+    <pre class="fragment"><code class="scala">     C  <:<      B  <:<      A</span>
+
+<span class="fragment">Show[C] >:> Show[B] >:> Show[A]</span>
+</code></pre>
+</section>
+
+<section>
     <pre><code class="scala">trait Show[-T] {
   def apply(t: T): String
 }
@@ -671,11 +693,6 @@ implicitly[Show[C]].apply(new C) <span class="fragment">// res: "showing Any"</s
 </section>
 
 <section>
-    <h2>First off</h2>
-    <h3>Let's move the boilerplate to the LHS</h3>
-</section>
-
-<section>
     <pre><code class="scala">trait Show[-T] {
   def apply(t: T): String
 }
@@ -691,6 +708,20 @@ implicit val showC:   Show[C]   = new { def apply(c: C)     = "showing C" }
 
 implicitly[Show[C]].apply(new C) <span class="fragment">// res: "showing C"</span>
 </code></pre>
+</section>
+
+<section>
+    <h2>State of Dotty</h2>
+    <ul style="list-style-type:none;">
+        <li class="fragment"><h3>Already feels very stable</h3></li>
+        <li class="fragment"><h3>0.X-releases</h3></li>
+        <li class="fragment"><h3>Macro system coming soon™</h3></li>
+        <li class="fragment">
+            <h3>Try it out!</h3>
+            <pre><code class="bash">$ sbt new lampepfl/dotty.g8
+
+$ brew install lampepfl/brew/dotty</code></pre>
+    </ul>
 </section>
 
 
