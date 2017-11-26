@@ -1,0 +1,150 @@
+---
+layout: presentation
+title: "Programming Multicores in Scala"
+date: "2017-11-28"
+---
+
+<section>
+    <h3>Programming Mutlicores in Scala</h3>
+    <h1>Past, Present, Future</h1>
+    <h3>Felix Mulder</p>
+</section>
+
+<section>
+    <img class="no-bg" src="klarna.svg" width="250"/>
+</section>
+
+<section>
+    <img class="no-bg" src="epfl.svg" width="250"/>
+
+    <aside class="notes">
+        <ul>
+            <li>Compiler engineer & release manager</li>
+            <li>Big picture</li>
+            <li>Pull in the same dir</li>
+            <li>Get us on to a release schedule</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <ul style="text-transform: uppercase; list-style-type:none">
+        <li>
+            <i class="fa fa-twitter"></i><i class="fa fa-github"></i> felixmulder
+        </li>
+        <li>
+            <i class="fa fa-home" style="opacity: 0"></i><i class="fa fa-home"></i> <a href="http://felixmulder.com"> felixmulder.com</a>
+        </li>
+
+    <aside class="notes">
+        I'm felixmulder on most social media, further contact info is available
+        on my website.
+    </aside>
+</section>
+
+<section>
+    <h1>So, why scala?</h1>
+</section>
+
+<section>
+    <h1 class="fragment">Types</h1>
+    <h1 class="fragment">Types</h1>
+    <h1 class="fragment">Types</h1>
+
+    <aside class="notes">
+        The three reasons!
+    </aside>
+</section>
+
+<section>
+    <pre><code class="scala">val x = 1<span class="fragment"> // x: Int</span>
+</code></pre>
+    <aside class="notes">
+        type-inference, statically typed
+    </aside>
+</section>
+
+<section>
+    <pre><code class="scala">def foo[A](a: A): a.type = a</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">trait Functor[F[_]] {
+  def map[A, B](fa: F[A])(f: A => B): F[B]
+}</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">implicit val ListFunctor = new Functor[List] {
+  def map[A, B](fa: List[A])(f: A => B): List[B] = fa.map(f)
+}
+
+def compose[F[_]: Functor, A, B, C](fa: F[A])(f: B => C, g: A => B) =
+  F.map(fa)(f compose g)</code></pre>
+
+    <aside class="notes">
+        <ul>
+            <li>With the notion of implicits</li>
+            <li>model type classes</li>
+            <li>ad-hoc polymorphism</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <h2>Make illegal state unrepresentable</h2>
+</section>
+
+<section>
+    <h2>Finite State Machine</h2>
+    <img class="no-bg" src="./on-off.png">
+
+</section>
+<section>
+    <pre><code class="scala">trait State {
+  type NewState <: State
+  type Transition
+}
+<span class="fragment">
+case object On {
+  type NewState = Off
+}
+</span>
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">
+def trans[S <: State](data: S#Transition, target: S#NewState): S#NewState =
+  target
+<span class="fragment">
+def trans[S <: State](target: S#NewState)
+                     (implicit ev: S#Transition =:= Nothing): S#NewState =
+  target</span>
+</code></pre>
+</section>
+
+<section>
+    <h1>The big picture</h1>
+    <ul>
+        <li class="fragment">Correct</li>
+        <li class="fragment">Scalable</li>
+        <li class="fragment">Fast</li>
+    </ul>
+
+    <aside class="notes">
+        The big picture AT KLARNA.
+
+        Scalable =:= maintainable
+
+        Choice of language heavily impacts this.
+    </aside>
+</section>
+
+<section>
+    <h1>Everything starts with asynchronicity</h1>
+</section>
+
+<section>
+    <h1>Thank you!</h1>
+</section>
