@@ -299,7 +299,171 @@ class Ponger extends TypedActor[Ping] {
 </section>
 
 <section>
-    <h1>Future[T]</h1>
+    <pre><code class="scala">Future[T]</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">def map[B](f: A => B)(implicit EC: ExecutionContext): Future[B]
+
+<span class="fragment">def flatMap[B](f: A => Future[B])(implicit EC: ExecutionContext): Future[B]</span>
+  </code></pre>
+</section>
+
+<section>
+    <div style="font-size: 6rem;">
+        <pre><code class="scala">IO[T]</code></pre>
+    </div>
+    <div class="fragment">
+        Lazy initialization, simply describes a computation
+    </div>
+    <div class="fragment">
+        Type class instances: Effect <: Monad
+    </div>
+</section>
+
+<section>
+    <h2>fp == category theory?</h2>
+    <aside class="notes">
+        <p>
+            We find ourselves drifting more and more towards the functional
+            style of programming
+        </p>
+        <p>
+            So what is functional programming to us?
+        </p>
+    </aside>
+</section>
+
+<section>
+    <h2>Referential transparency</h2>
+    <h2>&</h2>
+    <h2>Controlled effects</h2>
+    <aside class="notes">
+        <p>
+            Essentially, categories are good. They provide a meta meta theory
+            to the code being built. But the main use-case for companies
+            building code using categories like - Monad, Free and friends is to
+            control effects.
+        </p>
+        <p>
+            Monads don't compose
+        </p>
+    </aside>
+</section>
+
+<section>
+    <blockquote>"Effects are good, side-effects are bugs"<br>- <a href="https://www.youtube.com/watch?v=po3wmq4S15A">Rob Norris</a></blockquote>
+</section>
+
+<section>
+    <h1>Scala 3</h1>
+    <h2>The age of DOT</h2>
+</section>
+
+<section>
+    <h2>Parallelism/Concurrency as Libraries</h2>
+    <ul>
+        <li>akka</li>
+        <li><a href="https://github.com/heathermiller/f-p">f-p</a></li>
+        <li>scala-async</li>
+        <li>cats, scalaz</li>
+    </ul>
+</section>
+
+<section>
+    <h1>Scala 3</h1>
+    <h2>The age of DOT</h2>
+</section>
+
+<section>
+    <ul>
+        <li>Formalization: Dependent Object Types</li>
+        <li>New compiler, focus is on speed and simplicity</li>
+        <li>User-friendliness</li>
+        <li class="fragment">Effect system</li>
+    </ul>
+</section>
+
+<section>
+    <h1>Effect System</h1>
+    <ul>
+        <li>Implicits</li>
+        <li>Phantom Types</li>
+    </ul>
+</section>
+
+<section>
+    <pre><code class="scala">def setNull[A: SetNull](a: A): A | Null = a = null
+
+<span class="fragment">def foo(a: A) = println { setNull(a) }</span>
+
+<span class="fragment">def bar[A: SetNull](a: A) = {
+  val a0 = setNull(a)
+  a0.x // does not compile!
+}</span>
+
+<span class="fragment">type UnsafeNull[A] =
+  SetNull[A] & CanThrow[NullPointerException]
+
+def qux[A: UnsafeNull](a: A) = {
+  val a0 = setNull(a)
+  a0.x
+}</span>
+
+</code></pre>
+</section>
+
+<section>
+    <h1>LaCasa</h1>
+    <h2>Lightweight affine types and object capabilities in Scala</h2>
+
+    <aside class="notes">
+        <ul>
+            <li>Controlled mutation</li>
+            <li>Borrowing system similar to Rust</li>
+            <li>Actor-like messaging</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <h1>F-P</h1>
+    <h2>Function Passing</h2>
+    <aside class="notes">
+        <ul>
+            <li>Safe abstraction over SPARK</li>
+            <li>Safe serialization without capture of this - next slide</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <pre><code class="scala">class SparkJob {
+  val theAnswer = 42
+
+  def send = sendToOtherNode {
+    heavyComputation(theAnswer)     
+  }
+}</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">class SparkJob {
+  val theAnswer = 42
+
+  def send = sendToOtherNode {
+    heavyComputation(this.theAnswer)
+  }
+}</code></pre>
+</section>
+
+<section>
+    <h1>Conclusion</h1>
+    <ul>
+        <li class="fragment">Types allow us to write - correct, scalable and fast code</li>
+        <li class="fragment">Monads are cool</li>
+        <li class="fragment">Maybe an effect system is even cooler?</li>
+    </ul>
 </section>
 
 <section>
