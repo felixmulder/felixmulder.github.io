@@ -106,8 +106,17 @@ def compose[F[_]: Functor, A, B, C](fa: F[A])(f: B => C, g: A => B) =
   type Transition
 }
 <span class="fragment">
+case class TurnOn()
+case class TurnOff()
+
 case object On {
+  type Transition = TurnOn
   type NewState = Off
+}</span>
+<span class="fragment">
+case object Off {
+  type Transition = TurnOff
+  type NewState = On
 }
 </span>
 </code></pre>
@@ -137,12 +146,160 @@ def trans[S <: State](target: S#NewState)
 
         Scalable =:= maintainable
 
-        Choice of language heavily impacts this.
+        Choice of language heavily impacts this, static types
     </aside>
 </section>
 
 <section>
-    <h1>Everything starts with asynchronicity</h1>
+    <ul>
+        <li>Actors</li>
+        <li>Futures and friends</li>
+        <li>Distributed programming models</li>
+    </ul>
+</section>
+
+<section>
+    <h1>Actors</h1>
+    <pre><code class="scala">class MyActor extends Actor {
+  def receive = {
+    case "ping" => sender ! "pong"
+  }
+}
+</code></pre>
+    <aside class="notes">
+    </aside>
+</section>
+
+<section>
+    <h1>Actors</h1>
+    <h2>Pros</h2>
+    <ul>
+        <li>Cheap</li>
+        <li>Easy to bootstrap</li>
+        <li>Akka</li>
+    </ul>
+    <aside class="notes">
+        Receive function is synchronous
+
+        Akka provides excellent tooling, there's advanced monitoring, lightbend
+        etc
+    </aside>
+</section>
+
+<section>
+    <h1>Actors</h1>
+    <h2>Cons?</h2>
+
+    <h1 class="fragment" style="color: red;">Untyped 😰</h1>
+</section>
+
+<section>
+    <pre><code class="scala">
+case class StartPong(ref: ActorRef)
+
+class Pinger extends Actor {
+  def receive = {
+    case StartPong(ref) => ref ! "ping"
+    case "pong"         => sender ! "ping"
+  }
+}
+
+class Ponger extends Actor {
+  def receive = {
+    case "ping" => sender ! Expletive.random
+  }
+}
+</code></pre>
+</section>
+
+<section>
+<pre>
+[<span style="color: red;">error</span>] scala.MatchError: Expletive(@#!$) (of class Expletive)
+  ... 36 elided
+</pre>
+<div class="fragment">😡</div>
+</section>
+
+<section>
+    <pre><code class="scala">def receive: PartialFunction[Any, Unit]</code></pre>
+    <h1 class="fragment">🤦‍♂️</h1>
+</section>
+
+<section>
+    <h1>Can we remedy this?</h1>
+</section>
+
+<section>
+    <pre><code class="scala">
+case class StartPong(ref: ActorRef)
+
+
+class Pinger extends Actor {
+  def receive = {
+    case StartPong(ref) => ref ! "ping"
+    case "pong"         => sender ! "ping"
+  }
+}
+                                                                   
+class Ponger extends Actor {
+  def receive = {
+    case "ping" => sender ! Expletive.random
+  }
+}
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">
+case class Pong(ref: TypedActorRef[Ping])
+case class Ping(ref: TypedActorRef[Pong])
+
+class Pinger extends TypedActor[Pong] {
+  def receive = {
+    case Pong(ref) => sender ! Ping(self)
+  }
+}
+
+class Ponger extends TypedActor[Ping] {
+  def receive = {
+    case Ping(ref) => sender ! Expletive.random // still compiles 😰
+  }
+}
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">
+case class Pong(ref: TypedActorRef[Ping])
+case class Ping(ref: TypedActorRef[Pong])
+
+class Pinger extends TypedActor[Pong] {
+  def receive = {
+    case Pong(ref) => ref ! Ping(self)
+  }
+}
+
+class Ponger extends TypedActor[Ping] {
+  def receive = {
+    case Ping(ref) => ref ! Expletive.random // doesn't compile! 😬 
+  }
+}
+</code></pre>
+</section>
+
+<section>
+    <h1>akka-typed</h1>
+    <aside class="notes">
+        <ul>
+            <li>Still exeprimental</li>
+            <li>Mixing typed and untyped?</li>
+            <li>Runtime is still inherently untyped - has to match typed actor messages to their actors somehow</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <h1>Future[T]</h1>
 </section>
 
 <section>
