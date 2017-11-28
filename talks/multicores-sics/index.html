@@ -138,8 +138,8 @@ case object Off {
 def trans[S <: State](event: S#Transition, target: S#NewState): S#NewState =
   target
 <span class="fragment">
-def trans[S <: State](implicit ev: S#Transition =:= Nothing): S#NewState =
-  target</span>
+def trans[S <: State](implicit ev: S#Transition =:= Nothing, t: ValueOf[S#NewState]): S#NewState =
+  t.value</span>
 </code></pre>
 </section>
 
