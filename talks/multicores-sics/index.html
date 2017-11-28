@@ -403,7 +403,7 @@ class Ponger extends TypedActor[Ping] {
 </section>
 
 <section>
-    <pre><code class="scala">def setNull[A: SetNull](a: A): A | Null = a = null
+    <pre><code class="scala">def setNull[A: SetNull](a: A): A | Null = { a = null; a }
 
 <span class="fragment">def foo(a: A) = println { setNull(a) }</span>
 
