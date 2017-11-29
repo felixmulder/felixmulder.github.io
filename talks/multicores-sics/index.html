@@ -100,6 +100,7 @@ def compose[F[_]: Functor, A, B, C](fa: F[A])(f: B => C, g: A => B) =
     <img class="no-bg" src="./on-off.png">
 
 </section>
+
 <section>
     <pre><code class="scala">trait State {
   type NewState <: State
@@ -110,12 +111,12 @@ case class TurnOn()
 case class TurnOff()
 
 case object On {
-  type Transition = TurnOn
+  type Transition = TurnOff
   type NewState = Off
 }</span>
 <span class="fragment">
 case object Off {
-  type Transition = TurnOff
+  type Transition = TurnOn
   type NewState = On
 }
 </span>
@@ -123,13 +124,22 @@ case object Off {
 </section>
 
 <section>
+    <pre><code class="scala">case object Broken {
+  type Transition = Nothing
+  type NewState = Broken
+}</span>
+
+</span>
+</code></pre>
+</section>
+
+<section>
     <pre><code class="scala">
-def trans[S <: State](data: S#Transition, target: S#NewState): S#NewState =
+def trans[S <: State](event: S#Transition, target: S#NewState): S#NewState =
   target
 <span class="fragment">
-def trans[S <: State](target: S#NewState)
-                     (implicit ev: S#Transition =:= Nothing): S#NewState =
-  target</span>
+def trans[S <: State](implicit ev: S#Transition =:= Nothing, t: ValueOf[S#NewState]): S#NewState =
+  t.value</span>
 </code></pre>
 </section>
 
@@ -393,7 +403,7 @@ class Ponger extends TypedActor[Ping] {
 </section>
 
 <section>
-    <pre><code class="scala">def setNull[A: SetNull](a: A): A | Null = a = null
+    <pre><code class="scala">def setNull[A: SetNull](a: A): A | Null = { a = null; a }
 
 <span class="fragment">def foo(a: A) = println { setNull(a) }</span>
 
