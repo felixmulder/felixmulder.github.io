@@ -45,7 +45,6 @@ lazy val compilerOptions = Seq(
     "-Xfatal-warnings",
     "-feature",
     "-deprecation",
-    "-Ywarn-unused",
     "-language:higherKinds",
     "-language:implicitConversions",
   ),

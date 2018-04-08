@@ -29,11 +29,6 @@ def rbg(seed: Seed): (Seed, Boolean) = {
 }
 ```
 
-## The Canonical Example
-```scala
-S => (S, A)
-```
-
 ## Adding Three Random Numbers
 
 ```tut:silent
@@ -45,4 +40,163 @@ val (_,  r2) = rng(s2)
 ```
 ```tut:book
 r0 + r1 + r2
+```
+
+## The Canonical Example
+### Avoid passing the state?
+### Get rid of boilerplate?
+
+## The Canonical Example
+```scala
+S => (S, A)
+```
+
+## The State Monad
+```tut:silent
+case class State[S, A](run: S => (S, A)) extends AnyVal
+
+val nextLong: State[Seed, Long] = State(rng)
+
+def nextBool: State[Seed, Boolean] = ???
+```
+
+## The State Monad
+```tut:silent
+case class State[S, A](run: S => (S, A)) extends AnyVal {
+
+  def map[B](f: A => B): State[S, B] = State {
+    s0 => {
+      val (s1, a) = run(s0)
+      (s1, f(a))
+    }
+  }
+
+}
+```
+
+## The State Monad
+```tut:invisible
+val nextLong: State[Seed, Long] = State(rng)
+```
+```tut:silent
+val nextBool: State[Seed, Boolean] = nextLong.map(_ > 0L)
+```
+
+## The State Monad
+```tut:silent
+case class State[S, A](run: S => (S, A)) extends AnyVal {
+
+  // ...
+
+  def flatMap[B](f: A => State[S, B]): State[S, B] = State {
+    s0 => {
+      val (s1, a) = run(s0)
+      f(a).run(s1)
+    }
+  }
+
+}
+```
+
+## Adding Three Random Numbers
+```tut:invisible
+case class State[S, A](run: S => (S, A)) extends AnyVal {
+  def map[B](f: A => B): State[S, B] = State {
+    s0 => {
+      val (s1, a) = run(s0)
+      (s1, f(a))
+    }
+  }
+
+  def flatMap[B](f: A => State[S, B]): State[S, B] = State {
+    s0 => {
+      val (s1, a) = run(s0)
+      f(a).run(s1)
+    }
+  }
+}
+val nextLong: State[Seed, Long] = State(rng _)
+```
+```tut:silent
+val addition: State[Seed, Long] = for {
+  r0 <- nextLong
+  r1 <- nextLong
+  r2 <- nextLong
+} yield r0 + r1 + r2
+```
+```tut:book
+addition.run(0L)
+```
+
+# Are we there yet?
+
+# Stack safety?
+
+# What about effects?
+
+## What about effects?
+```tut:silent
+import cats.effect.IO
+
+def getNonce(seed: Seed): IO[(Seed, Long)] =
+  IO(rng(seed))
+```
+
+```tut:nofail:book
+val nextNonce: State[Seed, Long] = State(getNonce)
+```
+
+## StateT
+```tut:silent
+case class StateT[F[_], S, A](val run: S => F[(S, A)])
+
+val nextNonce: StateT[IO, Seed, Long] = StateT(getNonce)
+```
+
+## Stack Safety
+### Now depends on `F[_]`
+
+## State in Cats
+```tut:silent
+import cats.Eval
+
+type State[S, A] = StateT[Eval, S, A]
+```
+
+# Where is my indexed Monad?
+
+# Also, what are indexed Monads?
+
+## Indexed State Monad
+```tut:silent
+case class IxState[I, O, A](run: I => (O, A))
+```
+
+## Yet Another Naive Implementation
+```tut:silent
+case class IxState[I, O, A](run: I => (O, A)) {
+
+  def map[B](f: A => B): IxState[I, O, B] = IxState {
+    i => {
+      val (o, a) = run(i)
+      (o, f(a))
+    }
+  }
+
+}
+```
+
+## Yet Another Naive Implementation
+```tut:silent
+case class IxState[I, O, A](run: I => (O, A)) {
+
+  // ...
+
+  def flatMap[OO, B](f: A => IxState[O, OO, B]): IxState[I, OO, B] = IxState {
+    i => {
+      val (o, a) = run(i)
+      f(a).run(o)
+    }
+  }
+}
 ```
