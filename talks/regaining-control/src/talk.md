@@ -284,7 +284,7 @@ type StateT[F[_], S, A] = IndexedStateT[F, S, S, A]
 # The Epifani
 
 ## The Epifani
-[](brain1.png)
+![](brain1.png)
 
 ## The Epifani
 ![](brain2.png)
