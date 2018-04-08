@@ -2,7 +2,7 @@
 title:    Regaining Control
 subtitle: with Indexed Monads
 author:   Felix Mulder
-date:     May 2018
+date:     flatMap(Oslo) 2018
 ---
 
 # Functional State

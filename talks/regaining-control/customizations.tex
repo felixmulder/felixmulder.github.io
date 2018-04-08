@@ -35,6 +35,17 @@
 
 \setbeamersize{text margin left=30pt,text margin right=30pt}
 \setbeamercolor{structure}{fg=black}
+\setbeamertemplate{title page}{
+  \center
+  \vspace{70pt}
+  \usebeamerfont{title}\inserttitle\par
+  \usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par
+
+  \vspace{40pt}
+
+  \usebeamerfont{author}\insertauthor\par
+  \usebeamerfont{date}\insertdate\par
+}
 \setbeamertemplate{frametitle}{\vspace{20pt}\insertframetitle}
 \setbeamerfont{frametitle}{size=\fontsize{14pt}{14pt},series=\bfseries}
 \setbeamerfont{title}{size=\fontsize{20pt}{20pt},family=\textrm,series=\bfseries}
