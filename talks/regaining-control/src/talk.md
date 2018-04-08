@@ -192,11 +192,115 @@ case class IxState[I, O, A](run: I => (O, A)) {
 
   // ...
 
-  def flatMap[OO, B](f: A => IxState[O, OO, B]): IxState[I, OO, B] = IxState {
-    i => {
-      val (o, a) = run(i)
-      f(a).run(o)
+  def flatMap[OO, B](f: A => IxState[O, OO, B]): IxState[I, OO, B] =
+    IxState {
+      i => {
+        val (o, a) = run(i)
+        f(a).run(o)
+      }
     }
-  }
 }
 ```
+```tut:invisible
+case class IxState[I, O, A](run: I => (O, A)) {
+
+  def map[B](f: A => B): IxState[I, O, B] = IxState {
+    i => {
+      val (o, a) = run(i)
+      (o, f(a))
+    }
+  }
+
+  def flatMap[OO, B](f: A => IxState[O, OO, B]): IxState[I, OO, B] =
+    IxState {
+      i => {
+        val (o, a) = run(i)
+        f(a).run(o)
+      }
+    }
+}
+```
+
+## Now we can model state transitions!
+```tut:silent
+sealed trait OrderStatus
+case class Initiated() extends OrderStatus
+case class Received()  extends OrderStatus
+case class Packed()    extends OrderStatus
+case class Shipped()   extends OrderStatus
+case class Delivered() extends OrderStatus
+```
+
+## Helper Functions
+```tut:silent
+def received: IxState[Initiated, Received, Unit] =
+  IxState(_ => (Received(), ()))
+
+def packed: IxState[Received, Packed, Unit] =
+  IxState(_ => (Packed(), ()))
+
+def shipped: IxState[Packed, Shipped, Unit] =
+  IxState(_ => (Shipped(), ()))
+
+def delivered: IxState[Shipped, Delivered, Unit] =
+  IxState(_ => (Delivered(), ()))
+```
+
+## Usage
+```tut:silent
+val order = for {
+  _ <- received
+  _ <- packed
+  _ <- shipped
+  _ <- delivered
+} yield ()
+```
+```tut:book
+order.run(Initiated())
+```
+
+## Static errors!
+```tut:nofail:book
+for {
+  _ <- delivered
+  _ <- packed
+} yield ()
+```
+
+## Cats
+```tut:silent
+class IndexedStateT[F[_], SA, SB, A](val runF: F[SA => F[(SB, A)]])
+```
+
+# Wait a minute, this looks familiar...
+
+## StateT in Cats
+```tut:silent
+import cats.data.IndexedStateT
+
+type StateT[F[_], S, A] = IndexedStateT[F, S, S, A]
+```
+
+# The Epifani
+
+## The Epifani
+[](brain1.png)
+
+## The Epifani
+![](brain2.png)
+
+## The Epifani
+![](brain3.png)
+
+## The Epifani
+![](brain4.png)
+
+## The Epifani
+![](brain5.png)
+
+## The Epifani
+![](brain6.png)
+
+## The Epifani
+![](brain7.png)
+
