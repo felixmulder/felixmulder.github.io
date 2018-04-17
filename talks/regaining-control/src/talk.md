@@ -181,14 +181,14 @@ def getNonce(seed: Seed): IO[(Seed, Long)] =
 ```
 
 ```tut:nofail:book
-val nextNonce: State[Seed, Long] = State(getNonce)
+val nextNonce: State[Seed, Long] = State(seed => getNonce(seed))
 ```
 
 ## StateT
 ```tut:silent
 case class StateT[F[_], S, A](val run: S => F[(S, A)])
 
-val nextNonce: StateT[IO, Seed, Long] = StateT(getNonce)
+val nextNonce: StateT[IO, Seed, Long] = StateT(seed => getNonce(seed))
 ```
 
 ## Stack Safety
