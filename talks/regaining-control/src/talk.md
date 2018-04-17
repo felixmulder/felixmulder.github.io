@@ -55,9 +55,19 @@ S => (S, A)
 ```tut:silent
 case class State[S, A](run: S => (S, A)) extends AnyVal
 
-val nextLong: State[Seed, Long] = State(rng)
+val nextLong: State[Seed, Long] = State(seed => rng(seed))
 
 def nextBool: State[Seed, Boolean] = ???
+```
+
+## Map
+We'd like to implement map in such a way that we do not affect `S`
+
+Ergo, we want:
+
+
+```scala
+State[S, A] => State[S, B]
 ```
 
 ## The State Monad
@@ -76,11 +86,22 @@ case class State[S, A](run: S => (S, A)) extends AnyVal {
 
 ## The State Monad
 ```tut:invisible
-val nextLong: State[Seed, Long] = State(rng)
+val nextLong: State[Seed, Long] = State(seed => rng(seed))
 ```
 ```tut:silent
 val nextBool: State[Seed, Boolean] = nextLong.map(_ > 0L)
 ```
+
+## The State Monad
+How do we get rid of the explicit state passing?
+
+## The State Monad
+We want to reason about the `A` value in `State[S, A]`
+
+(without having to worry about `S`!)
+
+## The State Monad
+We sort of want to pull the value out, to *bind* it...
 
 ## The State Monad
 ```tut:silent
@@ -116,6 +137,7 @@ case class State[S, A](run: S => (S, A)) extends AnyVal {
   }
 }
 val nextLong: State[Seed, Long] = State(rng _)
+val nextBool: State[Seed, Boolean] = nextLong.map(_ > 0L)
 ```
 ```tut:silent
 val addition: State[Seed, Long] = for {
@@ -126,6 +148,22 @@ val addition: State[Seed, Long] = for {
 ```
 ```tut:book
 addition.run(0L)
+```
+
+## Cooler stuff
+```tut:silent
+case class Customer(id: Long, debt: Long, name: String)
+
+val randomCustomer: State[Seed, Customer] =
+  for {
+    id      <- nextLong
+    debt    <- nextLong
+    isHuman <- nextBool
+    name    =  if (isHuman) "Kim" else "Mark Zuckerberg"
+  } yield Customer(id, debt, name)
+```
+```tut:book
+randomCustomer.run(1L)._2
 ```
 
 # Are we there yet?
