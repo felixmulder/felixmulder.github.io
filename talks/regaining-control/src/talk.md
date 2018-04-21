@@ -18,6 +18,7 @@ classoption: "aspectratio=169"
 ## The Canonical Example
 
 ```tut:invisible
+import cats.implicits._
 def rng(seed: Long): (Long, Long) =
   (seed * 6364136223846793005L + 1442695040888963407L, seed)
 ```
@@ -54,18 +55,21 @@ r0 + r1 + r2
 ### Avoid passing the state?
 ### Get rid of boilerplate?
 
-## The Canonical Example
-```scala
-S => (S, A)
-```
+# `S => (S, A)`
 
 ## The State Monad
 ```tut:silent
 case class State[S, A](run: S => (S, A)) extends AnyVal
+```
 
+## The State Monad
+```tut:silent
 val nextLong: State[Seed, Long] = State(seed => rng(seed))
+```
 
-def nextBool: State[Seed, Boolean] = ???
+## The State Monad
+```scala
+val nextBool: State[Seed, Boolean] = ???
 ```
 
 ## Map
@@ -215,14 +219,15 @@ type State[S, A] = StateT[Eval, S, A]
 
 # Also, what are indexed Monads?
 
-## Thus Far
-```scala
-S => (S, A)
-```
+# `S => (S, A)`
 
-## What if?
+# `I => (O, A)`
+
+## Chaining State Transitions
 ```scala
-I => (O, A)
+(S1 => (S2, A)) =>
+(S2 => (S3, A)) =>
+(S3 => (S4, A)) ...
 ```
 
 ## Indexed State Monad
@@ -380,3 +385,53 @@ type StateT[F[_], S, A] = IndexedStateT[F, S, S, A]
 ## The Epifani
 ![](brain7.png)
 
+# Designing APIs Using `IndexedStateT`
+
+## Designing APIs Using `IndexedStateT`
+```tut:invisible
+object UserApi {
+  case class OrderInit()
+
+  def persist(info: OrderInit): IO[Unit] = IO.unit
+
+  def persist[S <: OrderStatus](s: S): IO[S] = IO.pure(s)
+}
+import UserApi._
+```
+```tut:silent
+def createOrder(init: OrderInit): IndexedStateT[IO, Initiated, Received, Unit] =
+  IndexedStateT.setF(persist(init).as(Received()))
+
+def packed: IndexedStateT[IO, Received, Packed, Unit] =
+  IndexedStateT.setF(persist(Packed()))
+
+def shipped: IndexedStateT[IO, Packed, Shipped, Unit] =
+  IndexedStateT.setF(persist(Shipped()))
+
+def delivered: IndexedStateT[IO, Shipped, Delivered, Unit] =
+  IndexedStateT.setF(persist(Delivered()))
+```
+
+## Abstracting over `F[_]`
+These structures allow you to stay generic. Don't commit too early.
+
+• `F = Id`
+
+• `F = Option`
+
+• `F = OptionT[IO, ?]`
+
+• `F = EitherT[IO, Throwable, ?]`
+
+• `F = MonadError[Throwable, ?]`
+
+## References
+• [Cats State](https://typelevel.org/cats/datatypes/state.html) - Typelevel Cats Documentation
+
+• [Control.Monad.State](http://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Lazy.html) - Hackage
+
+• [pandoc-include-code](https://github.com/owickstrom/pandoc-include-code) - Oskar Wickström // @owickstrom
+
+• [tut](https://github.com/tpolecat/tut) - doc/tutorial generator for scala // @tpolecat
+
+# Thank You!
