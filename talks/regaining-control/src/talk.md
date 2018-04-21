@@ -11,7 +11,7 @@ classoption: "aspectratio=169"
 
 • Scala 3 Compiler Engineer @ EPFL w/ Martin Odersky
 
-• Software Engineer @ Klarna
+• Software Engineer @ Klarna Bank
 
 # Functional State
 

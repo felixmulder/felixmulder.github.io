@@ -48,7 +48,6 @@
   \usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par
 
   \vspace{40pt}
-
   \usebeamerfont{author}\insertauthor\par
   \usebeamerfont{date}\insertdate\par
 }
@@ -60,9 +59,11 @@
 \setbeamerfont{date}{size=\fontsize{10pt}{10pt}}
 \setbeamertemplate{footline}{
   \hspace{0.25cm}
-  \hfill
   \color{mediumgray}{
-    \href{https://twitter.com/felixmulder}{{@}felixmulder}}
+    \href{https://twitter.com/felixmulder}{{@}felixmulder}
+  }
+  \hfill
+  \insertframenumber{} / \inserttotalframenumber
   \hspace{0.25cm}
   \vspace{0.25cm}
 }
@@ -87,9 +88,22 @@
 
 \AtBeginSection[]
 {
-  \begin{frame}
-    \singletitle{\insertsectionhead}
-  \end{frame}
+  {
+    % Disable footline in section frames:
+    %\setbeamertemplate{footline}{}
+    % Set color at new section e.g. a page with a single heading:
+    %\setbeamercolor{background canvas}{bg=frgreen}
+    \begin{frame}
+      %\color{auyellow}
+      \singletitle{\insertsectionhead}
+    \end{frame}
+  }
 }
 
 \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},fontsize=\linespread{1.2}\scriptsize}
+
+\AtBeginDocument
+{
+  % Set the color of the entire document:
+  %\setbeamercolor{background canvas}{bg=dimgray}
+}
