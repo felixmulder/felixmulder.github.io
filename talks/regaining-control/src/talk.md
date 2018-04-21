@@ -1,8 +1,9 @@
 ---
-title:    Regaining Control
-subtitle: with Indexed Monads
-author:   Felix Mulder
-date:     flatMap(Oslo) 2018
+title:       Regaining Control
+subtitle:    with Indexed Monads
+author:      Felix Mulder
+date:        flatMap(Oslo) 2018
+classoption: "aspectratio=169"
 ---
 
 ## Who am I?
