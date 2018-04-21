@@ -6,8 +6,11 @@ date:     flatMap(Oslo) 2018
 ---
 
 ## Who am I?
-- Scala 3 Compiler Engineer
-- Klarna
+• Scala 2.12 Docs Compiler
+
+• Scala 3 Compiler Engineer @ EPFL w/ Martin Odersky
+
+• Software Engineer @ Klarna
 
 # Functional State
 
