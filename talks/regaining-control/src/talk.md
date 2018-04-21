@@ -387,29 +387,54 @@ type StateT[F[_], S, A] = IndexedStateT[F, S, S, A]
 
 # Designing APIs Using `IndexedStateT`
 
+## Our Order Status API
+```tut:silent
+sealed trait OrderStatus
+case class Initiated() extends OrderStatus
+case class Received()  extends OrderStatus
+case class Packed()    extends OrderStatus
+case class Shipped()   extends OrderStatus
+case class Delivered() extends OrderStatus
+```
+
 ## Designing APIs Using `IndexedStateT`
 ```tut:invisible
 object UserApi {
-  case class OrderInit()
+  case class OrderId(value: Long) extends AnyVal
 
-  def persist(info: OrderInit): IO[Unit] = IO.unit
+  case class OrderInit(id: OrderId)
 
-  def persist[S <: OrderStatus](s: S): IO[S] = IO.pure(s)
+  def persist(info: OrderInit): IO[OrderId] = IO(info.id)
+
+  def persist[S <: OrderStatus](s: S, id: OrderId): IO[S] = IO.pure(s)
 }
 import UserApi._
 ```
 ```tut:silent
-def createOrder(init: OrderInit): IndexedStateT[IO, Initiated, Received, Unit] =
-  IndexedStateT.setF(persist(init).as(Received()))
+def createOrder(init: OrderInit): IndexedStateT[IO, Initiated, Received, OrderId] =
+  IndexedStateT(_ => persist(init).map(id => (Received(), id)))
 
-def packed: IndexedStateT[IO, Received, Packed, Unit] =
-  IndexedStateT.setF(persist(Packed()))
+def packed(id: OrderId): IndexedStateT[IO, Received, Packed, Unit] =
+  IndexedStateT.setF(persist(Packed(), id))
 
-def shipped: IndexedStateT[IO, Packed, Shipped, Unit] =
-  IndexedStateT.setF(persist(Shipped()))
+def shipped(id: OrderId): IndexedStateT[IO, Packed, Shipped, Unit] =
+  IndexedStateT.setF(persist(Shipped(), id))
 
-def delivered: IndexedStateT[IO, Shipped, Delivered, Unit] =
-  IndexedStateT.setF(persist(Delivered()))
+def delivered(id: OrderId): IndexedStateT[IO, Shipped, Delivered, Unit] =
+  IndexedStateT.setF(persist(Delivered(), id))
+```
+
+## Using the API
+```tut:silent
+val orderId = OrderId(1L)
+
+val packAndShip = for {
+  _ <- packed(orderId)
+  _ <- shipped(orderId)
+} yield ()
+```
+```tut:book
+packAndShip.runS(Received()).unsafeRunSync()
 ```
 
 ## Abstracting over `F[_]`
