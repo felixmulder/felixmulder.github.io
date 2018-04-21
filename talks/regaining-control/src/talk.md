@@ -5,6 +5,10 @@ author:   Felix Mulder
 date:     flatMap(Oslo) 2018
 ---
 
+## Who am I?
+- Scala 3 Compiler Engineer
+- Klarna
+
 # Functional State
 
 ## The Canonical Example
@@ -62,9 +66,6 @@ def nextBool: State[Seed, Boolean] = ???
 
 ## Map
 We'd like to implement map in such a way that we do not affect `S`
-
-Ergo, we want:
-
 
 ```scala
 State[S, A] => State[S, B]
@@ -181,18 +182,25 @@ def getNonce(seed: Seed): IO[(Seed, Long)] =
 ```
 
 ```tut:nofail:book
-val nextNonce: State[Seed, Long] = State(seed => getNonce(seed))
+val nextNonce: State[Seed, Long] =
+  State(seed => getNonce(seed))
 ```
 
 ## StateT
 ```tut:silent
 case class StateT[F[_], S, A](val run: S => F[(S, A)])
 
-val nextNonce: StateT[IO, Seed, Long] = StateT(seed => getNonce(seed))
+val nextNonce: StateT[IO, Seed, Long] =
+  StateT(seed => getNonce(seed))
 ```
 
 ## Stack Safety
 ### Now depends on `F[_]`
+
+## Requirements on `F[_]`
+`Functor[F]` and `FlatMap[F]`
+
+for `map` and `flatMap`
 
 ## State in Cats
 ```tut:silent
@@ -204,6 +212,16 @@ type State[S, A] = StateT[Eval, S, A]
 # Where is my indexed Monad?
 
 # Also, what are indexed Monads?
+
+## Thus Far
+```scala
+S => (S, A)
+```
+
+## What if?
+```scala
+I => (O, A)
+```
 
 ## Indexed State Monad
 ```tut:silent
@@ -239,6 +257,25 @@ case class IxState[I, O, A](run: I => (O, A)) {
     }
 }
 ```
+
+## Chained State Transitions
+```scala
+IxState[S1, S2, A] =>
+IxState[S2, S3, B] =>
+IxState[S3, S4, C] ...
+```
+
+## Now we can model state transitions!
+```tut:silent
+sealed trait OrderStatus
+case class Initiated() extends OrderStatus
+case class Received()  extends OrderStatus
+case class Packed()    extends OrderStatus
+case class Shipped()   extends OrderStatus
+case class Delivered() extends OrderStatus
+```
+
+## Helper Functions
 ```tut:invisible
 case class IxState[I, O, A](run: I => (O, A)) {
 
@@ -256,32 +293,31 @@ case class IxState[I, O, A](run: I => (O, A)) {
         f(a).run(o)
       }
     }
+}; object IxState { // annoying hack
+  def set[I, O](o: O): IxState[I, O, Unit] =
+    IxState(_ => (o, ()))
 }
 ```
-
-## Now we can model state transitions!
-```tut:silent
-sealed trait OrderStatus
-case class Initiated() extends OrderStatus
-case class Received()  extends OrderStatus
-case class Packed()    extends OrderStatus
-case class Shipped()   extends OrderStatus
-case class Delivered() extends OrderStatus
+```scala
+object IxState {
+  def set[I, O](o: O): IxState[I, O, Unit] =
+    IxState(_ => (o, ()))
+}
 ```
 
 ## Helper Functions
 ```tut:silent
 def received: IxState[Initiated, Received, Unit] =
-  IxState(_ => (Received(), ()))
+  IxState.set(Received())
 
 def packed: IxState[Received, Packed, Unit] =
-  IxState(_ => (Packed(), ()))
+  IxState.set(Packed())
 
 def shipped: IxState[Packed, Shipped, Unit] =
-  IxState(_ => (Shipped(), ()))
+  IxState.set(Shipped())
 
 def delivered: IxState[Shipped, Delivered, Unit] =
-  IxState(_ => (Delivered(), ()))
+  IxState.set(Delivered())
 ```
 
 ## Usage
