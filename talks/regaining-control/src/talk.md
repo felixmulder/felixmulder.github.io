@@ -437,6 +437,35 @@ val packAndShip = for {
 packAndShip.runS(Received()).unsafeRunSync()
 ```
 
+## Encode Any Protocol
+• File Protocols
+
+  ```scala
+  def writeHeader(header: String): IxState[NoHeader, HeaderWritten, Array[Byte]]
+  ```
+
+• Session types
+
+  ```scala
+  def initSSL(ch: ClientHello): IxState[NoSession, ClientHello, Unit]
+  ```
+
+# Downsides to using `IndexedStateT`?
+
+## Downsides
+```tut:invisible
+case class Unrelated0()
+case class Unrelated1()
+```
+```tut:nofail
+for {
+  _ <- packed(orderId)
+  _ <- IndexedStateT.set[IO, Unrelated0, Unrelated1](Unrelated1())
+} yield ()
+```
+
+# Shapeless: "Hold my beer"
+
 ## Abstracting over `F[_]`
 These structures allow you to stay generic. Don't commit too early.
 
@@ -455,8 +484,8 @@ These structures allow you to stay generic. Don't commit too early.
 
 • [Control.Monad.State](http://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Lazy.html) - Hackage
 
-• [pandoc-include-code](https://github.com/owickstrom/pandoc-include-code) - Oskar Wickström // @owickstrom
+• [pandoc-include-code](https://github.com/owickstrom/pandoc-include-code) - Oskar Wickström // [\@owickstrom](https://twitter.com/owickstrom)
 
-• [tut](https://github.com/tpolecat/tut) - doc/tutorial generator for scala // @tpolecat
+• [tut](https://github.com/tpolecat/tut) - doc/tutorial generator for scala // [\@tpolecat](https://twitter.com/tpolecat)
 
 # Thank You!
