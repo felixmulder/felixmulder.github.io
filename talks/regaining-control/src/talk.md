@@ -362,27 +362,27 @@ import cats.data.IndexedStateT
 type StateT[F[_], S, A] = IndexedStateT[F, S, S, A]
 ```
 
-# The Epifani
+# The Epiphany
 
-## The Epifani
+## The Epiphany
 ![](brain1.png)
 
-## The Epifani
+## The Epiphany
 ![](brain2.png)
 
-## The Epifani
+## The Epiphany
 ![](brain3.png)
 
-## The Epifani
+## The Epiphany
 ![](brain4.png)
 
-## The Epifani
+## The Epiphany
 ![](brain5.png)
 
-## The Epifani
+## The Epiphany
 ![](brain6.png)
 
-## The Epifani
+## The Epiphany
 ![](brain7.png)
 
 # Designing APIs Using `IndexedStateT`
