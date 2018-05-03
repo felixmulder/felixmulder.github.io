@@ -397,16 +397,46 @@ case class Shipped()   extends OrderStatus
 case class Delivered() extends OrderStatus
 ```
 
+## A Vanilla API
+```tut:invisible
+import cats.effect.IO
+import org.http4s._
+import org.http4s.dsl.io._
+import cats.syntax.apply._
+def createOrder(id: Int): IO[Unit] = IO.unit
+def ship(id: Int): IO[Unit] = IO.unit
+def pack(id: Int): IO[Unit] = IO.unit
+def orderStatus(id: Int): IO[String] = IO.pure("")
+```
+```tut:silent
+HttpService[IO] {
+  case GET -> Root / "status" / IntVar(id) =>
+    orderStatus(id).flatMap(Ok(_))
+
+  case POST -> Root / "status" / IntVar(id) =>
+    createOrder(id) *> Ok()
+
+  case PATCH -> Root / "status" / "packAndShip" / IntVar(id) =>
+    ship(id) *> pack(id) *> Ok()
+}
+```
+
 ## Designing APIs Using `IndexedStateT`
 ```tut:invisible
 object UserApi {
-  case class OrderId(value: Long) extends AnyVal
+  type OrderId = Long
 
   case class OrderInit(id: OrderId)
 
   def persist(info: OrderInit): IO[OrderId] = IO(info.id)
 
   def persist[S <: OrderStatus](s: S, id: OrderId): IO[S] = IO.pure(s)
+
+  def getState(id: Int): IO[OrderStatus] = IO.pure(Initiated())
+
+  implicit val entityEncoder: EntityEncoder[IO, OrderStatus] = EntityEncoder[IO, String].contramap(a => a.toString)
+
+  def state[A <: OrderStatus](id: Long): IO[A] = ???
 }
 import UserApi._
 ```
@@ -426,7 +456,7 @@ def delivered(id: OrderId): IndexedStateT[IO, Shipped, Delivered, Unit] =
 
 ## Using the API
 ```tut:silent
-val orderId = OrderId(1L)
+val orderId = 1L
 
 val packAndShip = for {
   _ <- packed(orderId)
@@ -435,6 +465,30 @@ val packAndShip = for {
 ```
 ```tut:book
 packAndShip.runS(Received()).unsafeRunSync()
+```
+
+## The non-vanilla API
+```tut:invisible
+import cats.effect.IO
+import org.http4s._
+import org.http4s.dsl.io._
+import cats.implicits._
+```
+```tut:silent
+HttpService[IO] {
+  case GET -> Root / "status" / IntVar(id) =>
+    getState(id).flatMap(Ok(_))
+
+  case POST -> Root / "status" / IntVar(id) =>
+    createOrder(OrderInit(id)).run(Initiated()) *> Ok()
+
+  case PATCH -> Root / "status" / "packAndShip" / LongVar(id) =>
+    for {
+      r   <- state[Received](id)
+      _   <- packAndShip.run(r)
+      res <- Ok()
+    } yield res
+}
 ```
 
 ## Encode Any Protocol
@@ -465,6 +519,20 @@ for {
 ```
 
 # Shapeless: "Hold my beer"
+
+# HLists
+
+## HLists
+```scala
+S1 :: R1 :: HNil =>
+
+S2 :: R1 :: HNil =>
+
+S2 :: R2 :: HNil
+```
+
+## Should you do this?
+Probably not.
 
 ## Abstracting over `F[_]`
 These structures allow you to stay generic. Don't commit too early.
