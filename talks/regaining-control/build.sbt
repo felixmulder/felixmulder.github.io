@@ -10,6 +10,7 @@ lazy val `presentation` = project.in(file("."))
     tutTargetDirectory := baseDirectory.value / "target",
 
     libraryDependencies ++= Seq(
+      "com.chuusai" %% "shapeless" % "2.3.3",
       "org.http4s" %% "http4s-dsl" % "0.18.9",
       "org.http4s" %% "http4s-blaze-server" % "0.18.9",
       "org.http4s" %% "http4s-blaze-client" % "0.18.9",

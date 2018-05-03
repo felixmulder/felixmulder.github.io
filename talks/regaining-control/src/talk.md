@@ -524,15 +524,39 @@ for {
 
 ## HLists
 ```scala
-S1 :: R1 :: HNil =>
+State[S1 :: R1 :: HNil] =>
 
-S2 :: R1 :: HNil =>
+State[S2 :: R1 :: HNil] =>
 
-S2 :: R2 :: HNil
+State[S2 :: R2 :: HNil]
 ```
 
-## Should you do this?
-Probably not.
+## HLists
+```tut:invisible
+import shapeless._
+trait Input[I <: HList, Contains]
+trait Output[O <: HList, Remove, Insert] {
+  def out: O
+}
+implicit val in  = new Input[Received :: HNil, Received] {}
+implicit val out = new Output[Packed :: HNil, Received, Packed] {
+  val out = Packed() :: HNil
+}
+```
+```tut:silent
+def packed[I <: HList, O <: HList](id: OrderId)(
+  implicit
+  I: Input[I, Received],
+  O: Output[O, Received, Packed],
+): IndexedStateT[IO, I, O, Unit] = IndexedStateT.set(O.out)
+```
+```tut:book
+packed(0L).run(Received() :: HNil)
+```
+
+# Should you do this?
+
+# Probably not.
 
 ## Abstracting over `F[_]`
 These structures allow you to stay generic. Don't commit too early.
