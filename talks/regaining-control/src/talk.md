@@ -532,26 +532,51 @@ State[S2 :: R2 :: HNil]
 ```
 
 ## HLists
+```tut:silent
+case class Whatever()
+```
 ```tut:invisible
 import shapeless._
-trait Input[I <: HList, Contains]
+trait Once[Contains, I <: HList]
 trait Output[O <: HList, Remove, Insert] {
   def out: O
 }
-implicit val in  = new Input[Received :: HNil, Received] {}
-implicit val out = new Output[Packed :: HNil, Received, Packed] {
-  val out = Packed() :: HNil
+implicit val in1  = new Once[Received, Received :: Whatever :: HNil] {}
+implicit val out1 = new Output[Packed :: Whatever :: HNil, Received, Packed] {
+  val out = Packed() :: Whatever() :: HNil
+}
+implicit val in2  = new Once[Packed, Packed :: Whatever :: HNil] {}
+implicit val out2 = new Output[Shipped :: Whatever :: HNil, Packed, Shipped] {
+  val out = Shipped() :: Whatever() :: HNil
 }
 ```
 ```tut:silent
 def packed[I <: HList, O <: HList](id: OrderId)(
   implicit
-  I: Input[I, Received],
+  I: Once[Received, I],
   O: Output[O, Received, Packed],
 ): IndexedStateT[IO, I, O, Unit] = IndexedStateT.set(O.out)
 ```
 ```tut:book
-packed(0L).run(Received() :: HNil)
+packed(0L).runS(Received() :: Whatever() :: HNil)
+```
+
+## HLists
+```tut:silent
+def shipped[I <: HList, O <: HList](id: OrderId)(
+  implicit
+  I: Once[Packed, I],
+  O: Output[O, Packed, Shipped],
+): IndexedStateT[IO, I, O, Unit] = IndexedStateT.set(O.out)
+
+
+val packAndShip = for {
+  _ <- packed(0L)
+  _ <- shipped(0L)
+} yield ()
+```
+```tut:book
+packAndShip.runS(Received() :: Whatever() :: HNil)
 ```
 
 # Should you do this?
