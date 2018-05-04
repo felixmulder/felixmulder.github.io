@@ -596,6 +596,12 @@ These structures allow you to stay generic. Don't commit too early.
 
 • `F = MonadError[Throwable, ?]`
 
+## Conclusions
+- Get rid of explicit state passing
+- Finite State Machines, Protocols, Simple Session Types
+- Delay choosing your `F[_]`
+- Regain control over your API!
+
 ## References
 • [Cats State](https://typelevel.org/cats/datatypes/state.html) - Typelevel Cats Documentation
 
