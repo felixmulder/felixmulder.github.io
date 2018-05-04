@@ -602,6 +602,8 @@ These structures allow you to stay generic. Don't commit too early.
 - Delay choosing your `F[_]`
 - Regain control over your API!
 
+# Thank You!
+
 ## References
 • [Cats State](https://typelevel.org/cats/datatypes/state.html) - Typelevel Cats Documentation
 
@@ -610,5 +612,3 @@ These structures allow you to stay generic. Don't commit too early.
 • [pandoc-include-code](https://github.com/owickstrom/pandoc-include-code) - Oskar Wickström // [\@owickstrom](https://twitter.com/owickstrom)
 
 • [tut](https://github.com/tpolecat/tut) - doc/tutorial generator for scala // [\@tpolecat](https://twitter.com/tpolecat)
-
-# Thank You!
