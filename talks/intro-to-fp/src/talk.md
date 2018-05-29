@@ -47,7 +47,7 @@ def foo[A](a: A): A = a
 ```scala
 apply: A => Future[A]
 
-map: A => B => (Future[A] => Future[B])
+map: (A => B) => Future[A] => Future[B]
 
 flatten: Future[Future[A]] => Future[A]
 ```
