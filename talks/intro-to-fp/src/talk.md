@@ -179,6 +179,21 @@ def unbecome(): Unit
 
 ---
 
+```scala
+val x = <expr>
+(a, a)
+
+// is equivalent to:
+
+(<expr>, <expr>)
+
+// ?
+
+```
+
+---
+
+
 # When is something pure?
 
 ---
@@ -253,13 +268,165 @@ def converter[F[_]](file: Stream[F, Byte]): Stream[F, Byte] = {
 
 ---
 
-\usepackage[pdf]{graphviz}
-\digraph{abc}{
-    rankdir=LR;
-    a -> b -> c;
+<!-- Graph a -> b -> c -->
+
+---
+
+<!-- Graph a -> b -> c with functions -->
+
+---
+
+<!-- Graph a -> b -> c, a -> c, with functions and composed function -->
+
+---
+
+<!-- Graph a -> b -> c, a -> c, with functions and composed function, and identity -->
+
+---
+
+# Functor
+
+---
+
+# Category Theory
+
+---
+
+```tut:silent
+def transform[A, B](fa: List[A])(f: A => B) =
+  ???
+```
+
+---
+
+```tut:silent
+import cats._, cats.implicits._
+
+def transform[F[_]: Functor, A, B](fa: F[A])(f: A => B) =
+  ???
+```
+
+---
+
+```tut:silent
+import cats._, cats.implicits._
+
+def transform[F[_]: Functor, A, B](fa: F[A])(f: A => B) =
+  fa.map(f)
+```
+
+---
+
+# Type Classes
+
+---
+
+## There are laws - you've already seen the two for functor!
+- Identity
+- Composition
+
+---
+
+<!-- Graph a -> b -> c, a -> c, with functions and composed function, and identity -->
+
+---
+
+# Semigroup
+
+\displaymath {
+    A \oplus A \longrightarrow A
 }
 
-<!-- do the above first! -->
+---
+
+```tut:silent
+trait Semigroup[A] {
+  def combine(a1: A, a2: A): A
+}
+```
+
+---
+
+## Semigroup Laws
+- Associativity
+
+\displaymath {
+    (a \oplus b) \oplus c
+    \Longleftrightarrow
+    a \oplus (b \oplus c)
+}
+
+---
+
+## Associativity
+```tut:silent
+def associativity[A](a: A, b: A, c: A)(implicit S: Semigroup[A]): Boolean =
+  S.combine(S.combine(a, b), c) == S.combine(a, S.combine(b, c))
+```
+
+---
+
+```tut:silent
+implicit def listSemigroup[E] = new Semigroup[List[E]] {
+  def combine(a1: List[E], a2: List[E]): List[E] =
+    a1 ++ a2
+}
+```
+
+---
+
+# Because of the associativity law, there's only one way to implement this!
+
+---
+
+# Monoid
+
+---
+
+# A monoid is a semigroup that has a zero-element.
+
+---
+
+```tut:silent
+trait Monoid[A] extends Semigroup[A] {
+  def unit: A
+}
+```
+
+---
+
+## Monoid laws
+- (Associativity)
+- Left identity
+
+  ```tut:silent
+  def leftIdentity[A](m: A)(implicit M: Monoid[A]): Boolean =
+    M.combine(M.unit, m) == m
+  ```
+
+- Right identity
+
+  ```tut:silent
+  def rightIdentity[A](m: A)(implicit M: Monoid[A]): Boolean =
+    M.combine(m, M.unit) == m
+  ```
+
+---
+
+```tut:silent
+implicit def listMonoid[E] = new Monoid[List[E]] {
+  def combine(a1: List[E], a2: List[E]): List[E] =
+    a1 ++ a2
+
+  def unit = List.empty
+}
+```
+
+---
+
+> "A Monad is a Monoid in the category of endofunctors, so what's the problem?"
+>
+> -- ["A Brief, Incomplete, and Mostly Wrong History of Programming Languages"](http://james-iry.blogspot.com/2009/05/brief-incomplete-and-mostly-wrong.html), James Iry
 
 ---
 
@@ -351,3 +518,78 @@ Await.result(read2, 5.seconds)
 > -- Rob Norris + Felix Mulder
 
 ---
+
+# So, how do we actually separate side-effects from effects?
+
+---
+
+# Laziness\*
+
+\*in scala
+
+---
+
+# `IO[A]`
+
+---
+
+## `IO[A]`
+```tut:book:reset
+import cats.effect.IO
+import cats.implicits._
+
+val read = IO { io.StdIn.readInt() }
+
+(read, read).mapN(_ + _)
+```
+
+---
+
+## `IO[A]`
+```tut:book
+(read, read).mapN(_ + _).unsafeRunSync() // > 1, > 2
+```
+
+---
+
+# End of the World
+
+---
+
+## Beware! `IO[A]` suspends *all* side effects
+
+---
+
+> "Power tends to corrupt; absolute power corrupts absolutely"
+>
+> -- Lord Acton
+
+---
+
+## Separate your pure computations from `IO`!
+
+---
+
+```tut:book
+import java.util.UUID
+
+def isEqual(fst: UUID, snd: UUID): Boolean =
+  fst.compareTo(snd) == 0 // yeah, not likely!
+
+val randomUUID = IO { UUID.randomUUID() }
+
+val calc = for {
+  n1 <- randomUUID
+  n2 <- randomUUID
+} yield isEqual(n1, n2)
+```
+
+---
+
+## Thank you!
+
+---
+
+## Acknowledgements
+- [Functional Programming with Effects](https://www.youtube.com/watch?v=po3wmq4S15A) -- Rob Norris (\@tpolecat)
+- [Constraints are Freedom](https://www.youtube.com/watch?v=GqmsQeSzMdw) -- Runar Bjarnason
