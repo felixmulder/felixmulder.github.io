@@ -258,3 +258,96 @@ def converter[F[_]](file: Stream[F, Byte]): Stream[F, Byte] = {
     rankdir=LR;
     a -> b -> c;
 }
+
+<!-- do the above first! -->
+
+---
+
+# Effects
+
+---
+
+> "Effects are good, side-effects are bugs."
+>
+> -- Rob Norris
+
+---
+
+# `Future[A]` and effects
+
+---
+
+```tut:book:reset
+import scala.concurrent.{Await, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.DurationInt
+
+val const5  = Future(5)
+val const10 = const5.flatMap(x => const5.map(x + _))
+
+Await.result(const10, 1.second)
+```
+
+---
+
+```tut:book
+def read = Future(io.StdIn.readInt())
+
+val read2 = read.flatMap(x => read.map(x + _))
+
+// > 10
+
+// > 5
+
+Await.result(read2, 5.seconds)
+```
+
+---
+
+```tut:book
+val read2 = Future(io.StdIn.readInt()).flatMap {
+  x => Future(io.StdIn.readInt()).map(x + _)
+}
+
+// > 10
+
+// > 5
+
+Await.result(read2, 5.seconds)
+```
+
+---
+
+```tut:book
+val read = Future(io.StdIn.readInt())
+val read2 = read.flatMap {
+  x => read.map(x + _)
+}
+
+// > 10
+
+Await.result(read2, 5.seconds)
+```
+
+---
+
+# So what have we lost?
+- Modularity
+- Compositionality
+- Concurrency
+- Parametricity
+- Equational Reasoning
+
+---
+
+> "Effects are good, side-effects are bugs."
+>
+> -- Rob Norris
+
+---
+
+> "Effects are good, side-effects are bugs *waiting to happen*."
+>
+> -- Rob Norris + Felix Mulder
+
+---
