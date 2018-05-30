@@ -10,8 +10,12 @@ lazy val `presentation` = project.in(file("."))
     tutTargetDirectory := baseDirectory.value / "target",
 
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-core"   % "1.1.0",
-      "org.typelevel" %% "cats-effect" % "0.10",
+      "com.chuusai" %% "shapeless" % "2.3.3",
+      "org.http4s" %% "http4s-dsl" % "0.18.12",
+      "org.http4s" %% "http4s-blaze-server" % "0.18.12",
+      "org.http4s" %% "http4s-blaze-client" % "0.18.12",
+      //"org.typelevel" %% "cats-core"   % "1.1.0",
+      //"org.typelevel" %% "cats-effect" % "0.10",
       // Test dependencies:
       "org.scalatest" %% "scalatest" % "3.0.4"  % "test",
     ),
@@ -22,7 +26,7 @@ lazy val `presentation` = project.in(file("."))
       log.info("Running pandoc...")
       Seq(
         "pandoc",
-        "--filter pandoc-include-code",
+        //"--filter pandoc-include-code",
         "-t beamer",
         "--pdf-engine=xelatex",
         "-H customizations.tex",
