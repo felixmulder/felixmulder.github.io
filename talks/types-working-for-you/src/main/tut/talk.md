@@ -6,16 +6,10 @@ date:        August 2018
 classoption: "aspectratio=169"
 ---
 
-# What is this talk about?
-
-# What is its motivation?
-
-# And when will snacks be served?
-
 ## Agenda
 - Functional Programming
 - Type systems
-- ???
+- FP + Types == amazing!
 - Profit!
 
 ## Bio
@@ -88,7 +82,7 @@ def id[A](a: A): A = a
 >
 > -- Edsger W. Dijkstra
 
-# In Closing
+## In Closing
 - Type level recursion for fun and profit!
 - FP combined with sophisticated types only require edge validation
 - You don't have to work against the compiler, make it work for you!
