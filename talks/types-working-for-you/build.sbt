@@ -3,10 +3,8 @@ import scala.sys.process._
 enablePlugins(TutPlugin)
 
 lazy val `presentation` = project.in(file("."))
-  .settings(/*projectLayout ++ */compilerOptions ++ compilerPlugins)
+  .settings(compilerOptions ++ compilerPlugins)
   .settings(
-
-    //tutSourceDirectory := baseDirectory.value / "src" / "main" / "tut",
 
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core"   % "1.1.0",
@@ -23,22 +21,14 @@ lazy val `presentation` = project.in(file("."))
       log.info("Running pandoc...")
       Seq(
         "pandoc",
-        "--filter pandoc-include-code",
         "-t beamer",
         "--pdf-engine=xelatex",
         "-H customizations.tex",
-        "-o talk.pdf target/talk.md",
+        "-o talk.pdf target/scala-2.12/tut/talk.md",
       ).mkString(" ") !! log
       tutRes
     }
   )
-
-//lazy val projectLayout = Seq(
-//  scalaSource in Compile       := baseDirectory.value / "code" / "src",
-//  scalaSource in Test          := baseDirectory.value / "code" / "test" / "src",
-//  resourceDirectory in Compile := baseDirectory.value / "code" / "resources",
-//  resourceDirectory in Test    := baseDirectory.value / "code" / "test" / "resources",
-//)
 
 lazy val compilerOptions = Seq(
   scalacOptions ++= Seq(
