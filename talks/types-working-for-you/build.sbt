@@ -6,6 +6,9 @@ lazy val `presentation` = project.in(file("."))
   .settings(compilerOptions ++ compilerPlugins)
   .settings(
 
+    // Reload terminal on compile:
+    triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
+
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core"   % "1.1.0",
       "org.typelevel" %% "cats-effect" % "0.10",
