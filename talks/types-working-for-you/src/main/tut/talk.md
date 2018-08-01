@@ -24,11 +24,9 @@ classoption: "aspectratio=169"
 
 # Functional Programming gets rid of that by definition.
 
-# Game over, OO. Right?
-
-# What about the `???`
-
-# The benefits are obvious
+## Referential Transparency
+- Equational reasoning
+- Compositionality
 
 ---
 
@@ -38,22 +36,44 @@ Referential Transparency + Types
 
 Refactor All The Things! (without fear)
 
+# Game over, OO. Right?
+
 # What about the downsides?
 
-# What if you could negate those downsides?
+## What if you could negate those downsides?
+- Smarter inference
+- Better compiler messages
 
-# What if the compiler could write your program for you?
+# What if we used the types to derive the implementation?
+
+---
+
+![alt-center](https://pbs.twimg.com/media/DX4al-6WAAAY7By.jpg)
+
 
 # Today we're exploring type-level induction and recursion
 
+## What we're actually doing
+Writing a compile-time serializer for data types - with no need for scary
+runtime reflection.
+
 # Coding time!
+
+# Why are we so obsessed with parametricity?
+
+## Felix's Conjecture
+> "By being able to do anything, we can assume nothing"
+
+---
+
+> "The purpose of abstraction is not to be vague, but to create a new semantic
+> level in which one can be absolutely precise"
+>
+> -- Edsger W. Dijkstra
 
 # Constraints Liberate, and Liberties Constrain
 
 # `Any => Unit`
-
-## Felix's Conjecture
-> "By being able to do anything, we can assume nothing"
 
 ## Constraints Liberate, and Liberties Constrain
 ```tut:silent
@@ -75,14 +95,7 @@ def foo[A](a: A): A = a
 def id[A](a: A): A = a
 ```
 
----
-
-> "The purpose of abstraction is not to be vague, but to create a new semantic
-> level in which one can be absolutely precise"
->
-> -- Edsger W. Dijkstra
-
 ## In Closing
 - Type level recursion for fun and profit!
-- FP combined with sophisticated types only require edge validation
-- You don't have to work against the compiler, make it work for you!
+- Built a type-level, compile-time JSON serializer
+- You shouldn't work against the compiler, make it work for you!
