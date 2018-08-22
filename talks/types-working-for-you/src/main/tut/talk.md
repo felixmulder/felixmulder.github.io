@@ -72,21 +72,8 @@ runtime reflection.
 
 # Coding time!
 
-# Why are we so obsessed with parametricity?
-
 ## Felix's Conjecture
 > "By being able to do anything, we can assume nothing"
-
----
-
-> "The purpose of abstraction is not to be vague, but to create a new semantic
-> level in which one can be absolutely precise"
->
-> -- Edsger W. Dijkstra
-
-# Constraints Liberate, and Liberties Constrain
-
-# `Any => Unit`
 
 ## Constraints Liberate, and Liberties Constrain
 ```tut:silent
@@ -95,7 +82,7 @@ def foo(i: Int): Int = ???
 
 ## Constraints Liberate, and Liberties Constrain
 ```tut:silent
-def foo[A](a: A): A= ???
+def foo[A](a: A): A = ???
 ```
 
 ## Constraints Liberate, and Liberties Constrain
