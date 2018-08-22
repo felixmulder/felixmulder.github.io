@@ -14,8 +14,12 @@ classoption: "aspectratio=169"
 
 ## Bio
 - Felix Mulder
-- Software Engineer, IronBank
+- Software Engineer, Core Banking
 - Compiler Engineer, Scala 3 @ EPFL
+
+---
+
+![alt-center](./fp-meme.png)
 
 ---
 
@@ -24,8 +28,17 @@ classoption: "aspectratio=169"
 
 # Functional Programming gets rid of that by definition.
 
+
 ## Referential Transparency
 - Equational reasoning
+  ```scala
+  x = 5
+  y = x + x
+  z = y + x
+
+  // ==>
+  z = (5 + 5) + 5
+  ```
 - Compositionality
 
 ---
