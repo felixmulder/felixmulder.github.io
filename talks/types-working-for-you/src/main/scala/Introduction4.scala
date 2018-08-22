@@ -1,9 +1,10 @@
 package klarna
 
-import cats.implicits._
-import shapeless._, record._, ops.record._
+import shapeless._, labelled._
 
 object Introduction4 {
+
+  // Let's create an static serializer for JSON!
 
   case class Persona(id: Long, name: String)
 
@@ -14,31 +15,28 @@ object Introduction4 {
   // Int :: String :: HNil
   val repr = gen.to(persona)
 
-  // This isn't very good
   println(repr)
 
-  case class StringRep(value: String) extends AnyVal
-
-  def show[H, T <: HList](xs: H :: T)(
+  // Let's print the representation in JSON:
+  def json[XS <: HList](xs: XS)(
     implicit
-    f: H :: T => StringRep
+    json: Json[XS],
   ): String =
-    ???
+    json(xs)
 
-  implicit val HNilRep: HNil => StringRep =
-    _ => StringRep("HNil")
+  trait Json[A] {
+    def apply(a: A): String
+  }
 
-  implicit val LongRep: Long => StringRep =
-    l => StringRep(l.toString)
+  def encoder[A](f: A => String): Json[A] = new Json[A] {
+    def apply(a: A) = f(a)
+  }
 
-  implicit val StringRepr: String => StringRep =
-    s => StringRep("\"" ++ s ++ "\"")
+  implicit val JsonHNil: Json[HNil] = encoder(_ => "")
 
-  implicit def recurse[H, T <: HList](
-    implicit
-    hf: H => StringRep,
-    tf: T => StringRep
-  ): H :: T => StringRep =
-    ???
+  implicit val JsonString: Json[String] = encoder("\"" + _ + "\"")
 
+  implicit val JsonLong: Json[Long] = encoder(_.toString)
+
+  //json(repr)
 }

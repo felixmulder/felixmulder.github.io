@@ -2,7 +2,7 @@ package klarna
 
 import shapeless._, labelled._
 
-object Introduction5 {
+object Introduction9 {
 
   // Let's create an static serializer for JSON!
 
@@ -10,7 +10,7 @@ object Introduction5 {
 
   val persona = Persona(1337, "Darude Dude")
 
-  val gen = Generic[Persona]
+  val gen = LabelledGeneric[Persona]
 
   // Int :: String :: HNil
   val repr = gen.to(persona)
@@ -18,11 +18,12 @@ object Introduction5 {
   println(repr)
 
   // Let's print the representation in JSON:
-  def json[XS <: HList](xs: XS)(
+  def json[A <: Product, XS <: HList](xs: A)(
     implicit
+    gen:  LabelledGeneric.Aux[A, XS],
     json: Json[XS],
   ): String =
-    json(xs)
+    "{" + json(gen.to(xs)) + "}"
 
   trait Json[A] {
     def apply(a: A): String
@@ -38,13 +39,25 @@ object Introduction5 {
 
   implicit val JsonLong: Json[Long] = encoder(_.toString)
 
-  implicit def jsonElems[H, T <: HList](
+  implicit def jsonElems[H, K <: Symbol, T <: HList](
     implicit
+    key:      Witness.Aux[K],
     headJson: Json[H],
     tailJson: Json[T],
-  ): Json[H :: T] = ???
+  ): Json[FieldType[K, H] :: T] = encoder {
+    case h :: HNil =>
+      keyPair(key, headJson(h))
+
+    case h :: t =>
+      keyPair(key, headJson(h)) + ", " + tailJson(t)
+  }
+
+  def keyPair[A <: Symbol](k: Witness.Aux[A], rep: String) =
+    s""""${k.value.name}": $rep"""
 
   println {
-    json(repr)
+    json(persona)
   }
 }
+
+

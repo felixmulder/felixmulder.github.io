@@ -1,12 +1,13 @@
 package klarna
 
-import cats.implicits._
-import shapeless._, record._, ops.record._
+import shapeless._, labelled._
 
 object Induction extends App {
 
+  // Let's create an static serializer for JSON!
+
   case class Persona(id: Long, name: String)
 
-  val persona = Persona(1337, "Person P")
+  val persona = Persona(1337, "Darude Dude")
 
 }

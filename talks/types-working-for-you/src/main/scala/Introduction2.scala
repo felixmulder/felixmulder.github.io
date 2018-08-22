@@ -1,9 +1,10 @@
 package klarna
 
-import cats.implicits._
-import shapeless._, record._, ops.record._
+import shapeless._, labelled._
 
 object Introduction2 {
+
+  // Let's create an static serializer for JSON!
 
   case class Persona(id: Long, name: String)
 
@@ -14,22 +15,19 @@ object Introduction2 {
   // Int :: String :: HNil
   val repr = gen.to(persona)
 
-  // This isn't very good
   println(repr)
 
-  def show[H, T <: HList](xs: H :: T)(
-    implicit
-    f: H :: T => String
-  ): String =
+  // Let's print the representation in JSON:
+  def json[XS <: HList](xs: XS): String =
     ???
 
-  implicit val HNilRep: HNil => String =
-    _ => "HNil"
+  trait Json[A] {
+    def apply(a: A): String
+  }
 
-  implicit val LongRep: Long => String =
-    _.toString
+  def encoder[A](f: A => String): Json[A] = new Json[A] {
+    def apply(a: A) = f(a)
+  }
 
-  implicit val StringRep: String => String =
-    "\"" ++ _ ++ "\""
-
+  json(repr)
 }

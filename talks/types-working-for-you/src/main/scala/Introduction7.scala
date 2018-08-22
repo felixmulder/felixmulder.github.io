@@ -1,9 +1,10 @@
 package klarna
 
-import cats.implicits._
-import shapeless._, record._, ops.record._
+import shapeless._, labelled._
 
 object Introduction7 {
+
+  // Let's create an static serializer for JSON!
 
   case class Persona(id: Long, name: String)
 
@@ -14,38 +15,42 @@ object Introduction7 {
   // Int :: String :: HNil
   val repr = gen.to(persona)
 
-  // This isn't very good
   println(repr)
 
-  case class StringRep(value: String) extends AnyVal
-
-  def show[A, XS](a: A)(
+  // Let's print the representation in JSON:
+  def json[XS <: HList](xs: XS)(
     implicit
-    G: Generic.Aux[A, XS],
-    f: XS => StringRep
+    json: Json[XS],
   ): String =
-    f(G.to(a)).value
+    json(xs)
 
-  implicit val HNilRep: HNil => StringRep =
-    _ => StringRep("HNil")
-
-  implicit val LongRep: Long => StringRep =
-    l => StringRep(l.toString)
-
-  implicit val StringRepr: String => StringRep =
-    s => StringRep("\"" ++ s ++ "\"")
-
-  private implicit def recurse[H, T <: HList](
-    implicit
-    hf: H => StringRep,
-    tf: T => StringRep
-  ): H :: T => StringRep =
-    xs => StringRep {
-      hf(xs.head).value ++ " :: " ++ tf(xs.tail).value
-    }
-
-  println {
-    show(persona)
+  trait Json[A] {
+    def apply(a: A): String
   }
 
+  def encoder[A](f: A => String): Json[A] = new Json[A] {
+    def apply(a: A) = f(a)
+  }
+
+  implicit val JsonHNil: Json[HNil] = encoder(_ => "")
+
+  implicit val JsonString: Json[String] = encoder("\"" + _ + "\"")
+
+  implicit val JsonLong: Json[Long] = encoder(_.toString)
+
+  implicit def jsonElems[H, T <: HList](
+    implicit
+    headJson: Json[H],
+    tailJson: Json[T],
+  ): Json[H :: T] = encoder {
+    case h :: HNil =>
+      headJson(h)
+
+    case h :: t =>
+      headJson(h) + ", " + tailJson(t)
+  }
+
+  println {
+    json(repr)
+  }
 }

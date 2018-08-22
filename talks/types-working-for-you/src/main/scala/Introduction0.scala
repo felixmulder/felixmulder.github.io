@@ -1,9 +1,10 @@
 package klarna
 
-import cats.implicits._
-import shapeless._, record._, ops.record._
+import shapeless._, labelled._
 
 object Introduction0 {
+
+  // Let's create an static serializer for JSON!
 
   case class Persona(id: Long, name: String)
 
@@ -14,7 +15,6 @@ object Introduction0 {
   // Int :: String :: HNil
   val repr = gen.to(persona)
 
-  // This isn't very good
   println(repr)
 
 }
