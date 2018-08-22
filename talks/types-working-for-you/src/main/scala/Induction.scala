@@ -8,6 +8,6 @@ object Induction extends App {
 
   case class Persona(id: Long, name: String)
 
-  val persona = Persona(1337, "Darude Dude")
+  val persona = Persona(1337, "Persona P")
 
 }
