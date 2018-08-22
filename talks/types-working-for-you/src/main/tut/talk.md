@@ -7,15 +7,20 @@ classoption: "aspectratio=169"
 ---
 
 ## Agenda
-- Functional Programming
-- Type systems
-- FP + Types == amazing!
-- Profit!
+• Functional Programming
+
+• Type systems
+
+• FP + Types == amazing!
+
+• Profit!
 
 ## Bio
-- Felix Mulder
-- Software Engineer, Core Banking
-- Compiler Engineer, Scala 3 @ EPFL
+• Felix Mulder
+
+• Software Engineer, Core Banking
+
+• Compiler Engineer, Scala 3 @ EPFL
 
 ---
 
@@ -54,15 +59,15 @@ Refactor All The Things! (without fear)
 # What about the downsides?
 
 ## What if you could negate those downsides?
-- Smarter inference
-- Better compiler messages
+• Smarter inference
 
-# What if we used the types to derive the implementation?
+• Better compiler messages
+
+• and...
 
 ---
 
-![alt-center](https://pbs.twimg.com/media/DX4al-6WAAAY7By.jpg)
-
+![alt-center](./from-the-types.jpg)
 
 # Today we're exploring type-level induction and recursion
 
@@ -96,6 +101,17 @@ def id[A](a: A): A = a
 ```
 
 ## In Closing
-- Type level recursion for fun and profit!
-- Built a type-level, compile-time JSON serializer
-- You shouldn't work against the compiler, make it work for you!
+• Type level recursion for fun and profit!
+
+• Built a type-level, compile-time JSON serializer
+
+---
+
+![alt-center](./tlp.png)
+
+# Thank You!
+
+## References
+• [Constraints Liberate, Liberties Constrain](https://www.youtube.com/watch?v=GqmsQeSzMdw) - Runar Bjarnason
+
+• [Type Astronaut's Guide to Shapeless](https://underscore.io/books/shapeless-guide/) - Dave Gurnell
