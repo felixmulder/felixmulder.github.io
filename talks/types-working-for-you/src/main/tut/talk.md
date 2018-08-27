@@ -7,20 +7,12 @@ classoption: "aspectratio=169"
 ---
 
 ## Agenda
+ADD PROFIT ON THE RIGHT IN BIG
 • Functional Programming
 
 • Type systems
 
 • FP + Types == amazing!
-
-• Profit!
-
-## Bio
-• Felix Mulder
-
-• Software Engineer, Core Banking
-
-• Compiler Engineer, Scala 3 @ EPFL
 
 ---
 
@@ -35,7 +27,6 @@ classoption: "aspectratio=169"
 
 
 ## Referential Transparency
-- Equational reasoning
   ```scala
   x = 5
   y = x + x
@@ -44,7 +35,9 @@ classoption: "aspectratio=169"
   // ==>
   z = (5 + 5) + 5
   ```
-- Compositionality
+• Equational reasoning
+
+• Compositionality
 
 ---
 
@@ -56,7 +49,8 @@ Refactor All The Things! (without fear)
 
 # Game over, OO. Right?
 
-# What about the downsides?
+## What about the downsides?
+• Downsides here
 
 ## What if you could negate those downsides?
 • Smarter inference
@@ -67,13 +61,17 @@ Refactor All The Things! (without fear)
 
 ---
 
+HIGHLIGHT KEYWORDS
 ![alt-center](./from-the-types.jpg)
 
 # Today we're exploring type-level induction and recursion
 
 ## What we're actually doing
+BETTER EXPLAIN THIS!
 Writing a compile-time serializer for data types - with no need for scary
 runtime reflection.
+
+# DISCLAIMER!
 
 # Coding time!
 
@@ -105,9 +103,7 @@ def id[A](a: A): A = a
 
 • Built a type-level, compile-time JSON serializer
 
----
-
-![alt-center](./tlp.png)
+## MEME
 
 # Thank You!
 
