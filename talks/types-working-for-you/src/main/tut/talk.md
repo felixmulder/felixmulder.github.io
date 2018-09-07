@@ -7,7 +7,6 @@ classoption: "aspectratio=169"
 ---
 
 ## Agenda
-ADD PROFIT ON THE RIGHT IN BIG
 • Functional Programming
 
 • Type systems
@@ -24,7 +23,6 @@ ADD PROFIT ON THE RIGHT IN BIG
 > once?"
 
 # Functional Programming gets rid of that by definition.
-
 
 ## Referential Transparency
   ```scala
@@ -49,27 +47,36 @@ Refactor All The Things! (without fear)
 
 # Game over, OO. Right?
 
-## What about the downsides?
-• Downsides here
+# What about the downsides?
 
-## What if you could negate those downsides?
-• Smarter inference
+# "Types get in the way of what I'm actually trying to do"
 
-• Better compiler messages
+# "The compiler is all complaints"
+
+# "I don't gain anything from the types"
+
+# "I'd rather write tests for my entire code base"
+
+## How do we negate that?
+• Inference
+
+• Smart type systems
+
+• Better compilers
 
 • and...
 
 ---
 
-HIGHLIGHT KEYWORDS
 ![alt-center](./from-the-types.jpg)
 
 # Today we're exploring type-level induction and recursion
 
 ## What we're actually doing
-BETTER EXPLAIN THIS!
-Writing a compile-time serializer for data types - with no need for scary
+Writing a compile-time JSON serializer for data types - with no need for ANY
 runtime reflection.
+
+# Why?
 
 # DISCLAIMER!
 
@@ -103,7 +110,9 @@ def id[A](a: A): A = a
 
 • Built a type-level, compile-time JSON serializer
 
-## MEME
+---
+
+![alt-center](./exit-12.png)
 
 # Thank You!
 
