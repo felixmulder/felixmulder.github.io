@@ -19,7 +19,7 @@ classoption: "aspectratio=169"
 
 ---
 
-> "Do you know that feeling of having to hold too many things in your head at
+> "Do you know that feeling of having to hold **too many things** in your head at
 > once?"
 
 # Functional Programming gets rid of that by definition.
@@ -33,6 +33,8 @@ classoption: "aspectratio=169"
   // ==>
   z = (5 + 5) + 5
   ```
+
+## Referential Transparency
 • Equational reasoning
 
 • Compositionality
@@ -73,8 +75,9 @@ Refactor All The Things! (without fear)
 # Today we're exploring type-level induction and recursion
 
 ## What we're actually doing
-Writing a compile-time JSON serializer for data types - with no need for ANY
-runtime reflection.
+• Compile-time JSON serializer
+
+• NO runtime reflection
 
 # Why?
 
@@ -83,7 +86,7 @@ runtime reflection.
 # Coding time!
 
 ## Felix's Conjecture
-> "By being able to do anything, we can assume nothing"
+> "By being able to do anything, we can assume nothing" -- Felix's Conjecture
 
 ## Constraints Liberate, and Liberties Constrain
 ```tut:silent
@@ -114,9 +117,5 @@ def id[A](a: A): A = a
 
 ![alt-center](./exit-12.png)
 
-# Thank You!
-
-## References
+## References (move to on slide)
 • [Constraints Liberate, Liberties Constrain](https://www.youtube.com/watch?v=GqmsQeSzMdw) - Runar Bjarnason
-
-• [Type Astronaut's Guide to Shapeless](https://underscore.io/books/shapeless-guide/) - Dave Gurnell
