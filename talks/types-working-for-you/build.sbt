@@ -5,6 +5,7 @@ enablePlugins(TutPlugin)
 lazy val `presentation` = project.in(file("."))
   .settings(compilerOptions ++ compilerPlugins)
   .settings(
+    showSuccess := false,
 
     // Reload terminal on compile:
     triggeredMessage in ThisBuild := Watched.clearWhenTriggered,

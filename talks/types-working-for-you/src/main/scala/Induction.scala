@@ -1,5 +1,6 @@
 package klarna
 
+import scala.annotation.implicitNotFound
 import shapeless._, labelled._
 
 object Induction extends App {
