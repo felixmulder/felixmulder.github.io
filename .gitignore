@@ -1,6 +1,8 @@
 *.swp
 _site/
+_cache/
 .sass-cache/
+dist-newstyle/
 .jekyll-metadata
 .bundle/
 vendor/
