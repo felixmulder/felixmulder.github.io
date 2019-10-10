@@ -28,7 +28,7 @@ endpoints:
 
 ## API definition
 We're going to use a simplified model of a Haskell API - but we could easily
-use something like Servant (which is what use at Klarna by the way).
+use something like Servant (which is what we use at Klarna by the way).
 
 ```haskell
 api :: Request -> IO Response
@@ -186,7 +186,7 @@ However, we still have a couple of issues:
 
 * We're running in `IO`
 * We have to manually pass around the `Application` everywhere it's needed
-* We are unconstrained in what a function can do - if it receives application,
+* We are unconstrained in what a function can do - if it receives an `Application`,
   it can do anything contained within that interface
 
 ## Getting rid of `IO`
@@ -207,7 +207,7 @@ data Application m =
 Now, if we wanted to - we can actually run these as pure functions by using the
 `Identity` monad.
 
-This might be strange to you, don't worry we'll, get to this in the testing
+This might be strange to you, don't worry, we'll get to this in the testing
 section below.
 
 ## Constraining Functions
@@ -229,7 +229,7 @@ There are many ways to do this in Haskell,
 free monads, tagless final or the classic
 [MTL](http://hackage.haskell.org/package/mtl) approach.
 
-These libraries all exist for a single reasons - monads don't compose. You
+These libraries all exist for a single reason - monads don't compose. You
 can't take two different monads (e.g. `Maybe` and `IO`) and compose them.
 The original solution to this is monad transformers (as found in the MTL lib).
 
@@ -239,7 +239,7 @@ aim to write it in a non-clever way. Because, when you have to debug it - you're
 going to need to be twice as smart."
 
 We're going to go with a solution that has a slightly higher degree of
-boilerplate, which we're willing to do since it is more straight-forward.
+boilerplate, which we're willing to do since it is more straightforward.
 
 The first order of business at this point is to introduce you to a monad called
 "Reader". If you already know about it - you can skip ahead to [Actually
@@ -300,7 +300,7 @@ We're saying that `m` must be a monad, this will come in handy since it lets us
 use do-notation.
 
 This typeclass now allows us to re-write a function like `createNewUser` with a
-type signature that let's us know about its effects.
+type signature that lets us know about its effects.
 
 ```haskell
 createNewUser :: Persist m => RequestBody -> m (Either Error User)

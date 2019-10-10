@@ -19,7 +19,7 @@ folks.
 
 ## The longer version
 Knowing *exactly* how we wanted to write production services using this
-language was not as straight-forward.
+language was not as straightforward.
 
 We tried a lot of different patterns - readers, handlers, MTL, and tagless
 final. You've surely heard of some of these, and they all have their own pros
@@ -92,7 +92,7 @@ Central bank. These of course should not be made available in the US.
 
 ### Testability
 We need to be able to test different components in isolation. Some of these
-components are pure or can be testing in a pure manner - if we mock out certain
+components are pure or can be tested in a pure manner - if we mock out certain
 dependencies.
 
 ### Maintainability
