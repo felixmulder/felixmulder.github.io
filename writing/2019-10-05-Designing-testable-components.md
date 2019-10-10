@@ -6,8 +6,8 @@ published: true
 
 # Designing Testable Components
 This chapter of the "Haskell in Production" article series focuses on how to
-write components that result in testable components. This chapter will give you
-the tools that are analogous to OOP mocking and dependency injection.
+structure your application so that components are testable. This chapter will
+give you the tools that are analogous to OOP mocking and dependency injection.
 
 You can find the complete code for this service in the
 [haskell-in-production](https://github.com/felixmulder/haskell-in-production)
@@ -28,7 +28,8 @@ endpoints:
 
 ## API definition
 We're going to use a simplified model of a Haskell API - but we could easily
-use something like Servant (which is what we use at Klarna by the way).
+use something like Servant[^servant] (which is what we use at Klarna by the
+way). Below, you can find the first step in modeling our HTTP API from above:
 
 ```haskell
 api :: Request -> IO Response
@@ -42,18 +43,45 @@ api request =
       pure NoResponse
 
 main :: IO ()
-main = run "8080" api
+main = run 8080 api
+```
+
+We're modelling the handling of the two requests, creating and deleting a user,
+as two branches in the case expression. In the `main` function, we simply mount
+this request handler on port 8080.
+
+For simplicity we're going to use a simplified definition of `User`:
+
+```haskell
+data User = User
+  { userId :: UserId
+  , userName :: UserName
+  }
+  deriving stock (Generic)
+```
+
+This data type is going to be returned when creating a user. For simplicity
+we're just going to derive a JSON encoder using
+[Aeson](http://hackage.haskell.org/package/aeson-1.4.2.0/docs/Data-Aeson.html):
+```haskell
+instance ToJSON User
 ```
 
 ## Dependency Injection
 If you come from a Java or other OOP languages, then you've surely dealt with
-dependency injection via annotations or frameworks like Guice or beans.
+dependency injection via annotations or frameworks like Guice, Spring or Castle
+Windsor.
 
 But what is really dependency injection? Let's get back to the core of it. DI
 is simply parameterizing components. The simplest form of dependency injection
 is just passing the dependencies as arguments to functions.
 
 ## Parameterizing Functions
+Let's zoom in on the `createNewUser` function from above. The function takes
+the body of the HTTP request and produces something that can be turned into an
+HTTP response by our framework. Here's how one could write an initial version
+of said function:
+
 ```haskell
 createNewUser :: RequestBody -> IO (Either Error User)
 createNewUser body =
@@ -81,6 +109,10 @@ This function is not very clean for a number of reasons:
 
 Let's solve this by parameterizing the function - with another function!
 
+We're first going to factor out the persistence by creating an `insertNewUser`
+function. This function takes a database as well as the required arguments
+used to persist the user in our original implementation:
+
 ```haskell
 insertNewUser :: Database -> UserName -> Password -> IO UserId
 insertNewUser db user pass =
@@ -89,13 +121,18 @@ insertNewUser db user pass =
       "INSERT INTO table (user_name, password) VALUES (?, ?) returning id"
   in
     query db insertSql (user, pass)
+```
 
+Now - we can simply partially apply it and pass it to along to `createNewUser`.
+Adding the parameter makes our implementation look something like this:
+
+```haskell
 createNewUser ::
      (UserName -> Password -> IO UserId)
   -> RequestBody
   -> IO (Either Error User)
 createNewUser persistUser body =
-  case bodyToUser body of
+  case bodyToUser bod
     Left err -> pure . Left $ err
     Right (user, pass) -> do
       -- Persist user:
@@ -104,12 +141,6 @@ createNewUser persistUser body =
       -- Create a response from the persisted argument:
       pure . Right $ User { userName = user, userId = userId }
 ```
-
-From an approachability standpoint, it is now quite easy to understand how this
-works and how to use the function.
-
-When calling `createNewUser` we now simply provide the `insertNewUser` function
-partially applied with a database.
 
 ## Solving the problem at scale
 So here's the problem with the above solution: while it does work, it doesn't
@@ -131,21 +162,24 @@ This example adds one function as argument, but what if you add a third? A
 fourth? You get the picture.
 
 We also don't want to write our code in `IO` - while useful of course, the
-surface area of possible effects is huge. From an effect perspective, we'd like
-to limit the power of each component. We'll get to this later in the article,
-but first let's focus on solving scalability of this initial approach.
+surface area of possible effects is huge. We'd like to limit the power of each
+component, if they are written in `IO` - they can do *anything*. We'll get to
+this later in the article, but first let's focus on solving scalability of this
+initial approach.
 
 ### Introducing the Handle pattern
 Instead of parameterizing the function with another function we can
-parameterize with a datatype containing a function. This is great for a number
-of reasons.
+parameterize with a datatype containing a function. This pattern is known as
+the "Handle pattern".[^handle-pattern] This pattern is great for a number of
+reasons.
 
 1. We can group functions that operate in similar ways together (think OO
    interface)
 2. We don't have to pass around all those functions, instead we pass one
    datatype
+3. It's quite simple to understand
 
-So how would this look?
+So what would this look like?
 
 ```haskell
 data Application =
@@ -469,3 +503,6 @@ these components individually and together. In the next section of this series,
 we'll see just how to do that.
 
 Next part [Testing your components](/writing/2019/10/05/Testing-your-components.html)
+
+[^servant]: [servant - A Type-Level Web DSL](https://haskell-servant.readthedocs.io/en/stable/)
+[^handle-pattern]: [Haskell Design Patterns: The Handle Pattern](https://jaspervdj.be/posts/2018-03-08-handle-pattern.html)
