@@ -13,9 +13,10 @@ seeing if Haskell is a good fit for us in order to deliver quickly and with
 great quality.
 
 ## tl;dr
-Yes, Haskell is great for business. Hiring is easy, the ecosystem is great, the
-libraries are mature and the code we've produced makes it easy to onboard new
-folks.
+Haskell is great for business and great in production. Attracting talent has been
+a joy, people are excited to work in Haskell. The libraries we've needed exist
+in battle-tested form on Hackage/Stackage. The code we've produced has made it
+easy to onboard new folks.
 
 ## The longer version
 Knowing *exactly* how we wanted to write production services using this
@@ -23,10 +24,11 @@ language was not as straightforward.
 
 We tried a lot of different patterns - readers, handlers, MTL, and tagless
 final. You've surely heard of some of these, and they all have their own pros
-and cons. So which one should you choose?
+and cons. So, which one should you choose?
 
 That is why I've written this article series, to help you get a good sense of
-how production Haskell is written and what to avoid along the road.
+how production Haskell is written at a company like Klarna and what to avoid
+along the road.
 
 ## Existing parts in this series
 
@@ -49,7 +51,7 @@ writing our service in.
 * Multiple environments and regions
 * Testability
 * Performance & scalability
-* Maintainability
+* Maintainability, logging, and traceability
 
 When you're coming from object-oriented programming, you usually think of these
 things in order to facilitate the above:
@@ -57,8 +59,10 @@ things in order to facilitate the above:
 * Dependency injection
 * Mocking
 
-In functional programming we can do both, but the way we do it is much simpler
-than the tooling usually required by OO frameworks like Spring and Dropwizard.
+In functional programming, we have tecnhiques to cover both. Whereas these
+frameworks often opt for meta-programming level annotations and reflection - FP
+leverages language level features. This allows you to stay purely within the
+language.
 
 Below, I'll elaborate some more on the requirements posited above. If you want
 to skip ahead to how we'll solve these concerns - please see [part
@@ -106,7 +110,7 @@ make sure that others are productive. Thus, this article will emphasize
 
 ## Proposed solution
 We will write a configurable, testable service that deploys to a cloud
-provider. The application will be shipped in a docker container and deployable
+provider. The application will be shipped in a docker image and deployable
 as such.
 
 Next part [Designing Testable

@@ -76,6 +76,10 @@ But what is really dependency injection? Let's get back to the core of it. DI
 is simply parameterizing components. The simplest form of dependency injection
 is just passing the dependencies as arguments to functions.
 
+In this article we'll explore how to do this on the language level in Haskell;
+as opposed to relying on meta-programming and reflection like the frameworks
+mentioned above.
+
 ## Parameterizing Functions
 Let's zoom in on the `createNewUser` function from above. The function takes
 the body of the HTTP request and produces something that can be turned into an
@@ -153,9 +157,9 @@ E.g:
 
 ```haskell
 validateUser :: (UserId -> IO (Maybe User)) -> (UserName -> IO Bool) -> UserId -> IO Bool
-validateUser getUser validateUsername userId = do
+validateUser getUser callIntoThirdPartyService userId = do
   userM <- getUser userId
-  maybe (pure False) (validateUsername . userName) userM
+  maybe (pure False) (callIntoThirdPartyService . userName) userM
 ```
 
 This example adds one function as argument, but what if you add a third? A
@@ -185,7 +189,7 @@ So what would this look like?
 data Application =
   { persistUser :: UserName -> Password -> IO UserId
   , getUser :: UserId -> IO (Maybe User)
-  , validateUsername :: UserId -> IO Bool
+  , callIntoThirdPartyService :: UserName -> IO Bool
   , logLn :: Loggable a => a -> IO ()
   }
 ```
@@ -195,11 +199,12 @@ Now we can simply pass that to `validateUser`:
 ```haskell
 validateUser :: Application -> RequestBody -> UserId -> IO Bool
 validateUser app requestBody userId = do
+  -- Here `&` is applying `getUser` to `app`:
   userM <- (app & getUser) userId
-  maybe (pure False) (app & validateUsername $ userName) userM
+  maybe (pure False) (app & callIntoThirdPartyService $ userName) userM
 ```
 
-But - when looking at this, you've probably seen an issue. `validateUsername`
+But - when looking at this, you've probably seen an issue. `callIntoThirdPartyService`
 does not really fit in with the rest of the functions in `Application`. As a
 solution, we could nest the `Application` type. So let's redefine it:
 
@@ -211,7 +216,8 @@ data Persistence =
 
 data Application =
   { persistence :: Persistence
-  , validateUsername :: UserId -> IO Bool
+  , callIntoThirdPartyService :: UserName -> IO Bool
+  , logLn :: Loggable a => a -> IO ()
   }
 ```
 
@@ -234,7 +240,8 @@ data Persistence m =
 
 data Application m =
   { persistence :: Persistence m
-  , validateUsername :: UserId -> m Bool
+  , callIntoThirdPartyService :: UserName -> m Bool
+  , logLn :: Loggable a => a -> m ()
   }
 ```
 
@@ -256,24 +263,11 @@ which monad to evaluate our programs in. This gives us the power to limit the
 effects of the monad. We can evaluate it purely or we can evaluate it with
 only certain effects.
 
-There are many ways to do this in Haskell,
-[fused-effects](http://hackage.haskell.org/package/fused-effects),
-[extensible-effects](http://hackage.haskell.org/package/extensible-effects),
-[polysemy](http://hackage.haskell.org/package/polysemy),
-free monads, tagless final or the classic
-[MTL](http://hackage.haskell.org/package/mtl) approach.
-
-These libraries all exist for a single reason - monads don't compose. You
-can't take two different monads (e.g. `Maybe` and `IO`) and compose them.
-The original solution to this is monad transformers (as found in the MTL lib).
-
-When choosing something - consider choosing the easiest thing you can possibly
-get away with. A friend once told me: "Whenever you write something, you should
-aim to write it in a non-clever way. Because, when you have to debug it - you're
-going to need to be twice as smart."
-
-We're going to go with a solution that has a slightly higher degree of
-boilerplate, which we're willing to do since it is more straightforward.
+There are several libraries that exist explicitly to model
+effects.[^effect-libs] They have different focuses - in this tutorial we'll
+use plain Haskell to model effects. This solution is somewhat more verbose, but
+we're willing to live with the extra boilerplate in order to arrive at a solution
+that is easier to grok.
 
 The first order of business at this point is to introduce you to a monad called
 "Reader". If you already know about it - you can skip ahead to [Actually
@@ -311,10 +305,11 @@ runReader getPersistUser app
 
 (In fact this will make the `m` be `Identity` and then unwrap it for us!)
 
-We could of course run this in any monad we wanted to - like `Either a` or
-`Maybe` or `IO`. It might seem like a contrived example, but bear in mind that
-if we let all the functions that require this parameter be readers - we can
-compose them before actually running it and thus only pass the parameter once.
+We could of course run this in any suitable monad we wanted to - like `Either
+a` or `Maybe` or `IO`. It might seem like a contrived example, but bear in mind
+that if we let all the functions that require this parameter be readers - we
+can compose them before actually running it and thus only pass the parameter
+once.
 
 ## Actually getting rid of the manual wiring
 Now that we know about reader, it's time to deliver on our goals of effect
@@ -398,11 +393,11 @@ instance
 ```
 
 Here we choose to create an instance for `ReaderT r m` which itself is a
-reader. In fact, it's a reader that reads `r` from a specific monad `m`.
+reader. In fact, it's a reader that reads `r` in a specific monad `m`.
 
 The great thing about this is that your interfaces compose under the same
 monad. No need to, as in MTL, define the `n^2` number of instances where `n` is
-the number of interfaces.
+the number of interfaces.[^n-squared-mtl]
 
 If we have a different interface:
 
@@ -439,13 +434,18 @@ createNewUser body =
       pure . Right $ User { userName = user, userId = userId }
 ```
 
-and we can simply run it as:
+> Note: `(Persist m, Log m)` is equivalent to currying the constraints as above.
+
+To run it we can simply run it using:
 
 ```haskell
 runReaderT (createNewUser request) (logger, persistence)
 ```
 
-Or if we adjust `Application`:
+This could seem a bit magical, but it works because the `Has` typeclass has
+instances for tuples of all sizes.
+
+Or if we adjust `Application` and create the appropriate `Has` instances:
 ```haskell
 data Application m = Application
   { persistence :: Persistence m
@@ -468,6 +468,26 @@ as well as both log and persist. This means that we have some semblance of
 effect tracking. We're also able to organize our effects so that the most
 powerful function is the entry point to the system (e.g. `main`) and then each
 function performing domain logic becomes less powerful.
+
+## Composing interfaces
+You might be wondering how you base higher-level interfaces on lower ones. For
+instance, you might want to allow the `Persist m` capability to do logging. For
+this, we need to revisit the instance declaration. Our original solution based
+the instance on `(Monad m, Has (Persistence m) r)`. We now need to add a
+constraint to reference our `Log` instance. This would look something like this:
+
+```haskell
+instance
+  ( Has (Persistence m) r
+  , Log (ReaderT r m)
+  , Monad m
+  ) => Persist (ReaderT r m) where
+  persistUser user pass = _
+  getUser userId = _
+```
+
+Here you can see that we reference the specific instance of `Log` that aligns
+with the one we're currently defining.
 
 ## The final application
 We can now parameterize our `api` function from [API
@@ -506,3 +526,5 @@ Next part [Testing your components](/writing/2019/10/05/Testing-your-components.
 
 [^servant]: [servant - A Type-Level Web DSL](https://haskell-servant.readthedocs.io/en/stable/)
 [^handle-pattern]: [Haskell Design Patterns: The Handle Pattern](https://jaspervdj.be/posts/2018-03-08-handle-pattern.html)
+[^effect-libs]: [fused-effects](http://hackage.haskell.org/package/fused-effects), [extensible-effects](http://hackage.haskell.org/package/extensible-effects), [polysemy](http://hackage.haskell.org/package/polysemy)
+[^n-squared-mtl]: [Writing a Monad Transformer, does it really need so many hardcoded instances](https://stackoverflow.com/a/35541483)
