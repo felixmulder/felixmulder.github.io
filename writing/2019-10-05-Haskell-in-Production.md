@@ -59,7 +59,7 @@ things in order to facilitate the above:
 * Dependency injection
 * Mocking
 
-In functional programming, we have tecnhiques to cover both. Whereas these
+In functional programming, we have techniques to cover both. Whereas these
 frameworks often opt for meta-programming level annotations and reflection - FP
 leverages language level features. This allows you to stay purely within the
 language.
