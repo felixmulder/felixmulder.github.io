@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Haskell in Production: Designing Testable Components</title>
+    <link rel="stylesheet" href="../../../../css/default.css" />
+    <link rel="stylesheet" href="../../../../css/haskell-syntax.css" />
+    <link rel="stylesheet" href"https: typeof.net Iosevka fonts.css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Mono&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <a class="back-button" href="../../../../">Home</a>
+
+<div class="article-container">
+  <h1 id="designing-testable-components">Designing Testable Components</h1>
+<p>This chapter of the “Haskell in Production” article series focuses on how to structure your application so that components are testable. This chapter will give you the tools that are analogous to OOP mocking and dependency injection.</p>
+<p>You can find the complete code for this service in the <a href="https://github.com/felixmulder/haskell-in-production">haskell-in-production</a> repo on GitHub.</p>
+<h2 id="lets-build-an-http-api">Let’s build an HTTP API!</h2>
+<p>In this tutorial we’re going to be building an HTTP API. The API will have two endpoints:</p>
+<ul>
+<li><p>Create a user <code>POST /user</code></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="dt">&quot;username&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;String&gt;&quot;</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="dt">&quot;password&quot;</span><span class="fu">:</span> <span class="st">&quot;&lt;String&gt;&quot;</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="fu">}</span></span></code></pre></div></li>
+<li><p>Delete a user <code>DELETE /user/&lt;user-id&gt;</code></p></li>
+</ul>
+<h2 id="api-definition">API definition</h2>
+<p>We’re going to use a simplified model of a Haskell API - but we could easily use something like Servant<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> (which is what we use at Klarna by the way). Below, you can find the first step in modeling our HTTP API from above:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1"></a><span class="ot">api ::</span> <span class="dt">Request</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Response</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>api request <span class="ot">=</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="kw">case</span> methodAndPath request <span class="kw">of</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="dt">POST</span> (matches <span class="st">&quot;/user&quot;</span> <span class="ot">-&gt;</span> <span class="dt">Just</span> []) <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>      createNewUser (requestBody request) <span class="op">&gt;&gt;=</span> toResponse</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="dt">DELETE</span> (matches <span class="st">&quot;/user/:userId&quot;</span> <span class="ot">-&gt;</span> <span class="dt">Just</span> [userId]) <span class="ot">-&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>      deleteUserId (<span class="dt">UserId</span> userId) <span class="op">&gt;&gt;=</span> toResponse</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    _unmatched <span class="ot">-&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>      <span class="fu">pure</span> <span class="dt">NoResponse</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb2-12"><a href="#cb2-12"></a>main <span class="ot">=</span> run <span class="dv">8080</span> api</span></code></pre></div>
+<p>We’re modelling the handling of the two requests, creating and deleting a user, as two branches in the case expression. In the <code>main</code> function, we simply mount this request handler on port 8080.</p>
+<p>For simplicity we’re going to use a simplified definition of <code>User</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">data</span> <span class="dt">User</span> <span class="ot">=</span> <span class="dt">User</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>  {<span class="ot"> userId ::</span> <span class="dt">UserId</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>  ,<span class="ot"> userName ::</span> <span class="dt">UserName</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>  }</span>
+<span id="cb3-5"><a href="#cb3-5"></a>  <span class="kw">deriving</span> stock (<span class="dt">Generic</span>)</span></code></pre></div>
+<p>This data type is going to be returned when creating a user. For simplicity we’re just going to derive a JSON encoder using <a href="http://hackage.haskell.org/package/aeson-1.4.2.0/docs/Data-Aeson.html">Aeson</a>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">instance</span> <span class="dt">ToJSON</span> <span class="dt">User</span></span></code></pre></div>
+<h2 id="dependency-injection">Dependency Injection</h2>
+<p>If you come from a Java or other OOP languages, then you’ve surely dealt with dependency injection via annotations or frameworks like Guice, Spring or Castle Windsor.</p>
+<p>But what is really dependency injection? Let’s get back to the core of it. DI is simply parameterizing components. The simplest form of dependency injection is just passing the dependencies as arguments to functions.</p>
+<p>In this article we’ll explore how to do this on the language level in Haskell; as opposed to relying on meta-programming and reflection like the frameworks mentioned above.</p>
+<h2 id="parameterizing-functions">Parameterizing Functions</h2>
+<p>Let’s zoom in on the <code>createNewUser</code> function from above. The function takes the body of the HTTP request and produces something that can be turned into an HTTP response by our framework. Here’s how one could write an initial version of said function:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1"></a><span class="ot">createNewUser ::</span> <span class="dt">RequestBody</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">Error</span> <span class="dt">User</span>)</span>
+<span id="cb5-2"><a href="#cb5-2"></a>createNewUser body <span class="ot">=</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>  <span class="kw">case</span> bodyToUser body <span class="kw">of</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="dt">Left</span> err <span class="ot">-&gt;</span> <span class="fu">pure</span> <span class="op">.</span> <span class="dt">Left</span> <span class="op">$</span> err</span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="dt">Right</span> (user, pass) <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>      <span class="co">-- Connect to DB:</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>      db <span class="ot">&lt;-</span> connectToDb</span>
+<span id="cb5-8"><a href="#cb5-8"></a>      <span class="kw">let</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>        insertSql <span class="ot">=</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>          <span class="st">&quot;INSERT INTO table (user_name, password) VALUES (?, ?) returning id&quot;</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a></span>
+<span id="cb5-12"><a href="#cb5-12"></a>      <span class="co">-- Persist using insert statement:</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a>      userId <span class="ot">&lt;-</span> query db insertSql (user, pass)</span>
+<span id="cb5-14"><a href="#cb5-14"></a></span>
+<span id="cb5-15"><a href="#cb5-15"></a>      <span class="co">-- Create a response from the persisted argument:</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a>      <span class="fu">pure</span> <span class="op">.</span> <span class="dt">Right</span> <span class="op">$</span> <span class="dt">User</span> { userName <span class="ot">=</span> user, userId <span class="ot">=</span> userId }</span></code></pre></div>
+<p>This function is not very clean for a number of reasons:</p>
+<ul>
+<li>It seems to connect to the DB on every call</li>
+<li>It doesn’t take any configuration in order to know how to connect to the DB</li>
+<li>The DB persistence is not abstracted from the domain logic</li>
+</ul>
+<p>Let’s solve this by parameterizing the function - with another function!</p>
+<p>We’re first going to factor out the persistence by creating an <code>insertNewUser</code> function. This function takes a database as well as the required arguments used to persist the user in our original implementation:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1"></a><span class="ot">insertNewUser ::</span> <span class="dt">Database</span> <span class="ot">-&gt;</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">Password</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">UserId</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>insertNewUser db user pass <span class="ot">=</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="kw">let</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>    insertSql <span class="ot">=</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>      <span class="st">&quot;INSERT INTO table (user_name, password) VALUES (?, ?) returning id&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>  <span class="kw">in</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>    query db insertSql (user, pass)</span></code></pre></div>
+<p>Now - we can simply partially apply it and pass it to along to <code>createNewUser</code>. Adding the parameter makes our implementation look something like this:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1"></a><span class="ot">createNewUser ::</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>     (<span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">Password</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">UserId</span>)</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="ot">-&gt;</span> <span class="dt">RequestBody</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">Error</span> <span class="dt">User</span>)</span>
+<span id="cb7-5"><a href="#cb7-5"></a>createNewUser persistUser body <span class="ot">=</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="kw">case</span> bodyToUser body <span class="kw">of</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>    <span class="dt">Left</span> err <span class="ot">-&gt;</span> <span class="fu">pure</span> <span class="op">.</span> <span class="dt">Left</span> <span class="op">$</span> err</span>
+<span id="cb7-8"><a href="#cb7-8"></a>    <span class="dt">Right</span> (user, pass) <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a>      <span class="co">-- Persist user:</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>      userId <span class="ot">&lt;-</span> persistUser user pass</span>
+<span id="cb7-11"><a href="#cb7-11"></a></span>
+<span id="cb7-12"><a href="#cb7-12"></a>      <span class="co">-- Create a response from the persisted argument:</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a>      <span class="fu">pure</span> <span class="op">.</span> <span class="dt">Right</span> <span class="op">$</span> <span class="dt">User</span> { userName <span class="ot">=</span> user, userId <span class="ot">=</span> userId }</span></code></pre></div>
+<h2 id="solving-the-problem-at-scale">Solving the problem at scale</h2>
+<p>So here’s the problem with the above solution: while it does work, it doesn’t really scale. Domain logic will often need access to several interfaces to do its job. It might need both an HTTP client for some request and a database to store the result. As the requirements grow, the solution above quickly becomes quite verbose in practice.</p>
+<p>E.g:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1"></a><span class="ot">validateUser ::</span> (<span class="dt">UserId</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">User</span>)) <span class="ot">-&gt;</span> (<span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> <span class="dt">UserId</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>validateUser getUser callIntoThirdPartyService userId <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>  userM <span class="ot">&lt;-</span> getUser userId</span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="fu">maybe</span> (<span class="fu">pure</span> <span class="dt">False</span>) (callIntoThirdPartyService <span class="op">.</span> userName) userM</span></code></pre></div>
+<p>This example adds one function as argument, but what if you add a third? A fourth? You get the picture.</p>
+<p>We also don’t want to write our code in <code>IO</code> - while useful of course, the surface area of possible effects is huge. We’d like to limit the power of each component, if they are written in <code>IO</code> - they can do <em>anything</em>. We’ll get to this later in the article, but first let’s focus on solving scalability of this initial approach.</p>
+<h3 id="introducing-the-handle-pattern">Introducing the Handle pattern</h3>
+<p>Instead of parameterizing the function with another function we can parameterize with a datatype containing a function. This pattern is known as the “Handle pattern”.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> This pattern is great for a number of reasons.</p>
+<ol type="1">
+<li>We can group functions that operate in similar ways together (think OO interface)</li>
+<li>We don’t have to pass around all those functions, instead we pass one datatype</li>
+<li>It’s quite simple to understand</li>
+</ol>
+<p>So what would this look like?</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">data</span> <span class="dt">Application</span> <span class="ot">=</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>  {<span class="ot"> persistUser ::</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">Password</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">UserId</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a>  ,<span class="ot"> getUser ::</span> <span class="dt">UserId</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">User</span>)</span>
+<span id="cb9-4"><a href="#cb9-4"></a>  ,<span class="ot"> callIntoThirdPartyService ::</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a>  ,<span class="ot"> logLn ::</span> <span class="dt">Loggable</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb9-6"><a href="#cb9-6"></a>  }</span></code></pre></div>
+<p>Now we can simply pass that to <code>validateUser</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1"></a><span class="ot">validateUser ::</span> <span class="dt">Application</span> <span class="ot">-&gt;</span> <span class="dt">RequestBody</span> <span class="ot">-&gt;</span> <span class="dt">UserId</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>validateUser app requestBody userId <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="co">-- Here `&amp;` is applying `getUser` to `app`:</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>  userM <span class="ot">&lt;-</span> (app <span class="op">&amp;</span> getUser) userId</span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="fu">maybe</span> (<span class="fu">pure</span> <span class="dt">False</span>) (app <span class="op">&amp;</span> callIntoThirdPartyService <span class="op">$</span> userName) userM</span></code></pre></div>
+<p>But - when looking at this, you’ve probably seen an issue. <code>callIntoThirdPartyService</code> does not really fit in with the rest of the functions in <code>Application</code>. As a solution, we could nest the <code>Application</code> type. So let’s redefine it:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">data</span> <span class="dt">Persistence</span> <span class="ot">=</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>  {<span class="ot"> persistUser ::</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">Password</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">UserId</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a>  ,<span class="ot"> getUser ::</span> <span class="dt">UserId</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">User</span>)</span>
+<span id="cb11-4"><a href="#cb11-4"></a>  }</span>
+<span id="cb11-5"><a href="#cb11-5"></a></span>
+<span id="cb11-6"><a href="#cb11-6"></a><span class="kw">data</span> <span class="dt">Application</span> <span class="ot">=</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a>  {<span class="ot"> persistence ::</span> <span class="dt">Persistence</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a>  ,<span class="ot"> callIntoThirdPartyService ::</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a>  ,<span class="ot"> logLn ::</span> <span class="dt">Loggable</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb11-10"><a href="#cb11-10"></a>  }</span></code></pre></div>
+<p>This gives us a bit more granularity, and a cleaner interface to work with. However, we still have a couple of issues:</p>
+<ul>
+<li>We’re running in <code>IO</code></li>
+<li>We have to manually pass around the <code>Application</code> everywhere it’s needed</li>
+<li>We are unconstrained in what a function can do - if it receives an <code>Application</code>, it can do anything contained within that interface</li>
+</ul>
+<h2 id="getting-rid-of-io">Getting rid of <code>IO</code></h2>
+<p>If we add a generic type parameter to the handles, we can abstract away <code>IO</code>:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">data</span> <span class="dt">Persistence</span> m <span class="ot">=</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>  {<span class="ot"> persistUser ::</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">Password</span> <span class="ot">-&gt;</span> m <span class="dt">UserId</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a>  ,<span class="ot"> getUser ::</span> <span class="dt">UserId</span> <span class="ot">-&gt;</span> m (<span class="dt">Maybe</span> <span class="dt">User</span>)</span>
+<span id="cb12-4"><a href="#cb12-4"></a>  }</span>
+<span id="cb12-5"><a href="#cb12-5"></a></span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="kw">data</span> <span class="dt">Application</span> m <span class="ot">=</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a>  {<span class="ot"> persistence ::</span> <span class="dt">Persistence</span> m</span>
+<span id="cb12-8"><a href="#cb12-8"></a>  ,<span class="ot"> callIntoThirdPartyService ::</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> m <span class="dt">Bool</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>  ,<span class="ot"> logLn ::</span> <span class="dt">Loggable</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> m ()</span>
+<span id="cb12-10"><a href="#cb12-10"></a>  }</span></code></pre></div>
+<p>Now, if we wanted to - we can actually run these as pure functions by using the <code>Identity</code> monad.</p>
+<p>This might be strange to you, don’t worry, we’ll get to this in the testing section below.</p>
+<h2 id="constraining-functions">Constraining Functions</h2>
+<p>When we write applications, typically the most powerful function will be <code>main</code>. It can do anything. When it comes to our interfaces, we want to constrain their possible effects - and thus limit what we need to test.</p>
+<p>We’re interested in what is commonly referred to as <em>effect tracking</em>.</p>
+<p>Because we have gotten rid of <code>IO</code> in our refactoring above we can now choose which monad to evaluate our programs in. This gives us the power to limit the effects of the monad. We can evaluate it purely or we can evaluate it with only certain effects.</p>
+<p>There are several libraries that exist explicitly to model effects.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> They have different focuses - in this tutorial we’ll use plain Haskell to model effects. This solution is somewhat more verbose, but we’re willing to live with the extra boilerplate in order to arrive at a solution that is easier to grok.</p>
+<p>The first order of business at this point is to introduce you to a monad called “Reader”. If you already know about it - you can skip ahead to <a href="#actually-getting-rid-of-the-manual-wiring">Actually getting rid of the manual wiring</a>.</p>
+<h2 id="introducing-reader">Introducing reader</h2>
+<p>We want to get rid of the manual wiring. This is were Reader comes into play. The easiest way to describe reader is to say that it is a monad that is able to read a value from its context.</p>
+<p>What’s an example of something that can read a value from its context? Well, a function!</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1"></a><span class="ot">getPersistUser ::</span> <span class="dt">Application</span> m <span class="ot">-&gt;</span> (<span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">Password</span> <span class="ot">-&gt;</span> m <span class="dt">UserId</span>)</span>
+<span id="cb13-2"><a href="#cb13-2"></a>getPersistUser app <span class="ot">=</span> app <span class="op">&amp;</span> persistence <span class="op">&amp;</span> persistUser</span></code></pre></div>
+<p>We could re-write this in a way where we don’t explicitly have to pass the <code>Application</code> argument:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1"></a><span class="ot">getPersistUser ::</span> <span class="dt">MonadReader</span> <span class="dt">Application</span> m <span class="ot">=&gt;</span> m (<span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">Password</span> <span class="ot">-&gt;</span> m <span class="dt">UserId</span>)</span>
+<span id="cb14-2"><a href="#cb14-2"></a>getPersistUser <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>  app <span class="ot">&lt;-</span> ask</span>
+<span id="cb14-4"><a href="#cb14-4"></a>  <span class="fu">pure</span> <span class="op">$</span> app <span class="op">&amp;</span> persistence <span class="op">&amp;</span> persistUser</span></code></pre></div>
+<p>Unfortunately, the type signature has changed - but that is a very small price to pay since we can just unwrap it by doing something like:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1"></a>runReader getPersistUser app</span></code></pre></div>
+<p>(In fact this will make the <code>m</code> be <code>Identity</code> and then unwrap it for us!)</p>
+<p>We could of course run this in any suitable monad we wanted to - like <code>Either a</code> or <code>Maybe</code> or <code>IO</code>. It might seem like a contrived example, but bear in mind that if we let all the functions that require this parameter be readers - we can compose them before actually running it and thus only pass the parameter once.</p>
+<h2 id="actually-getting-rid-of-the-manual-wiring">Actually getting rid of the manual wiring</h2>
+<p>Now that we know about reader, it’s time to deliver on our goals of effect tracking - and as an added bonus get cleaner interfaces for these effects.</p>
+<p>We will now be using a type class in order to bundle things that fall under the same effect. For instance writing and reading to the database would fall under an interface <code>Persist</code>:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">class</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">Persist</span> m <span class="kw">where</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="ot">  persistUser ::</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">Password</span> <span class="ot">-&gt;</span> m <span class="dt">UserId</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="ot">  getUser ::</span> <span class="dt">UserId</span> <span class="ot">-&gt;</span> m (<span class="dt">Maybe</span> <span class="dt">User</span>)</span></code></pre></div>
+<p>We’re saying that <code>m</code> must be a monad, this will come in handy since it lets us use do-notation.</p>
+<p>This typeclass now allows us to re-write a function like <code>createNewUser</code> with a type signature that lets us know about its effects.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1"></a><span class="ot">createNewUser ::</span> <span class="dt">Persist</span> m <span class="ot">=&gt;</span> <span class="dt">RequestBody</span> <span class="ot">-&gt;</span> m (<span class="dt">Either</span> <span class="dt">Error</span> <span class="dt">User</span>)</span>
+<span id="cb17-2"><a href="#cb17-2"></a>createNewUser body <span class="ot">=</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a>  <span class="kw">case</span> bodyToUser body <span class="kw">of</span></span>
+<span id="cb17-4"><a href="#cb17-4"></a>    <span class="dt">Left</span> err <span class="ot">-&gt;</span> <span class="fu">pure</span> <span class="op">.</span> <span class="dt">Left</span> <span class="op">$</span> err</span>
+<span id="cb17-5"><a href="#cb17-5"></a>    <span class="dt">Right</span> (user, pass) <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb17-6"><a href="#cb17-6"></a>      userId <span class="ot">&lt;-</span> persistUser user pass</span>
+<span id="cb17-7"><a href="#cb17-7"></a>      <span class="co">-- Create a response from the persisted argument:</span></span>
+<span id="cb17-8"><a href="#cb17-8"></a>      <span class="fu">pure</span> <span class="op">.</span> <span class="dt">Right</span> <span class="op">$</span> <span class="dt">User</span> { userName <span class="ot">=</span> user, userId <span class="ot">=</span> userId }</span></code></pre></div>
+<p>Notice how we now don’t have to pass the <code>Application</code> to this function anymore! It’s pretty cool. Unfortunately, this means that we have to pay the price somewhere else. We still need a concrete version of this to be able to call it from <code>main</code>.</p>
+<p>Let’s create such an instance:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">instance</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>  ( <span class="dt">MonadReader</span> (<span class="dt">Persistence</span> m) m</span>
+<span id="cb18-3"><a href="#cb18-3"></a>  ) <span class="ot">=&gt;</span> <span class="dt">Persist</span> m <span class="kw">where</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a>  persistUser user pass <span class="ot">=</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a>    ask <span class="op">&gt;&gt;=</span> \(<span class="dt">Persistence</span> persist _) <span class="ot">-&gt;</span> persist user pass</span>
+<span id="cb18-6"><a href="#cb18-6"></a>  getUser userId <span class="ot">=</span></span>
+<span id="cb18-7"><a href="#cb18-7"></a>    ask <span class="op">&gt;&gt;=</span> \(<span class="dt">Persistence</span> _ get) <span class="ot">-&gt;</span> get user pass</span></code></pre></div>
+<p>We’re still not at the steady state solution here. Because, when we want to compose different interfaces together - these instances don’t have the same reader. This one reads <code>Persistence m</code> and no other data. When we do <code>runReader</code>, we have to do something like:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1"></a>runReader (persistUser <span class="st">&quot;user&quot;</span> <span class="st">&quot;pass&quot;</span>) (app <span class="op">&amp;</span> persistence)</span></code></pre></div>
+<p>We cannot do:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1"></a>runReader (persistUser <span class="st">&quot;user&quot;</span> <span class="st">&quot;pass&quot;</span>) app</span></code></pre></div>
+<p>Bummer.</p>
+<p>But hey! We can solve this. We can make use of a type class <a href="http://hackage.haskell.org/package/data-has"><code>Has</code></a> that simply tells us that a datatype <code>r</code> has <code>a</code> by constraining the instance with “<code>Has a r</code>”. After refactoring, we get this:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">instance</span></span>
+<span id="cb21-2"><a href="#cb21-2"></a>  ( <span class="dt">Has</span> (<span class="dt">Persistence</span> m) r</span>
+<span id="cb21-3"><a href="#cb21-3"></a>  , <span class="dt">Monad</span> m</span>
+<span id="cb21-4"><a href="#cb21-4"></a>  ) <span class="ot">=&gt;</span> <span class="dt">Persist</span> (<span class="dt">ReaderT</span> r m) <span class="kw">where</span></span>
+<span id="cb21-5"><a href="#cb21-5"></a>  persistUser user pass <span class="ot">=</span></span>
+<span id="cb21-6"><a href="#cb21-6"></a>    asks getter <span class="op">&gt;&gt;=</span> \(<span class="dt">Persistence</span> persist _) <span class="ot">-&gt;</span> lift <span class="op">$</span> persist user pass</span>
+<span id="cb21-7"><a href="#cb21-7"></a>  getUser userId <span class="ot">=</span></span>
+<span id="cb21-8"><a href="#cb21-8"></a>    asks getter <span class="op">&gt;&gt;=</span> \(<span class="dt">Persistence</span> _ get) <span class="ot">-&gt;</span> lift <span class="op">$</span> get user pass</span></code></pre></div>
+<p>Here we choose to create an instance for <code>ReaderT r m</code> which itself is a reader. In fact, it’s a reader that reads <code>r</code> in a specific monad <code>m</code>.</p>
+<p>The great thing about this is that your interfaces compose under the same monad. No need to, as in MTL, define the <code>n^2</code> number of instances where <code>n</code> is the number of interfaces.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
+<p>If we have a different interface:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw">class</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">Log</span> m <span class="kw">where</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="ot">  logLn ::</span> <span class="dt">HasCallStack</span> <span class="ot">=&gt;</span> <span class="dt">Loggable</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> m ()</span>
+<span id="cb22-3"><a href="#cb22-3"></a></span>
+<span id="cb22-4"><a href="#cb22-4"></a><span class="kw">data</span> <span class="dt">Logger</span> m <span class="ot">=</span></span>
+<span id="cb22-5"><a href="#cb22-5"></a>  <span class="dt">Logger</span> (<span class="dt">Text</span> <span class="ot">-&gt;</span> m ())</span>
+<span id="cb22-6"><a href="#cb22-6"></a></span>
+<span id="cb22-7"><a href="#cb22-7"></a><span class="kw">instance</span></span>
+<span id="cb22-8"><a href="#cb22-8"></a>  ( <span class="dt">Has</span> (<span class="dt">Logger</span> m) r</span>
+<span id="cb22-9"><a href="#cb22-9"></a>  , <span class="dt">Monad</span> m</span>
+<span id="cb22-10"><a href="#cb22-10"></a>  ) <span class="ot">=&gt;</span> <span class="dt">Log</span> (<span class="dt">ReaderT</span> r m) <span class="kw">where</span></span>
+<span id="cb22-11"><a href="#cb22-11"></a>  logLn a <span class="ot">=</span></span>
+<span id="cb22-12"><a href="#cb22-12"></a>    asks getter <span class="op">&gt;&gt;=</span> \(<span class="dt">Logger</span> doLog) <span class="ot">-&gt;</span> lift <span class="op">.</span> doLog <span class="op">.</span> fromLoggable <span class="op">$</span> a</span></code></pre></div>
+<p>We can constrain our function:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1"></a><span class="ot">createNewUser ::</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a>     <span class="dt">Persist</span> m</span>
+<span id="cb23-3"><a href="#cb23-3"></a>  <span class="ot">=&gt;</span> <span class="dt">Log</span> m</span>
+<span id="cb23-4"><a href="#cb23-4"></a>  <span class="ot">=&gt;</span> <span class="dt">RequestBody</span> <span class="ot">-&gt;</span> m (<span class="dt">Either</span> <span class="dt">Error</span> <span class="dt">User</span>)</span>
+<span id="cb23-5"><a href="#cb23-5"></a>createNewUser body <span class="ot">=</span></span>
+<span id="cb23-6"><a href="#cb23-6"></a>  <span class="kw">case</span> bodyToUser body <span class="kw">of</span></span>
+<span id="cb23-7"><a href="#cb23-7"></a>    <span class="dt">Left</span> err <span class="ot">-&gt;</span></span>
+<span id="cb23-8"><a href="#cb23-8"></a>      <span class="dt">Left</span> err <span class="op">&lt;$</span> logLn (<span class="st">&quot;Couldn't convert &quot;</span> <span class="op">&lt;&gt;</span> body <span class="op">&lt;&gt;</span> <span class="st">&quot;to user and pass&quot;</span>)</span>
+<span id="cb23-9"><a href="#cb23-9"></a>    <span class="dt">Right</span> (user, pass) <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb23-10"><a href="#cb23-10"></a>      logLn <span class="op">$</span> <span class="st">&quot;Going to create &quot;</span> <span class="op">&lt;&gt;</span> user</span>
+<span id="cb23-11"><a href="#cb23-11"></a>      userId <span class="ot">&lt;-</span> persistUser user pass</span>
+<span id="cb23-12"><a href="#cb23-12"></a>      <span class="co">-- Create a response from the persisted argument:</span></span>
+<span id="cb23-13"><a href="#cb23-13"></a>      <span class="fu">pure</span> <span class="op">.</span> <span class="dt">Right</span> <span class="op">$</span> <span class="dt">User</span> { userName <span class="ot">=</span> user, userId <span class="ot">=</span> userId }</span></code></pre></div>
+<blockquote>
+<p>Note: <code>(Persist m, Log m)</code> is equivalent to currying the constraints as above.</p>
+</blockquote>
+<p>To run it we can simply run it using:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1"></a>runReaderT (createNewUser request) (logger, persistence)</span></code></pre></div>
+<p>This could seem a bit magical, but it works because the <code>Has</code> typeclass has instances for tuples of all sizes.</p>
+<p>Or if we adjust <code>Application</code> and create the appropriate <code>Has</code> instances:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">data</span> <span class="dt">Application</span> m <span class="ot">=</span> <span class="dt">Application</span></span>
+<span id="cb25-2"><a href="#cb25-2"></a>  {<span class="ot"> persistence ::</span> <span class="dt">Persistence</span> m</span>
+<span id="cb25-3"><a href="#cb25-3"></a>  ,<span class="ot"> logger ::</span> <span class="dt">Logger</span> m</span>
+<span id="cb25-4"><a href="#cb25-4"></a>  }</span>
+<span id="cb25-5"><a href="#cb25-5"></a></span>
+<span id="cb25-6"><a href="#cb25-6"></a><span class="ot">app ::</span> <span class="dt">Application</span></span>
+<span id="cb25-7"><a href="#cb25-7"></a>app <span class="ot">=</span> _</span>
+<span id="cb25-8"><a href="#cb25-8"></a></span>
+<span id="cb25-9"><a href="#cb25-9"></a>runReaderT (createNewUser request) app</span></code></pre></div>
+<p>As you can see we’re using <code>runReaderT</code> here instead of <code>runReader</code>. This is because now we’re not assuming that the effect is <code>Identity</code> - it can be any monad <code>m</code>.</p>
+<p>In summary, we can now say that each interface becomes a “capability” that the function has. In the case of <code>createNewUser</code> it can perform pure computations as well as both log and persist. This means that we have some semblance of effect tracking. We’re also able to organize our effects so that the most powerful function is the entry point to the system (e.g. <code>main</code>) and then each function performing domain logic becomes less powerful.</p>
+<h2 id="composing-interfaces">Composing interfaces</h2>
+<p>You might be wondering how you base higher-level interfaces on lower ones. For instance, you might want to allow the <code>Persist m</code> capability to do logging. For this, we need to revisit the instance declaration. Our original solution based the instance on <code>(Monad m, Has (Persistence m) r)</code>. We now need to add a constraint to reference our <code>Log</code> instance. This would look something like this:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1"></a><span class="kw">instance</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a>  ( <span class="dt">Has</span> (<span class="dt">Persistence</span> m) r</span>
+<span id="cb26-3"><a href="#cb26-3"></a>  , <span class="dt">Log</span> (<span class="dt">ReaderT</span> r m)</span>
+<span id="cb26-4"><a href="#cb26-4"></a>  , <span class="dt">Monad</span> m</span>
+<span id="cb26-5"><a href="#cb26-5"></a>  ) <span class="ot">=&gt;</span> <span class="dt">Persist</span> (<span class="dt">ReaderT</span> r m) <span class="kw">where</span></span>
+<span id="cb26-6"><a href="#cb26-6"></a>  persistUser user pass <span class="ot">=</span> _</span>
+<span id="cb26-7"><a href="#cb26-7"></a>  getUser userId <span class="ot">=</span> _</span></code></pre></div>
+<p>Here you can see that we reference the specific instance of <code>Log</code> that aligns with the one we’re currently defining.</p>
+<h2 id="the-final-application">The final application</h2>
+<p>We can now parameterize our <code>api</code> function from <a href="#api-definition">API definition</a> with these interfaces:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1"></a><span class="ot">api ::</span></span>
+<span id="cb27-2"><a href="#cb27-2"></a>    <span class="dt">Log</span> m</span>
+<span id="cb27-3"><a href="#cb27-3"></a> <span class="ot">=&gt;</span> <span class="dt">Persist</span> m</span>
+<span id="cb27-4"><a href="#cb27-4"></a> <span class="ot">=&gt;</span> <span class="dt">Request</span> <span class="ot">-&gt;</span> m <span class="dt">Response</span></span>
+<span id="cb27-5"><a href="#cb27-5"></a>api <span class="ot">=</span> _</span>
+<span id="cb27-6"><a href="#cb27-6"></a></span>
+<span id="cb27-7"><a href="#cb27-7"></a><span class="ot">main' ::</span> <span class="dt">Application</span> <span class="dt">IO</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb27-8"><a href="#cb27-8"></a>main' app <span class="ot">=</span> run <span class="st">&quot;8080&quot;</span> <span class="op">$</span> \req <span class="ot">-&gt;</span> runReaderT (api req) app</span>
+<span id="cb27-9"><a href="#cb27-9"></a></span>
+<span id="cb27-10"><a href="#cb27-10"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb27-11"><a href="#cb27-11"></a>main <span class="ot">=</span> main' app</span>
+<span id="cb27-12"><a href="#cb27-12"></a>  <span class="kw">where</span></span>
+<span id="cb27-13"><a href="#cb27-13"></a><span class="ot">    app ::</span> <span class="dt">Application</span> <span class="dt">IO</span></span>
+<span id="cb27-14"><a href="#cb27-14"></a>    app <span class="ot">=</span> <span class="dt">Application</span></span>
+<span id="cb27-15"><a href="#cb27-15"></a>      { persist <span class="ot">=</span> defaultPersist</span>
+<span id="cb27-16"><a href="#cb27-16"></a>      , logger <span class="ot">=</span> defaultLogger</span>
+<span id="cb27-17"><a href="#cb27-17"></a>      }</span></code></pre></div>
+<p>In a real world application, we would also read the configuration from the environment.</p>
+<h2 id="summary">Summary</h2>
+<p>In this section we’ve seen how to properly parameterize our interfaces and instantiate them using <code>runReaderT</code>. We’ve set ourselves up to be able to test these components individually and together. In the next section of this series, we’ll see just how to do that.</p>
+<p>Next part <a href="../../../../writing/2019/10/05/Testing-your-components.html">Testing your components</a></p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://haskell-servant.readthedocs.io/en/stable/">servant - A Type-Level Web DSL</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://jaspervdj.be/posts/2018-03-08-handle-pattern.html">Haskell Design Patterns: The Handle Pattern</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><a href="http://hackage.haskell.org/package/fused-effects">fused-effects</a>, <a href="http://hackage.haskell.org/package/extensible-effects">extensible-effects</a>, <a href="http://hackage.haskell.org/package/polysemy">polysemy</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p><a href="https://stackoverflow.com/a/35541483">Writing a Monad Transformer, does it really need so many hardcoded instances</a><a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</div>
+
+    </div>
+  </body>
+</html>
