@@ -146,6 +146,16 @@ createNewUser persistUser body =
       pure . Right $ User { userName = user, userId = userId }
 ```
 
+And its usage would thus be:
+
+```haskell
+createNewUser (insertNewUser db) (requestBody request) >>= toResponse
+```
+
+Since this is now just an argument, we can choose precisely where we want to
+start passing this parameter from. Such setup is usually done at the edge of
+the application - i.e. `main`.
+
 ## Solving the problem at scale
 So here's the problem with the above solution: while it does work, it doesn't
 really scale. Domain logic will often need access to several interfaces to do
@@ -523,6 +533,11 @@ these components individually and together. In the next section of this series,
 we'll see just how to do that.
 
 Next part [Testing your components](/writing/2019/10/05/Testing-your-components.html)
+
+---
+
+### Edits
+- 2019-10-13: explicitly showcase partial application of `insertNewUser`
 
 [^servant]: [servant - A Type-Level Web DSL](https://haskell-servant.readthedocs.io/en/stable/)
 [^handle-pattern]: [Haskell Design Patterns: The Handle Pattern](https://jaspervdj.be/posts/2018-03-08-handle-pattern.html)
