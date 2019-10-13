@@ -132,7 +132,7 @@ createNewUser ::
   -> RequestBody
   -> IO (Either Error User)
 createNewUser persistUser body =
-  case bodyToUser bod
+  case bodyToUser body of
     Left err -> pure . Left $ err
     Right (user, pass) -> do
       -- Persist user:
