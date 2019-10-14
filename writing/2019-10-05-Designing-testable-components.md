@@ -46,8 +46,8 @@ main :: IO ()
 main = run 8080 api
 ```
 
-We're modelling the handling of the two requests, creating and deleting a user,
-as two branches in the case expression. In the `main` function, we simply mount
+We're modeling the handling of the two requests, creating and deleting a user,
+as two branches in the case expression. In the `main` function, we'll mount
 this request handler on port 8080.
 
 For simplicity we're going to use a simplified definition of `User`:
@@ -73,8 +73,8 @@ dependency injection via annotations or frameworks like Guice, Spring or Castle
 Windsor.
 
 But what is really dependency injection? Let's get back to the core of it. DI
-is simply parameterizing components. The simplest form of dependency injection
-is just passing the dependencies as arguments to functions.
+is parameterizing components. The simplest form of dependency injection is just
+passing the dependencies as arguments to functions.
 
 In this article we'll explore how to do this on the language level in Haskell;
 as opposed to relying on meta-programming and reflection like the frameworks
@@ -127,7 +127,7 @@ insertNewUser db user pass =
     query db insertSql (user, pass)
 ```
 
-Now - we can simply partially apply it and pass it to along to `createNewUser`.
+Now - we can partially apply it and pass it to along to `createNewUser`.
 Adding the parameter makes our implementation look something like this:
 
 ```haskell
@@ -204,7 +204,7 @@ data Application =
   }
 ```
 
-Now we can simply pass that to `validateUser`:
+Now we can pass that to `validateUser`:
 
 ```haskell
 validateUser :: Application -> RequestBody -> UserId -> IO Bool
@@ -387,8 +387,8 @@ runReader (persistUser "user" "pass") app
 Bummer.
 
 But hey! We can solve this. We can make use of a type class
-[`Has`](http://hackage.haskell.org/package/data-has) that simply tells us that
-a datatype `r` has `a` by constraining the instance with "`Has a r`". After
+[`Has`](http://hackage.haskell.org/package/data-has) that tells us that a
+datatype `r` has `a` by constraining the instance with "`Has a r`". After
 refactoring, we get this:
 
 ```haskell
@@ -446,7 +446,7 @@ createNewUser body =
 
 > Note: `(Persist m, Log m)` is equivalent to currying the constraints as above.
 
-To run it we can simply run it using:
+To run it we use the following:
 
 ```haskell
 runReaderT (createNewUser request) (logger, persistence)
@@ -538,6 +538,7 @@ Next part [Testing your components](/writing/2019/10/05/Testing-your-components.
 
 ### Edits
 - 2019-10-13: explicitly showcase partial application of `insertNewUser`
+- 2019-10-14: remove extraneous occurrences of "simply"
 
 [^servant]: [servant - A Type-Level Web DSL](https://haskell-servant.readthedocs.io/en/stable/)
 [^handle-pattern]: [Haskell Design Patterns: The Handle Pattern](https://jaspervdj.be/posts/2018-03-08-handle-pattern.html)
