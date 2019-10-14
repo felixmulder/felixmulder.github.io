@@ -42,7 +42,7 @@
 <span id="cb2-10"><a href="#cb2-10"></a></span>
 <span id="cb2-11"><a href="#cb2-11"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
 <span id="cb2-12"><a href="#cb2-12"></a>main <span class="ot">=</span> run <span class="dv">8080</span> api</span></code></pre></div>
-<p>We’re modelling the handling of the two requests, creating and deleting a user, as two branches in the case expression. In the <code>main</code> function, we simply mount this request handler on port 8080.</p>
+<p>We’re modeling the handling of the two requests, creating and deleting a user, as two branches in the case expression. In the <code>main</code> function, we’ll mount this request handler on port 8080.</p>
 <p>For simplicity we’re going to use a simplified definition of <code>User</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">data</span> <span class="dt">User</span> <span class="ot">=</span> <span class="dt">User</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a>  {<span class="ot"> userId ::</span> <span class="dt">UserId</span></span>
@@ -53,7 +53,7 @@
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">instance</span> <span class="dt">ToJSON</span> <span class="dt">User</span></span></code></pre></div>
 <h2 id="dependency-injection">Dependency Injection</h2>
 <p>If you come from a Java or other OOP languages, then you’ve surely dealt with dependency injection via annotations or frameworks like Guice, Spring or Castle Windsor.</p>
-<p>But what is really dependency injection? Let’s get back to the core of it. DI is simply parameterizing components. The simplest form of dependency injection is just passing the dependencies as arguments to functions.</p>
+<p>But what is really dependency injection? Let’s get back to the core of it. DI is parameterizing components. The simplest form of dependency injection is just passing the dependencies as arguments to functions.</p>
 <p>In this article we’ll explore how to do this on the language level in Haskell; as opposed to relying on meta-programming and reflection like the frameworks mentioned above.</p>
 <h2 id="parameterizing-functions">Parameterizing Functions</h2>
 <p>Let’s zoom in on the <code>createNewUser</code> function from above. The function takes the body of the HTTP request and produces something that can be turned into an HTTP response by our framework. Here’s how one could write an initial version of said function:</p>
@@ -88,7 +88,7 @@
 <span id="cb6-5"><a href="#cb6-5"></a>      <span class="st">&quot;INSERT INTO table (user_name, password) VALUES (?, ?) returning id&quot;</span></span>
 <span id="cb6-6"><a href="#cb6-6"></a>  <span class="kw">in</span></span>
 <span id="cb6-7"><a href="#cb6-7"></a>    query db insertSql (user, pass)</span></code></pre></div>
-<p>Now - we can simply partially apply it and pass it to along to <code>createNewUser</code>. Adding the parameter makes our implementation look something like this:</p>
+<p>Now - we can partially apply it and pass it to along to <code>createNewUser</code>. Adding the parameter makes our implementation look something like this:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1"></a><span class="ot">createNewUser ::</span></span>
 <span id="cb7-2"><a href="#cb7-2"></a>     (<span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">Password</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">UserId</span>)</span>
 <span id="cb7-3"><a href="#cb7-3"></a>  <span class="ot">-&gt;</span> <span class="dt">RequestBody</span></span>
@@ -128,7 +128,7 @@
 <span id="cb10-4"><a href="#cb10-4"></a>  ,<span class="ot"> callIntoThirdPartyService ::</span> <span class="dt">UserName</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span></span>
 <span id="cb10-5"><a href="#cb10-5"></a>  ,<span class="ot"> logLn ::</span> <span class="dt">Loggable</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
 <span id="cb10-6"><a href="#cb10-6"></a>  }</span></code></pre></div>
-<p>Now we can simply pass that to <code>validateUser</code>:</p>
+<p>Now we can pass that to <code>validateUser</code>:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1"></a><span class="ot">validateUser ::</span> <span class="dt">Application</span> <span class="ot">-&gt;</span> <span class="dt">RequestBody</span> <span class="ot">-&gt;</span> <span class="dt">UserId</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span></span>
 <span id="cb11-2"><a href="#cb11-2"></a>validateUser app requestBody userId <span class="ot">=</span> <span class="kw">do</span></span>
 <span id="cb11-3"><a href="#cb11-3"></a>  <span class="co">-- Here `&amp;` is applying `getUser` to `app`:</span></span>
@@ -215,7 +215,7 @@
 <p>We cannot do:</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1"></a>runReader (persistUser <span class="st">&quot;user&quot;</span> <span class="st">&quot;pass&quot;</span>) app</span></code></pre></div>
 <p>Bummer.</p>
-<p>But hey! We can solve this. We can make use of a type class <a href="http://hackage.haskell.org/package/data-has"><code>Has</code></a> that simply tells us that a datatype <code>r</code> has <code>a</code> by constraining the instance with “<code>Has a r</code>”. After refactoring, we get this:</p>
+<p>But hey! We can solve this. We can make use of a type class <a href="http://hackage.haskell.org/package/data-has"><code>Has</code></a> that tells us that a datatype <code>r</code> has <code>a</code> by constraining the instance with “<code>Has a r</code>”. After refactoring, we get this:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw">instance</span></span>
 <span id="cb22-2"><a href="#cb22-2"></a>  ( <span class="dt">Has</span> (<span class="dt">Persistence</span> m) r</span>
 <span id="cb22-3"><a href="#cb22-3"></a>  , <span class="dt">Monad</span> m</span>
@@ -256,7 +256,7 @@
 <blockquote>
 <p>Note: <code>(Persist m, Log m)</code> is equivalent to currying the constraints as above.</p>
 </blockquote>
-<p>To run it we can simply run it using:</p>
+<p>To run it we use the following:</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1"></a>runReaderT (createNewUser request) (logger, persistence)</span></code></pre></div>
 <p>This could seem a bit magical, but it works because the <code>Has</code> typeclass has instances for tuples of all sizes.</p>
 <p>Or if we adjust <code>Application</code> and create the appropriate <code>Has</code> instances:</p>
@@ -308,6 +308,7 @@
 <h3 id="edits">Edits</h3>
 <ul>
 <li>2019-10-13: explicitly showcase partial application of <code>insertNewUser</code></li>
+<li>2019-10-14: remove extraneous occurrences of “simply”</li>
 </ul>
 <section class="footnotes" role="doc-endnotes">
 <hr />
