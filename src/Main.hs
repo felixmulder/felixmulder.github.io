@@ -1,34 +1,22 @@
 {-# LANGUAGE FlexibleContexts, FlexibleInstances, UndecidableInstances #-}
 module Main
-  where
---  ( main
---  , ghcidEntry
---  ) where
+  ( main
+  , ghcidEntry
+  ) where
 
 import Prelude
 
+import Control.Monad (void, filterM)
+import Control.Monad.Error.Class (throwError)
+import Data.Functor ((<&>))
 import Data.List (intercalate)
 import Data.List.Extra (split)
-import Data.Functor ((<&>))
-import Control.Monad (void, filterM)
+import Data.Text (unpack)
 import Hakyll
-
-
-import Control.Monad.Reader
-
-data App = App
-  { logLn :: forall a. Show a => a -> IO ()
-  }
-
-class Persist m where
-  put :: Int -> m ()
-
-data Persister m = Persister { _put :: Int -> m () }
-
-instance MonadReader (Persister m) m => Persist m where
-  put i = do
-    persister <- ask
-    (_put persister) i
+import Text.Pandoc.Class (runPure)
+import Text.Pandoc.Definition (Pandoc)
+import Text.Pandoc.Options (WriterOptions(..))
+import Text.Pandoc.Writers (writeRevealJs)
 
 main :: IO ()
 main =
@@ -49,8 +37,8 @@ buildRules = do
     route idRoute
     compile compressCssCompiler
 
-  match "js/*" $ do
-    route $ gsubRoute "docs/" (const "")
+  match "img/*" $ do
+    route idRoute
     compile copyFileCompiler
 
   match "templates/*" $
@@ -62,6 +50,10 @@ buildRules = do
       >>= loadAndApplyTemplate "templates/article.html" defaultContext
       >>= loadAndApplyTemplate "templates/root.html" defaultContext
       >>= relativizeUrls
+
+  match "talks/*" $ do
+    route $ customRoute dateRoute
+    compile $ revealJsCompiler >>= relativizeUrls
 
   create ["writing.html"] $ do
     route idRoute
@@ -77,6 +69,22 @@ buildRules = do
     compile $ getResourceBody
       >>= loadAndApplyTemplate "templates/root.html" defaultContext
       >>= relativizeUrls
+
+revealJsCompiler :: Compiler (Item String)
+revealJsCompiler
+  =   getResourceBody
+  >>= readPandoc
+  >>= applyRevealJs
+  >>= loadAndApplyTemplate "templates/slides.html" defaultContext
+  where
+    writerOptions =
+      defaultHakyllWriterOptions { writerHighlightStyle = Nothing }
+
+    applyRevealJs :: Item Pandoc -> Compiler (Item String)
+    applyRevealJs (Item ident body) = cached "Main.applyRevealJs" $
+      case runPure (Item ident . unpack <$> writeRevealJs writerOptions body) of
+        Left err -> throwError ["Main.applyRevealJs: " <> show err]
+        Right item -> pure item
 
 postCtx :: [Item String] -> Context String
 postCtx articles =

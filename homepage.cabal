@@ -39,14 +39,18 @@ common options
 executable homepage
   import:
     options
+
   main-is:
     Main.hs
+
   hs-source-dirs:
     src
-  exposed-modules:
+
   build-depends:
-    , base ^>= 4.12.0.0
-    , hakyll ^>= 4.13.0.1
-    , extra ^>= 1.6.18
-    , pandoc ^>= 2.7.3
-    , mtl ^>= 2.2.2
+    , base         ^>= 4.12.0.0
+    , extra        ^>= 1.6.18
+    , hakyll       ^>= 4.13.0.1
+    , mtl          ^>= 2.2.2
+    , pandoc       ^>= 2.7.3
+    , pandoc-types ^>= 1.17.6
+    , text         ^>= 1.2.3
