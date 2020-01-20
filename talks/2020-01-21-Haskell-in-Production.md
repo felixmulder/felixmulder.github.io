@@ -320,6 +320,20 @@ genApi = genRequest (Proxy @PetApi) (genPet :*: GNil)
 
 ---
 
+## Other integrations
+* SwaggerUI
+* Other language clients:
+  * Purescript
+  * Elm
+  * Kotlin
+  * Python
+  * C#
+  * Ruby
+* Checked exceptions
+
+---
+
+
 ```haskell
 type GetPet
     = "pets" :> Capture "petId" PetId :> Get '[JSON] Pet
@@ -388,6 +402,13 @@ main
   = run 8080
   $ serve (Proxy @PetApi) apiHandlers
 ```
+
+---
+
+## In summary
+* Getting stuff done is quick, and sans footguns
+
+* We're really happy with what Haskell offers us
 
 ---
 
