@@ -55,6 +55,15 @@ buildRules = do
     route $ customRoute dateRoute
     compile $ revealJsCompiler >>= relativizeUrls
 
+  create ["talks.html"] $ do
+    route idRoute
+    compile $ do
+      articles <- loadAll "talks/*"
+      makeItem ""
+        >>= loadAndApplyTemplate "templates/writing.html" (postCtx articles)
+        >>= loadAndApplyTemplate "templates/root.html" defaultContext
+        >>= relativizeUrls
+
   create ["writing.html"] $ do
     route idRoute
     compile $ do
