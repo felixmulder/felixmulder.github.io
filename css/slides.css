@@ -1,0 +1,16 @@
+.reveal .backgrounds {
+  background-color: #282c34;
+}
+
+.reveal pre {
+  box-shadow: none;
+  font-size: 0.5em;
+}
+
+.reveal pre code {
+  padding: 0;
+}
+
+.reveal .smaller {
+  font-size: 0.4em;
+}
