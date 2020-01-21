@@ -60,7 +60,7 @@ buildRules = do
     compile $ do
       articles <- loadAll "talks/*"
       makeItem ""
-        >>= loadAndApplyTemplate "templates/writing.html" (postCtx articles)
+        >>= loadAndApplyTemplate "templates/writing.html" (postCtx "Talks" articles)
         >>= loadAndApplyTemplate "templates/root.html" defaultContext
         >>= relativizeUrls
 
@@ -69,7 +69,7 @@ buildRules = do
     compile $ do
       articles <- loadAll "writing/*"
       makeItem ""
-        >>= loadAndApplyTemplate "templates/writing.html" (postCtx articles)
+        >>= loadAndApplyTemplate "templates/writing.html" (postCtx "Writing" articles)
         >>= loadAndApplyTemplate "templates/root.html" defaultContext
         >>= relativizeUrls
 
@@ -95,9 +95,9 @@ revealJsCompiler
         Left err -> throwError ["Main.applyRevealJs: " <> show err]
         Right item -> pure item
 
-postCtx :: [Item String] -> Context String
-postCtx articles =
-     constField "title" "Writing"
+postCtx :: String -> [Item String] -> Context String
+postCtx title articles =
+     constField "title" title
   <> listField "articles" defaultContext (filterM published articles)
   <> defaultContext
   where
