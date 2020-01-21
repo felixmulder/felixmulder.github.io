@@ -10,6 +10,22 @@ Services at Klarna written in Haskell
 
 ---
 
+## Why Haskell?
+
+---
+
+![](/img/klarna_jvm_history.png)
+
+---
+
+## We loved functional, but 💔 Scala
+
+---
+
+## So, Haskell.
+
+---
+
 ## What Haskell is, and what it isn't.
 
 ---
@@ -209,7 +225,7 @@ data Pet = Pet
   }
   deriving (Generic)
 
-instance ToJSON Pet
+instance ToSchema Pet
 ```
 
 ---
@@ -410,6 +426,15 @@ main
 * Getting stuff done is quick, and sans footguns
 
 * We're really happy with what Haskell offers us
+
+---
+
+## Klarna is hiring
+ Build the next generation of banking using FP
+
+- Internal [TheKonferen.se](#)
+- External conference of choice
+- Smoooth Lambdas - Category Theory study group
 
 ---
 
