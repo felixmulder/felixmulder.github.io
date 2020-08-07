@@ -8,10 +8,11 @@ published: false
 After more than two years of writing production code using Haskell at Klarna.
 We've learned a ton. Initially, we used a `ReaderT` pattern detailed in my
 ["Haskell in Production"][hip] mini-series. We've now transitioned into using
-`MonadTransControl` as the monad we lift through.
+`MonadTrans` and `MonadTransControl` as means to write MTL without boilerplate.
 
 In this post, we're going to review the `ReaderT` pattern we used, as well as
-go through its shortcomings and our chosen solution to it.
+go through its shortcomings and our chosen solution to it. Since a lot of
+people might only be interested in the solution, it is provided first.
 
 ## The solution
 Each interface has a corresponding `class`:
@@ -32,14 +33,14 @@ that has an instance for `MonadLog` on its base monad `m`:
 -- Pass-through instance for transformers
 instance {-# OVERLAPPABLE #-}
   ( Monad (t m)
-  , MonadTransControl t
+  , MonadTrans t
   , MonadLog m
   ) => MonadLog (t m) where
   logLn level msg = lift (logLn level msg)
 ```
 
-The instance is used in order to provide instances for any transformer. Getting
-us past the dreaded n^2 issue!
+The instance above is used in order to provide instances for any transformer.
+Getting us past the dreaded `n^2` issue!
 
 Now it comes time to choose how to implement our effects. For each effect,
 there's a newtype that constitutes the effect:
@@ -49,7 +50,7 @@ there's a newtype that constitutes the effect:
 newtype NoLoggingT m a
   = NoLoggingT { runNoLoggingT :: m a }
   deriving newtype (Functor, Applicative, Monad)
-  deriving (MonadTrans, MonadTransControl) via IdentityT
+  deriving (MonadTrans) via IdentityT
 
 instance Monad m => MonadLog (NoLoggingT m) where logLn _ _ = pure ()
 ```
@@ -63,7 +64,7 @@ Here's a real implementation of a console logger using [fast-logger][fast-logger
 -- Transformer for logging to Console
 newtype ConsoleLogT m a
   = ConsoleLogT { unConsoleLogT :: ReaderT (LoggerSet, Trace) m a }
-  deriving newtype (Functor, Applicative, Monad, MonadTrans, MonadTransControl)
+  deriving newtype (Functor, Applicative, Monad, MonadTrans)
 
 -- Instance using fast-logger to print to console
 instance MonadIO m => MonadLog (ConsoleLogT m) where
@@ -237,13 +238,13 @@ For most of our monads that we create ourselves, they are newtype wrappers
 around things like `StateT`. This begs the question - can't we automate the
 derivation of these somehow?
 
-Indeed, we can. Enter `MonadTransControl`:
+Indeed, we can. Enter `MonadTrans`:
 
 ```haskell
 -- Pass-through instance for transformers
 instance {-# OVERLAPPABLE #-}
   ( Monad (t m)
-  , MonadTransControl t
+  , MonadTrans t
   , MonadLog m
   ) => MonadLog (t m) where
   logLn level msg = lift (logLn level msg)
@@ -251,6 +252,36 @@ instance {-# OVERLAPPABLE #-}
 
 This instance can now lift any monad `m` that implements `MonadLog` into the
 transformer `t`. This means no more having to write `n` instances 🎉
+
+For the example above with a callback in `m`, we can use `MonadTransControl` as
+it has the ability to run something in the base monad. The real version of our
+`MonadLog` has a function that allows you to specify a traceable ID that we
+call `CorrelationId`:
+
+```haskell
+class Monad m => MonadLog m where
+  -- | Print 'a' to the log with source code positions
+  logLn :: HasCallStack => Loggable a => LogLevel -> a -> m ()
+  -- | Correlate the 'm a' with the given correlation ID
+  correlatedWith :: CorrelationId -> m a -> m a
+```
+
+In our passthrough instance for this version of `MonadLog` we now need to use
+`MonadTransControl`:
+
+```haskell
+-- Pass-through instance for transformers
+instance {-# OVERLAPPABLE #-}
+  ( Monad (t m)
+  , MonadTrans t
+  , MonadLog m
+  ) => MonadLog (t m) where
+  logLn level msg = lift (logLn level msg)
+  correlatedWith corrId ma = do
+    result <- liftWith \runInBase ->
+      correlatedWith corrId (runInBase ma)
+    restoreT (pure result)
+```
 
 A full example was given in at the [start](#the-solution) of this post.
 
