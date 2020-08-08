@@ -8,8 +8,9 @@ import Prelude
 
 import Control.Monad (void, filterM)
 import Control.Monad.Error.Class (throwError)
+import Data.Function (on)
 import Data.Functor ((<&>))
-import Data.List (intercalate)
+import Data.List (intercalate, sortBy)
 import Data.List.Extra (split)
 import Data.Text (unpack)
 import Hakyll
@@ -36,6 +37,10 @@ buildRules = do
   match "css/*" $ do
     route idRoute
     compile compressCssCompiler
+
+  match "assets/*" $ do
+    route idRoute
+    compile copyFileCompiler
 
   match "img/*" $ do
     route idRoute
@@ -67,7 +72,7 @@ buildRules = do
   create ["writing.html"] $ do
     route idRoute
     compile $ do
-      articles <- loadAll "writing/*"
+      articles <- loadAll "writing/*" <&> sortBy (compare `on` itemIdentifier) <&> reverse
       makeItem ""
         >>= loadAndApplyTemplate "templates/writing.html" (postCtx "Writing" articles)
         >>= loadAndApplyTemplate "templates/root.html" defaultContext
