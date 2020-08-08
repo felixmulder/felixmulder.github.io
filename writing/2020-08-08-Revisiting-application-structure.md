@@ -1,6 +1,6 @@
 ---
 title: Revisiting application structure
-date: 2020-08-25
+date: 2020-08-08
 published: true
 ---
 
