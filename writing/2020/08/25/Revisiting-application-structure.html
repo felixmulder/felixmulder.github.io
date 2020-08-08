@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Revisiting application structure</title>
+    <link rel="stylesheet" href="../../../../css/default.css" />
+    <link rel="stylesheet" href="../../../../css/haskell-syntax.css" />
+    <link rel="stylesheet" href"https: typeof.net Iosevka fonts.css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Mono&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <a class="back-button" href="../../../../">Home</a>
+
+<div class="article-container">
+  <h1 id="revisiting-application-structure">Revisiting application structure</h1>
+<p>After more than two years of writing production code using Haskell at Klarna. We’ve learned a ton. Initially, we used a <code>ReaderT</code> pattern detailed in my <a href="../../../../writing/2019/10/05/Designing-testable-components.html">“Haskell in Production”</a> mini-series. We’ve now transitioned into using <code>MonadTrans</code> and <code>MonadTransControl</code> as means to write MTL without boilerplate.</p>
+<p>In this post, we’re going to review the <code>ReaderT</code> pattern we used, as well as go through its shortcomings and our chosen solution to it. Since a lot of people might only be interested in the solution, it is provided first.</p>
+<h2 id="the-solution">The solution</h2>
+<p>Each interface has a corresponding <code>class</code>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">class</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">MonadLog</span> m <span class="kw">where</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="co">-- | Print 'a' to the log with source code positions</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="ot">  logLn ::</span> <span class="dt">HasCallStack</span> <span class="ot">=&gt;</span> <span class="dt">Loggable</span> a <span class="ot">=&gt;</span> <span class="dt">LogLevel</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> m ()</span></code></pre></div>
+<p>which acts as the interface and allows us to write code that’s polymorphic in <code>m</code>.</p>
+<p>There’s a pass-through instance that is able to take any transformer monad <code>t</code> that has an instance for <code>MonadLog</code> on its base monad <code>m</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">-- Pass-through instance for transformers</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">instance</span> <span class="ot">{-# OVERLAPPABLE #-}</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>  ( <span class="dt">Monad</span> (t m)</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  , <span class="dt">MonadTrans</span> t</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  , <span class="dt">MonadLog</span> m</span>
+<span id="cb2-6"><a href="#cb2-6"></a>  ) <span class="ot">=&gt;</span> <span class="dt">MonadLog</span> (t m) <span class="kw">where</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>  logLn level msg <span class="ot">=</span> lift (logLn level msg)</span></code></pre></div>
+<p>The instance above is used in order to provide instances for any transformer. Getting us past the dreaded <code>n^2</code> issue!</p>
+<p>Now it comes time to choose how to implement our effects. For each effect, there’s a newtype that constitutes the effect:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">-- | Newtype for disabling logging</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">newtype</span> <span class="dt">NoLoggingT</span> m a</span>
+<span id="cb3-3"><a href="#cb3-3"></a>  <span class="ot">=</span> <span class="dt">NoLoggingT</span> {<span class="ot"> runNoLoggingT ::</span> m a }</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  <span class="kw">deriving</span> <span class="kw">newtype</span> (<span class="dt">Functor</span>, <span class="dt">Applicative</span>, <span class="dt">Monad</span>)</span>
+<span id="cb3-5"><a href="#cb3-5"></a>  <span class="kw">deriving</span> (<span class="dt">MonadTrans</span>) via <span class="dt">IdentityT</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="kw">instance</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">MonadLog</span> (<span class="dt">NoLoggingT</span> m) <span class="kw">where</span> logLn _ _ <span class="ot">=</span> <span class="fu">pure</span> ()</span></code></pre></div>
+<p>This instance allows for us to choose not to log when we run our final program using the <code>runNoLoggingT</code> function provided as a field in the newtype.</p>
+<p>Here’s a real implementation of a console logger using <a href="https://hackage.haskell.org/package/fast-logger">fast-logger</a>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1"></a><span class="co">-- Transformer for logging to Console</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="kw">newtype</span> <span class="dt">ConsoleLogT</span> m a</span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="ot">=</span> <span class="dt">ConsoleLogT</span> {<span class="ot"> unConsoleLogT ::</span> <span class="dt">ReaderT</span> (<span class="dt">LoggerSet</span>, <span class="dt">Trace</span>) m a }</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  <span class="kw">deriving</span> <span class="kw">newtype</span> (<span class="dt">Functor</span>, <span class="dt">Applicative</span>, <span class="dt">Monad</span>, <span class="dt">MonadTrans</span>)</span>
+<span id="cb4-5"><a href="#cb4-5"></a></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="co">-- Instance using fast-logger to print to console</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="kw">instance</span> <span class="dt">MonadIO</span> m <span class="ot">=&gt;</span> <span class="dt">MonadLog</span> (<span class="dt">ConsoleLogT</span> m) <span class="kw">where</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>  logLn level msg <span class="ot">=</span> <span class="dt">ConsoleLogT</span> <span class="kw">do</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>    (loggerSet, traceId) <span class="ot">&lt;-</span> ask</span>
+<span id="cb4-10"><a href="#cb4-10"></a>    logItem traceId (<span class="dt">ConsoleLogger</span> loggerSet) level (toLogItem msg)</span>
+<span id="cb4-11"><a href="#cb4-11"></a></span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="ot">runConsoleLogT ::</span> <span class="dt">MonadIO</span> m <span class="ot">=&gt;</span> <span class="dt">ConsoleLogT</span> m a <span class="ot">-&gt;</span> m a</span>
+<span id="cb4-13"><a href="#cb4-13"></a>runConsoleLogT (<span class="dt">ConsoleLogT</span> m) <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a>  loggerSet <span class="ot">&lt;-</span> liftIO (newStdoutLoggerSet defaultBufSize)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>  runReaderT m (loggerSet, <span class="dt">Uncorrelated</span>)</span></code></pre></div>
+<p>Thanks to this structure, this allows us dispatch our effects at the “end of the world”. By selecting the functions from each interface that we want to use. Here’s an example from a service that logs things, submits metrics and reads messages from an SQS queue.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1"></a><span class="ot">runProgram ::</span> <span class="dt">MetricsReporter</span> <span class="ot">-&gt;</span> <span class="dt">QueueUrl</span> <span class="ot">-&gt;</span> <span class="dt">AWS.Env</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb5-2"><a href="#cb5-2"></a>runProgram reporter queueUrl awsEnv <span class="ot">=</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>  <span class="ot">=</span> runConsoleLogT</span>
+<span id="cb5-4"><a href="#cb5-4"></a>  <span class="op">.</span> runMetricsT reporter</span>
+<span id="cb5-5"><a href="#cb5-5"></a>  <span class="op">.</span> runConsumerT queueUrl awsEnv</span>
+<span id="cb5-6"><a href="#cb5-6"></a>  <span class="op">$</span> program</span>
+<span id="cb5-7"><a href="#cb5-7"></a></span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="ot">program ::</span> (<span class="dt">SqsConsumer</span> m, <span class="dt">MonadLog</span> m, <span class="dt">MonadMetrics</span> m) <span class="ot">=&gt;</span> m ()</span>
+<span id="cb5-9"><a href="#cb5-9"></a>program <span class="ot">=</span> <span class="op">...</span></span></code></pre></div>
+<p>This reminds us of how effects are dispatched using free monads, but by relying on something that’s well optimized by GHC and has strong support (MTL) in the community.</p>
+<p>The rest of this post discusses how we got here and what we did before.</p>
+<h1 id="the-road-to-the-solution">The road to the solution</h1>
+<p>When starting out with Haskell, we didn’t want to overcomplicate things. <code>Reader</code> is one of the first monads that our people got comfortable with.</p>
+<p>Thus, our interfaces were all based on <code>ReaderT</code> instances. This meant that essentially all interfaces required some data <code>r</code> and were then based on <code>MonadIO m</code> like:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1"></a><span class="co">-- | An interface to produce SQS messages</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="kw">class</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">SqsProducer</span> m <span class="kw">where</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="co">-- | Produce messages to SQS, returning unit or an error in 'm'</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="ot">  produceMessage ::</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="dt">SqsMessageGroupId</span> <span class="ot">-&gt;</span> <span class="dt">SqsDedupeId</span> <span class="ot">-&gt;</span> <span class="dt">SqsMessage</span> <span class="ot">-&gt;</span> m (<span class="dt">Either</span> <span class="dt">SqsProducerError</span> ())</span>
+<span id="cb6-6"><a href="#cb6-6"></a></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="kw">data</span> <span class="dt">RequestSender</span> m <span class="ot">=</span> <span class="dt">RequestSender</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>  {<span class="ot"> _produceMessage ::</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>      <span class="dt">SqsMessageGroupId</span> <span class="ot">-&gt;</span> <span class="dt">SqsDedupeId</span> <span class="ot">-&gt;</span> <span class="dt">SqsMessage</span> <span class="ot">-&gt;</span> m (<span class="dt">Either</span> <span class="dt">SqsProducerError</span> ())</span>
+<span id="cb6-10"><a href="#cb6-10"></a>  }</span>
+<span id="cb6-11"><a href="#cb6-11"></a></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="kw">instance</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a>  ( <span class="dt">HasType</span> (<span class="dt">RequestSender</span> m) r</span>
+<span id="cb6-14"><a href="#cb6-14"></a>  , <span class="dt">MonadCatch</span> m</span>
+<span id="cb6-15"><a href="#cb6-15"></a>  , <span class="dt">MonadIO</span> m</span>
+<span id="cb6-16"><a href="#cb6-16"></a>  , <span class="dt">MonadLog</span> (<span class="dt">ReaderT</span> r m)</span>
+<span id="cb6-17"><a href="#cb6-17"></a>  ) <span class="ot">=&gt;</span> <span class="dt">SqsProducer</span> (<span class="dt">ReaderT</span> r m)</span>
+<span id="cb6-18"><a href="#cb6-18"></a>  produceMessage groupId dedupeId message <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb6-19"><a href="#cb6-19"></a>    (<span class="dt">RequestSender</span> produceMsg) <span class="ot">&lt;-</span> asks getTyped</span>
+<span id="cb6-20"><a href="#cb6-20"></a>    lift (produceMsg groupid dedupeId message)</span></code></pre></div>
+<p>This gives us an end-of-the-world behavior where we need to do something similar to:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">data</span> <span class="dt">ListenerContext</span> m <span class="ot">=</span> <span class="dt">ListenerContext</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>  {<span class="ot"> requestSender ::</span> <span class="dt">RequestSender</span> m</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    <span class="co">-- .. and other deps</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>  }</span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="kw">deriving</span> stock (<span class="dt">Generic</span>)</span>
+<span id="cb7-6"><a href="#cb7-6"></a></span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="ot">runListener_ ::</span> (<span class="dt">MonadIO</span> m) <span class="ot">=&gt;</span> <span class="dt">ListenerContext</span> <span class="ot">-&gt;</span> m ()</span>
+<span id="cb7-8"><a href="#cb7-8"></a>runListener_ <span class="ot">=</span> forever <span class="op">.</span> runReaderT (void handleMessage)</span>
+<span id="cb7-9"><a href="#cb7-9"></a></span>
+<span id="cb7-10"><a href="#cb7-10"></a><span class="ot">handleMessage ::</span> <span class="dt">SqsConsumer</span> m <span class="ot">=&gt;</span> <span class="dt">SqsProducer</span> m <span class="ot">=&gt;</span> m <span class="dt">Result</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>handleMessage <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a>  msg <span class="ot">&lt;-</span> getMessage        <span class="co">-- * Take a message from one queue</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a>  res <span class="ot">&lt;-</span> performAction msg <span class="co">-- * Perform some action</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a>  produceMessage msg       <span class="co">-- * Put it on a different queue</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a>  <span class="fu">pure</span> res                 <span class="co">-- * Return result of processing</span></span></code></pre></div>
+<p>in order to run our program. This is <em>fine</em>.</p>
+<p>We’ve achieved what we want out of dependency injection:</p>
+<ol type="1">
+<li>We can swap out the behavior of the interface by swapping out the <code>RequestSender</code> data type. E.g. allowing us to stub it in tests</li>
+<li>We can write code in a polymorphic setting relying on interfaces rather than concrete implementations</li>
+<li>We have something that we thought was fairly easy for our devs to grok (ah, it’s a reader where the behavior is defined by the object we feed in, gotcha!).</li>
+</ol>
+<h2 id="why-readers-became-a-burden">Why readers became a burden</h2>
+<p>There are a few drawbacks to this pattern. Let’s start with the most glaring issues:</p>
+<ul>
+<li><p>Granular control over interfaces becomes tedious due to the extra indirection with the passed data</p></li>
+<li><p>Certain things are difficult to implement, e.g:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">class</span> <span class="dt">Foo</span> m <span class="kw">where</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="ot">  withCallback ::</span> (a <span class="ot">-&gt;</span> m b) <span class="ot">-&gt;</span> m b</span></code></pre></div>
+<p>This requires a <em>lot</em> of lifting back and forth especially when the concrete implementation is in <code>IO</code> and your interfaces are all in <code>m</code></p></li>
+<li><p>Lastly, and most important: it didn’t turn out to be so easy to grok as we thought</p></li>
+</ul>
+<h2 id="looking-at-alternatives">Looking at alternatives</h2>
+<p>There are a couple of alternatives to this approach to dealing with effects. If you <em>want</em> effect tracking in your types - there are a number of libraries that deal with this:</p>
+<ul>
+<li><a href="https://hackage.haskell.org/package/polysemy">polysemy</a></li>
+<li><a href="https://hackage.haskell.org/package/fused-effects">fused-effects</a></li>
+</ul>
+<p>Both of these are promising, but we’re not really comfortable with the drawbacks to either one at the moment. In a nutshell - they’re both great libraries, however, they’re pretty advanced.</p>
+<p>Our old solution combined two things - and this was its main mistake. Either we should’ve said no to our interfaces and gone with something like the handler pattern - or we should’ve leaned fully into MTL.</p>
+<p>The drawback with handler pattern would that we can’t be polymporphic, we really like for testing. The drawback with MTL is the <code>n^2</code> instances problem.</p>
+<p>Urgh! From our wishes on polymorphism it’s clear we can’t use the handler pattern. But can we use MTL if we solve the <code>n^2</code> issue? And what is the <code>n^2</code> issue?</p>
+<h2 id="the-n2-issue">The <code>n^2</code> issue</h2>
+<p>When using monad transformers, you need to write the monad instances for all the different types of transformers. Here’s an example from the <a href="https://github.com/haskell/mtl/blob/master/Control/Monad/State/Class.hs#L152-L171">MTL source code</a>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">instance</span> <span class="dt">MonadState</span> s m <span class="ot">=&gt;</span> <span class="dt">MonadState</span> s (<span class="dt">ExceptT</span> e m) <span class="kw">where</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>  get <span class="ot">=</span> lift get</span>
+<span id="cb9-3"><a href="#cb9-3"></a>  put <span class="ot">=</span> lift <span class="op">.</span> put</span>
+<span id="cb9-4"><a href="#cb9-4"></a>  state <span class="ot">=</span> lift <span class="op">.</span> state</span>
+<span id="cb9-5"><a href="#cb9-5"></a></span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="kw">instance</span> <span class="dt">MonadState</span> s m <span class="ot">=&gt;</span> <span class="dt">MonadState</span> s (<span class="dt">IdentityT</span> m) <span class="kw">where</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>  get <span class="ot">=</span> lift get</span>
+<span id="cb9-8"><a href="#cb9-8"></a>  put <span class="ot">=</span> lift <span class="op">.</span> put</span>
+<span id="cb9-9"><a href="#cb9-9"></a>  state <span class="ot">=</span> lift <span class="op">.</span> state</span>
+<span id="cb9-10"><a href="#cb9-10"></a></span>
+<span id="cb9-11"><a href="#cb9-11"></a><span class="kw">instance</span> <span class="dt">MonadState</span> s m <span class="ot">=&gt;</span> <span class="dt">MonadState</span> s (<span class="dt">ReaderT</span> r m) <span class="kw">where</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a>  get <span class="ot">=</span> lift get</span>
+<span id="cb9-13"><a href="#cb9-13"></a>  put <span class="ot">=</span> lift <span class="op">.</span> put</span>
+<span id="cb9-14"><a href="#cb9-14"></a>  state <span class="ot">=</span> lift <span class="op">.</span> state</span></code></pre></div>
+<p>This is very mechanical and boilerplaty. For these common transformers, these instances have all been written. However, every time you add an additional transformer - you need to write all these <code>n</code> instances where <code>n</code> is the number of interfaces you intend to use. Thus the <code>n^2</code> complexity.</p>
+<h2 id="control-structures-for-monad-transformers">Control structures for monad transformers</h2>
+<p>For most of our monads that we create ourselves, they simply require this very mechanical boilerplate. This behavior looks like it could be captured by a typeclass (or two).</p>
+<p>One of our engineers, <a href="https://twitter.com/1akrmn">Moisés</a>, who previously worked for Standard Chartered had solved this type if issue before in their previous team.</p>
+<p>So, indeed, this can be captured by a typeclass. Enter <code>MonadTrans</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">-- Pass-through instance for transformers</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="kw">instance</span> <span class="ot">{-# OVERLAPPABLE #-}</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>  ( <span class="dt">Monad</span> (t m)</span>
+<span id="cb10-4"><a href="#cb10-4"></a>  , <span class="dt">MonadTrans</span> t</span>
+<span id="cb10-5"><a href="#cb10-5"></a>  , <span class="dt">MonadLog</span> m</span>
+<span id="cb10-6"><a href="#cb10-6"></a>  ) <span class="ot">=&gt;</span> <span class="dt">MonadLog</span> (t m) <span class="kw">where</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>  logLn level msg <span class="ot">=</span> lift (logLn level msg)</span></code></pre></div>
+<p>This instance can now lift any monad <code>m</code> that implements <code>MonadLog</code> into the transformer <code>t</code>. This means no more having to write <code>n</code> instances 🎉</p>
+<p>For the example above with a callback in <code>m</code>, we can use <code>MonadTransControl</code> as it has the ability to run something in the base monad. The real version of our <code>MonadLog</code> has a function that allows you to specify a traceable ID that we call <code>CorrelationId</code>:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">class</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">MonadLog</span> m <span class="kw">where</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>  <span class="co">-- | Print 'a' to the log with source code positions</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="ot">  logLn ::</span> <span class="dt">HasCallStack</span> <span class="ot">=&gt;</span> <span class="dt">Loggable</span> a <span class="ot">=&gt;</span> <span class="dt">LogLevel</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> m ()</span>
+<span id="cb11-4"><a href="#cb11-4"></a>  <span class="co">-- | Correlate the 'm a' with the given correlation ID</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="ot">  correlatedWith ::</span> <span class="dt">CorrelationId</span> <span class="ot">-&gt;</span> m a <span class="ot">-&gt;</span> m a</span></code></pre></div>
+<p>In our passthrough instance for this version of <code>MonadLog</code> we now need to use <code>MonadTransControl</code>:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1"></a><span class="co">-- Pass-through instance for transformers</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="kw">instance</span> <span class="ot">{-# OVERLAPPABLE #-}</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a>  ( <span class="dt">Monad</span> (t m)</span>
+<span id="cb12-4"><a href="#cb12-4"></a>  , <span class="dt">MonadTrans</span> t</span>
+<span id="cb12-5"><a href="#cb12-5"></a>  , <span class="dt">MonadLog</span> m</span>
+<span id="cb12-6"><a href="#cb12-6"></a>  ) <span class="ot">=&gt;</span> <span class="dt">MonadLog</span> (t m) <span class="kw">where</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a>  logLn level msg <span class="ot">=</span> lift (logLn level msg)</span>
+<span id="cb12-8"><a href="#cb12-8"></a>  correlatedWith corrId ma <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>    result <span class="ot">&lt;-</span> liftWith \runInBase <span class="ot">-&gt;</span></span>
+<span id="cb12-10"><a href="#cb12-10"></a>      correlatedWith corrId (runInBase ma)</span>
+<span id="cb12-11"><a href="#cb12-11"></a>    restoreT (<span class="fu">pure</span> result)</span></code></pre></div>
+<p>A full example was given in at the <a href="#the-solution">start</a> of this post.</p>
+</div>
+
+    </div>
+  </body>
+</html>
