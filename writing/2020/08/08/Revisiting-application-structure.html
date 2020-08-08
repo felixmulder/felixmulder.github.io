@@ -21,7 +21,7 @@
 <p>Each interface has a corresponding <code>class</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">class</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">MonadLog</span> m <span class="kw">where</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a>  <span class="co">-- | Print 'a' to the log with source code positions</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="ot">  logLn ::</span> <span class="dt">HasCallStack</span> <span class="ot">=&gt;</span> <span class="dt">Loggable</span> a <span class="ot">=&gt;</span> <span class="dt">LogLevel</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> m ()</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="ot">  logLn ::</span> (<span class="dt">HasCallStack</span>, <span class="dt">Loggable</span> a) <span class="ot">=&gt;</span> <span class="dt">LogLevel</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> m ()</span></code></pre></div>
 <p>which acts as the interface and allows us to write code that’s polymorphic in <code>m</code>.</p>
 <p>There’s a pass-through instance that is able to take any transformer monad <code>t</code> that has an instance for <code>MonadLog</code> on its base monad <code>m</code>:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">-- Pass-through instance for transformers</span></span>
@@ -167,7 +167,7 @@
 <p>For the example above with a callback in <code>m</code>, we can use <code>MonadTransControl</code> as it has the ability to run something in the base monad. The real version of our <code>MonadLog</code> has a function that allows you to specify a traceable ID that we call <code>CorrelationId</code>:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">class</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> <span class="dt">MonadLog</span> m <span class="kw">where</span></span>
 <span id="cb11-2"><a href="#cb11-2"></a>  <span class="co">-- | Print 'a' to the log with source code positions</span></span>
-<span id="cb11-3"><a href="#cb11-3"></a><span class="ot">  logLn ::</span> <span class="dt">HasCallStack</span> <span class="ot">=&gt;</span> <span class="dt">Loggable</span> a <span class="ot">=&gt;</span> <span class="dt">LogLevel</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> m ()</span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="ot">  logLn ::</span> (<span class="dt">HasCallStack</span>, <span class="dt">Loggable</span> a) <span class="ot">=&gt;</span> <span class="dt">LogLevel</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> m ()</span>
 <span id="cb11-4"><a href="#cb11-4"></a>  <span class="co">-- | Correlate the 'm a' with the given correlation ID</span></span>
 <span id="cb11-5"><a href="#cb11-5"></a><span class="ot">  correlatedWith ::</span> <span class="dt">CorrelationId</span> <span class="ot">-&gt;</span> m a <span class="ot">-&gt;</span> m a</span></code></pre></div>
 <p>In our passthrough instance for this version of <code>MonadLog</code> we now need to use <code>MonadTransControl</code>:</p>
