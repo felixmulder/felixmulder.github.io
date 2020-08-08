@@ -1,7 +1,7 @@
 ---
 title: Revisiting application structure
 date: 2020-08-25
-published: false
+published: true
 ---
 
 # Revisiting application structure
@@ -234,11 +234,15 @@ transformer - you need to write all these `n` instances where `n` is the number
 of interfaces you intend to use. Thus the `n^2` complexity.
 
 ## Control structures for monad transformers
-For most of our monads that we create ourselves, they are newtype wrappers
-around things like `StateT`. This begs the question - can't we automate the
-derivation of these somehow?
+For most of our monads that we create ourselves, they simply require this very
+mechanical boilerplate. This behavior looks like it could be captured by a
+typeclass (or two).
 
-Indeed, we can. Enter `MonadTrans`:
+One of our engineers, [Moisés](https://twitter.com/1akrmn), who previously
+worked for Standard Chartered had solved this type if issue before in their
+previous team.
+
+So, indeed, this can be captured by a typeclass. Enter `MonadTrans`:
 
 ```haskell
 -- Pass-through instance for transformers
