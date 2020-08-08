@@ -277,7 +277,7 @@ In our passthrough instance for this version of `MonadLog` we now need to use
 -- Pass-through instance for transformers
 instance {-# OVERLAPPABLE #-}
   ( Monad (t m)
-  , MonadTrans t
+  , MonadTransControl t
   , MonadLog m
   ) => MonadLog (t m) where
   logLn level msg = lift (logLn level msg)
@@ -286,6 +286,8 @@ instance {-# OVERLAPPABLE #-}
       correlatedWith corrId (runInBase ma)
     restoreT (pure result)
 ```
+
+We can leave out `MonadTrans` since it's implied by `MonadTransControl`.
 
 A full example was given in at the [start](#the-solution) of this post.
 
