@@ -20,7 +20,7 @@ Each interface has a corresponding `class`:
 ```haskell
 class Monad m => MonadLog m where
   -- | Print 'a' to the log with source code positions
-  logLn :: HasCallStack => Loggable a => LogLevel -> a -> m ()
+  logLn :: (HasCallStack, Loggable a) => LogLevel -> a -> m ()
 ```
 
 which acts as the interface and allows us to write code that's polymorphic in
@@ -265,7 +265,7 @@ call `CorrelationId`:
 ```haskell
 class Monad m => MonadLog m where
   -- | Print 'a' to the log with source code positions
-  logLn :: HasCallStack => Loggable a => LogLevel -> a -> m ()
+  logLn :: (HasCallStack, Loggable a) => LogLevel -> a -> m ()
   -- | Correlate the 'm a' with the given correlation ID
   correlatedWith :: CorrelationId -> m a -> m a
 ```
