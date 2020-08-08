@@ -175,7 +175,7 @@
 <div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1"></a><span class="co">-- Pass-through instance for transformers</span></span>
 <span id="cb12-2"><a href="#cb12-2"></a><span class="kw">instance</span> <span class="ot">{-# OVERLAPPABLE #-}</span></span>
 <span id="cb12-3"><a href="#cb12-3"></a>  ( <span class="dt">Monad</span> (t m)</span>
-<span id="cb12-4"><a href="#cb12-4"></a>  , <span class="dt">MonadTrans</span> t</span>
+<span id="cb12-4"><a href="#cb12-4"></a>  , <span class="dt">MonadTransControl</span> t</span>
 <span id="cb12-5"><a href="#cb12-5"></a>  , <span class="dt">MonadLog</span> m</span>
 <span id="cb12-6"><a href="#cb12-6"></a>  ) <span class="ot">=&gt;</span> <span class="dt">MonadLog</span> (t m) <span class="kw">where</span></span>
 <span id="cb12-7"><a href="#cb12-7"></a>  logLn level msg <span class="ot">=</span> lift (logLn level msg)</span>
@@ -183,6 +183,7 @@
 <span id="cb12-9"><a href="#cb12-9"></a>    result <span class="ot">&lt;-</span> liftWith \runInBase <span class="ot">-&gt;</span></span>
 <span id="cb12-10"><a href="#cb12-10"></a>      correlatedWith corrId (runInBase ma)</span>
 <span id="cb12-11"><a href="#cb12-11"></a>    restoreT (<span class="fu">pure</span> result)</span></code></pre></div>
+<p>We can leave out <code>MonadTrans</code> since it’s implied by <code>MonadTransControl</code>.</p>
 <p>A full example was given in at the <a href="#the-solution">start</a> of this post.</p>
 </div>
 
