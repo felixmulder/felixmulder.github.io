@@ -61,6 +61,21 @@
   font-family: 'Lato', sans-serif;
 }
 
+.article-container blockquote {
+  background-color: rgba(0,0,0,0.03);
+  padding: 20px;
+  border-radius: 3px;
+  margin: 0;
+}
+
+.article-container blockquote p:first-child {
+  margin-top: 0;
+}
+
+.article-container blockquote p:last-child {
+  margin-bottom: 0;
+}
+
 pre.sourceCode {
   background-color: rgba(0,0,0,0.03);
   padding: 20px;

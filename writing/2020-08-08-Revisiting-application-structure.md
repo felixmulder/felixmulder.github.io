@@ -39,8 +39,14 @@ instance {-# OVERLAPPABLE #-}
   logLn level msg = lift (logLn level msg)
 ```
 
+Having the `OVERLAPPABLE` <span id="overlappable">pragma<span> on the
+pass-through instance means that any other instance we define would be chosen
+in preference to this one during instance resolution. This is described in the
+[GHC user's guide][ghc-overlappable].
+
 The instance above is used in order to provide instances for any transformer.
-Getting us past the dreaded `n^2` issue!
+Getting us past the dreaded `n^2` issue! If you don't know what that is - don't
+worry, it's explained [further down](#the-n2-issue).
 
 Now it comes time to choose how to implement our effects. For each effect,
 there's a newtype that constitutes the effect:
@@ -78,8 +84,11 @@ runConsoleLogT (ConsoleLogT m) = do
   runReaderT m (loggerSet, Uncorrelated)
 ```
 
-Thanks to this structure, this allows us dispatch our effects at the "end of
-the world". By selecting the functions from each interface that we want to use.
+Thanks to this structure, we can dispatch our effects at the "end of
+the world" by using the functions from each interface we want to use.
+The instances we've defined for `ConsoleLogT` and `NoLoggingT` are considered
+before the pass-through instance due to the `OVERLAPPABLE` pragma.
+
 Here's an example from a service that logs things, submits metrics and reads
 messages from an SQS queue.
 
@@ -180,6 +189,22 @@ There are a few drawbacks to this pattern. Let's start with the most glaring iss
   This requires a _lot_ of lifting back and forth especially when the concrete
   implementation is in `IO` and your interfaces are all in `m`
 
+- Error messages become vague and based on the instance constraints e.g:
+
+  ```
+  Couldn't satisfy constraint 'HasType (RequestSender m)'
+  ```
+
+  instead of the much more easily understandable:
+
+  ```
+  Missing instance 'SqsProducer (ReaderT r m)'
+  ```
+
+  In the latter, we can see that the instance is missing for the `SqsProducer`
+  whereas in the former - we sort of need to do instance resolution by grep to
+  figure out what class GHC is trying to construct an instance for.
+
 - Lastly, and most important: it didn't turn out to be so easy to grok as we
   thought
 
@@ -238,9 +263,30 @@ For most of our monads that we create ourselves, they simply require this very
 mechanical boilerplate. This behavior looks like it could be captured by a
 typeclass (or two).
 
-One of our engineers, [Moisés](https://twitter.com/1akrmn), who previously
-worked for Standard Chartered had solved this type if issue before in their
-previous team.
+One of our engineers, [Moisés][moises], who previously worked for Standard
+Chartered introduced us to their solution to this issue.
+
+Pepe Iborra commented on the [PR for this post][pepe-comment] and provided the
+following insight into how the solution came about:
+
+> When I joined Strats in Jan 2017, the codebase was already making heavy use
+> of type classes for individual effects, e.g. `MonadTime`, `MonadDelay`,
+> `MonadLog`, etc. but there was no solution to the n^2 problem. Monad
+> transformers were providing instances for all the effects, relying on
+> deriving to avoid as much boilerplate as possible. Alexis [article][alexis-mtl]
+> takes this approach to the extreme.
+>
+> I made the point that introducing a new effect class required adding it to
+> the deriving lists of all N transformers, which made engineers unwilling to
+> add effects. and the approach could not scale. My solution to this was the
+> passthrough instance, which requires a `MonadTransControl` transformer (or
+> `MonadtTrans` for non-scoped effects). Since all `ReaderT` transformers
+> are in `MonadTransControl` by definition unless the environment mentions the
+> base monad, the codebase quickly gravitates towards `ReaderT` in order to
+> avoid having to write instances manually.
+>
+> -- [Pepe Iborra][pepe-twitter]
+
 
 So, indeed, this can be captured by a typeclass. Enter `MonadTrans`:
 
@@ -256,6 +302,11 @@ instance {-# OVERLAPPABLE #-}
 
 This instance can now lift any monad `m` that implements `MonadLog` into the
 transformer `t`. This means no more having to write `n` instances 🎉
+
+As noted [above](#overlappable), the `OVERLAPPABLE` pragma allows us to control
+precedence for the pass-through instance, such that any other instance we
+define would be chosen in preference to it during instance resolution. This is
+described in the [GHC user's guide][ghc-overlappable].
 
 For the example above with a callback in `m`, we can use `MonadTransControl` as
 it has the ability to run something in the base monad. The real version of our
@@ -291,6 +342,28 @@ We can leave out `MonadTrans` since it's implied by `MonadTransControl`.
 
 A full example was given in at the [start](#the-solution) of this post.
 
+## In closing
+I hope this post presents a useful and comprehensible way to control effects in
+Haskell without deviating too much from standard language features.
+
+Since writing this, I was pointed to Alexis's [article][alexis-mtl] on making
+MTL typeclasses derivable. It's a much more thorough article than mine and I
+greatly appreciated it.
+
+### Edits
+* Add details on `OVERLAPPABLE` and their precedence in instance resolution
+  ([Moisés][moises])
+* Add anchor to `n^2` issue when from where it was first mentioned
+  ([Moisés][moises])
+* Add error message con to `ReaderT` section ([Moisés][moises])
+* Add [Pepe Iborra][pepe-twitter]'s account of how this came about at Standard
+  Chartered
+
 [hip]: /writing/2019/10/05/Designing-testable-components.html
 [fast-logger]: https://hackage.haskell.org/package/fast-logger
 [mtl-boilerplate]: https://github.com/haskell/mtl/blob/master/Control/Monad/State/Class.hs#L152-L171
+[ghc-overlappable]: https://downloads.haskell.org/ghc/latest/docs/html/users_guide/glasgow_exts.html#overlapping-instances
+[moises]: https://twitter.com/1akrmn
+[pepe-twitter]: https://twitter.com/iborrapepe
+[pepe-comment]: https://github.com/felixmulder/felixmulder.github.io/pull/4#discussion_r467620952
+[alexis-mtl]: https://lexi-lambda.github.io/blog/2017/04/28/lifts-for-free-making-mtl-typeclasses-derivable/
