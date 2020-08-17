@@ -140,7 +140,7 @@
 </ul>
 <p>Both of these are promising, but we’re not really comfortable with the drawbacks to either one at the moment. In a nutshell - they’re both great libraries, however, they’re pretty advanced.</p>
 <p>Our old solution combined two things - and this was its main mistake. Either we should’ve said no to our interfaces and gone with something like the handler pattern - or we should’ve leaned fully into MTL.</p>
-<p>The drawback with handler pattern would that we can’t be polymporphic, we really like for testing. The drawback with MTL is the <code>n^2</code> instances problem.</p>
+<p>The drawback with handler pattern is that we can’t be polymporphic, which we really like for testing. The drawback with MTL is the <code>n^2</code> instances problem.</p>
 <p>Urgh! From our wishes on polymorphism it’s clear we can’t use the handler pattern. But can we use MTL if we solve the <code>n^2</code> issue? And what is the <code>n^2</code> issue?</p>
 <h2 id="the-n2-issue">The <code>n^2</code> issue</h2>
 <p>When using monad transformers, you need to write the monad instances for all the different types of transformers. Here’s an example from the <a href="https://github.com/haskell/mtl/blob/master/Control/Monad/State/Class.hs#L152-L171">MTL source code</a>:</p>
