@@ -224,7 +224,7 @@ Our old solution combined two things - and this was its main mistake. Either we
 should've said no to our interfaces and gone with something like the handler
 pattern - or we should've leaned fully into MTL.
 
-The drawback with handler pattern would that we can't be polymporphic, we
+The drawback with handler pattern is that we can't be polymporphic, which we
 really like for testing. The drawback with MTL is the `n^2` instances problem.
 
 Urgh! From our wishes on polymorphism it's clear we can't use the handler
