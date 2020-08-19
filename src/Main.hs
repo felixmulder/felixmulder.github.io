@@ -1,4 +1,7 @@
-{-# LANGUAGE FlexibleContexts, FlexibleInstances, UndecidableInstances #-}
+{-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 module Main
   ( main
   , ghcidEntry
@@ -34,38 +37,22 @@ config = defaultConfiguration
 
 buildRules :: Rules ()
 buildRules = do
-  match "css/*" $ do
+  match ("css/*" .||. "css/**/*") do
     route idRoute
     compile compressCssCompiler
 
-  match "css/**/*" $ do
-    route idRoute
-    compile compressCssCompiler
-
-  match "assets/*" $ do
+  match ("assets/*" .||. "assets/**/*") do
     route idRoute
     compile copyFileCompiler
 
-  match "assets/**/*" $ do
-    route idRoute
-    compile copyFileCompiler
-
-  match "js/*" $ do
-    route idRoute
-    compile copyFileCompiler
-
-  match "js/**/*" $ do
-    route idRoute
-    compile copyFileCompiler
-
-  match "img/*" $ do
+  match ("js/*" .||. "js/**/*") do
     route idRoute
     compile copyFileCompiler
 
   match "templates/*" $
     compile templateBodyCompiler
 
-  match "writing/*" $ do
+  match "writing/*" do
     route $ customRoute dateRoute
     compile $ pandocCompiler
       >>= loadAndApplyTemplate "templates/article.html" defaultContext
@@ -73,13 +60,13 @@ buildRules = do
       >>= loadAndApplyTemplate "templates/root.html" defaultContext
       >>= relativizeUrls
 
-  match "talks/*" $ do
-    route $ customRoute dateRoute
-    compile $ revealJsCompiler >>= relativizeUrls
+  match "talks/*" do
+    route (customRoute dateRoute)
+    compile (revealJsCompiler >>= relativizeUrls)
 
-  create ["talks.html"] $ do
+  create ["talks.html"] do
     route idRoute
-    compile $ do
+    compile do
       articles <- loadAll "talks/*" <&> sortBy (compare `on` itemIdentifier) <&> reverse
       makeItem ""
         >>= loadAndApplyTemplate "templates/talks.html" (postCtx "Talks" articles)
@@ -87,9 +74,9 @@ buildRules = do
         >>= loadAndApplyTemplate "templates/root.html" defaultContext
         >>= relativizeUrls
 
-  create ["writing.html"] $ do
+  create ["writing.html"] do
     route idRoute
-    compile $ do
+    compile do
       articles <- loadAll "writing/*" <&> sortBy (compare `on` itemIdentifier) <&> reverse
       makeItem ""
         >>= loadAndApplyTemplate "templates/writing.html" (postCtx "Writing" articles)
@@ -97,7 +84,7 @@ buildRules = do
         >>= loadAndApplyTemplate "templates/root.html" defaultContext
         >>= relativizeUrls
 
-  match "index.html" $ do
+  match "index.html" do
     route idRoute
     compile $ getResourceBody
       >>= loadAndApplyTemplate "templates/root.html" defaultContext
@@ -114,10 +101,13 @@ revealJsCompiler
       defaultHakyllWriterOptions { writerHighlightStyle = Nothing }
 
     applyRevealJs :: Item Pandoc -> Compiler (Item String)
-    applyRevealJs (Item ident body) = cached "Main.applyRevealJs" $
-      case runPure (Item ident . unpack <$> writeRevealJs writerOptions body) of
-        Left err -> throwError ["Main.applyRevealJs: " <> show err]
-        Right item -> pure item
+    applyRevealJs (Item ident body) =
+      let
+        newItem = Item ident . unpack <$> writeRevealJs writerOptions body
+      in
+        cached "Main.applyRevealJs" case runPure newItem of
+          Left err -> throwError ["Main.applyRevealJs: " <> show err]
+          Right item -> pure item
 
 postCtx :: String -> [Item String] -> Context String
 postCtx title articles =
