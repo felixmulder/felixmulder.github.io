@@ -11,9 +11,22 @@
   </head>
   <body>
     <div class="container">
-      <a class="back-button" href="../../../../">Home</a>
+      <div class="article-container">
+  <header class="navbar">
+    <h1 class="back-button">
+      <a href="../../../../">Felix Mulder</a>
+    </h1>
 
-<div class="article-container">
+    <nav role="navigation">
+      <ul>
+        <li><a href="../../../../writing.html">Writing</a></li>
+        <li><a href="../../../../talks.html">Talks</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="article-container">
   <h1 id="revisiting-application-structure">Revisiting application structure</h1>
 <p>After more than two years of writing production code using Haskell at Klarna. We’ve learned a ton. Initially, we used a <code>ReaderT</code> pattern detailed in my <a href="../../../../writing/2019/10/05/Designing-testable-components.html">“Haskell in Production”</a> mini-series. We’ve now transitioned into using <code>MonadTrans</code> and <code>MonadTransControl</code> as means to write MTL without boilerplate.</p>
 <p>In this post, we’re going to review the <code>ReaderT</code> pattern we used, as well as go through its shortcomings and our chosen solution to it. Since a lot of people might only be interested in the solution, it is provided first.</p>
@@ -208,6 +221,9 @@
 <li>Add error message con to <code>ReaderT</code> section (<a href="https://twitter.com/1akrmn">Moisés</a>)</li>
 <li>Add <a href="https://twitter.com/iborrapepe">Pepe Iborra</a>’s account of how this came about at Standard Chartered</li>
 </ul>
+</div>
+
+
 </div>
 
     </div>
