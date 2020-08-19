@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../../../../css/reveal.js/reset.css">
+    <link rel="stylesheet" href="../../../../css/reveal.js/reveal.css">
+    <link rel="stylesheet" href="../../../../css/reveal.js/theme/black.css">
+    <link rel="stylesheet" href="../../../../css/atom-one-dark.css">
+
+    <!-- customization for slides -->
+    <link rel="stylesheet" href="../../../../css/slides.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi )
+                ? '/css/reveal.js/print/pdf.css'
+                : '/css/reveal.js/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <title>Real World Dotty</title>
+  </head>
+  <body>
+    <div class="reveal">
+      <div id="twitter-link">@felixmulder</div>
+      <div class="slides">
+        <section class="slide level6">
+
+<section>
+<h3 id="dottys-new-repl">Dotty’s new REPL</h3>
+<h1 id="real-world-dotty">Real World Dotty</h1>
+<h3>
+Felix Mulder
+</p>
+</section>
+<section>
+<h2 id="in-this-talk">In This Talk</h2>
+<ul>
+<li>Building a REPL 101</li>
+<li>The New REPL</li>
+<li>New Language Features</li>
+</ul>
+</section>
+<section>
+<h2 id="after-this-take-youll-know">After this take you’ll know</h2>
+<ul>
+<li>How to build a REPL</li>
+<li>About features in Scala 3</li>
+</ul>
+</section>
+<section>
+<span style="text-transform: uppercase"> Slides: <a href="http://felixmulder.com">felixmulder.com</a> </span>
+</section>
+<section>
+<h1 id="questions-up-front">Questions up front</h1>
+<aside class="notes">
+<ul>
+<li>The best time to ask a question is when you have one</li>
+</ul>
+</aside>
+</section>
+<section>
+<img data-src="/assets/talks/real-world-dotty/epfl.svg" class="no-bg" width="250" />
+<aside class="notes">
+<ul>
+<li>Compiler engineer &amp; release manager</li>
+<li>Big picture</li>
+<li>Pull in the same dir</li>
+<li>Get us on to a release schedule</li>
+</ul>
+</aside>
+</section>
+<section>
+<img data-src="/assets/talks/real-world-dotty/klarna.svg" class="no-bg" width="250" />
+</section>
+<section>
+<h2 id="repo-activity">Repo Activity</h2>
+<img data-src="/assets/talks/real-world-dotty/contribs.png" class="border" />
+<h3 id="contributors">88 Contributors</h3>
+<aside class="notes">
+<ul>
+<li>Making it easy for people to contrib</li>
+<li>Proper tags, guides for certain parts, better docs</li>
+<li>Up from a dussin contributors</li>
+</ul>
+</aside>
+</section>
+<section>
+<h2 id="so-how-do-you-build-a-repl">So, how do you build a REPL?</h2>
+</section>
+<section>
+<h2 id="evaluate-expressions-commands">Evaluate expressions <span class="fragment fade-out">&amp; Commands</span></h2>
+</section>
+<section>
+<pre><code>Expression =&gt; Result</code></pre>
+</section>
+<section>
+<pre><code>IO[String] =&gt; Result[String]</code></pre>
+<aside class="notes">
+<ul>
+<li>Try to keep this as pure as possible</li>
+</ul>
+</aside>
+</section>
+<section>
+<pre><code>type Result[T] = ???</code></pre>
+<aside class="notes">
+<ul>
+<li>Decide upon a datastructure for Res[T]</li>
+<li>How do we capture failure in a compiler?</li>
+</ul>
+</aside>
+</section>
+<section>
+<h2 id="compiler-crash-course">Compiler Crash-Course</h2>
+<ol>
+<li>Tokenize</li>
+<li>Parse AST</li>
+<li>Typecheck</li>
+<li>…</li>
+<li>Runnable</li>
+</ol>
+<aside class="notes">
+<ul>
+<li>AST represented as ADT</li>
+</ul>
+</aside>
+</section>
+<section>
+<pre><code>type Result[T] = ValidatedNel[ErrorMessage, T]</code></pre>
+</section>
+<section>
+<img data-src="/assets/talks/real-world-dotty/external-deps.jpg" class="border" />
+<p>*that aren’t Java</p>
+<aside class="notes">
+<ul>
+<li>Binary compat, but most importantly - bootstrap</li>
+</ul>
+</aside>
+</section>
+<section>
+<h2 id="dotty-has-union-types">Dotty has union types! 💡</h2>
+<pre class="fragment clear"><code>type Result[T] = List[ErrorMessage] | T </code></pre>
+<aside class="notes">
+<ul>
+<li>Unboxed Either</li>
+</ul>
+</aside>
+</section>
+<section>
+<h2 id="a-compromise">A Compromise</h2>
+<pre><code>type Result[T] = scala.util.Either[List[ErrorMessage], T]</code></pre>
+</section>
+<section>
+<pre><code>val readLine: IO[String] = IO { &quot;val x = 5&quot; }
+
+def interpret(input: String): Result[String] = ...
+    </code></pre>
+<aside class="notes">
+This will be what we’re trying to evaluate.
+</aside>
+</section>
+<section>
+<pre><code>
+val pipeline: IO[String] = for {
+  input  &lt;- readLine
+  result =  interpret(input).fold(reportErrors, reportResult)
+} yield result
+
+pipeline.unsafeRunSync() // &quot;val x: String = 5&quot;</code></pre>
+</section>
+<section>
+<pre><code>def interpret(input: String): Result[String] =
+  compile(input).flatMap(evaluate)
+
+def compile(input: String): Result[tpd.Tree] =
+  for {
+    exprs     &lt;- parse(input)
+    contained &lt;- wrap(exprs)
+    typed     &lt;- compile(contained)
+  } yield typed
+
+def evaluate(tree: tpd.Tree): Result[String] = ...</code></pre>
+<aside class="notes">
+<ul>
+<li>Interpreting is simply compiling and evaluating</li>
+<li>Similar to scalac &amp;&amp; scala</li>
+<li>Think back to our pipeline</li>
+<li>Then we have some evaluation function, to care about later</li>
+<li>The first non-obvious thing here is the `wrap`</li>
+</ul>
+</aside>
+</section>
+<section>
+<h2 id="why-wrap-things">Why wrap things?</h2>
+<h3 id="need-to-run-the-full-compiler-pipeline" class="fragment">Need to run the full compiler pipeline</h3>
+<aside class="notes">
+<ul>
+<li>Can typecheck expression with frontend</li>
+<li>Has to be valid scala to be emitted by backend</li>
+</ul>
+</aside>
+</section>
+<section>
+<h2 id="what-should-we-be-compiling">What should we be compiling?</h2>
+<pre><code>scala&gt; val x = 5
+
+// =&gt;
+
+object rs$l1 {
+  val x = 5
+}</code></pre>
+</section>
+<section>
+<h2 id="what-should-we-be-compiling-1">What should we be compiling?</h2>
+<pre><code>scala&gt; 5
+
+// =&gt;
+
+object rs$l2 {
+  val res0 = 5
+}</code></pre>
+</section>
+<section>
+<h2 id="what-should-we-be-compiling-2">What should we be compiling?</h2>
+<pre><code>scala&gt; class Foo
+
+// =&gt;
+
+object rs$l3 {
+  class Foo
+}</code></pre>
+</section>
+<section>
+<h2 id="is-that-it">Is that it?</h2>
+<pre class="fragment clear" data-fragment-index="1"><code>scala&gt; val y = x
+
+// =&gt;
+
+object rs$l4 {
+  import rs$l1._
+  val y = x // error: not found: value x
+}</code></pre>
+</section>
+<section>
+<h2 id="is-that-it-1">Is that it?</h2>
+<pre><code>val y = x
+
+// =&gt;
+
+object rs$l4 {
+  import rs$l1._, rs$l2._, rs$l3._
+  val y = x                             
+}</code></pre>
+</section>
+<section>
+<h2 id="what-about-implicits">What about implicits?</h2>
+<pre><code>scala&gt; implicit val x: String = &quot;wrong&quot;
+scala&gt; implicit val y: String = &quot;right&quot;
+scala&gt; implicitly[String]
+
+// =&gt;
+
+object rs$l1 { implicit val x: String = &quot;wrong&quot; }
+
+object rs$l2 {
+  import rs$l1._
+  implicit val y: String = &quot;right&quot;
+}
+
+object rs$l3 {
+  import rs$l1._, rs$l2._
+  val res0 = implicitly[String] // error: ambiguous implicit values
+}</code></pre>
+<span class="fragment">🙈</span>
+</section>
+<section>
+<h2 id="dottys-concept-of-context">Dotty’s Concept of Context</h2>
+<ul>
+<li><code>Context</code> is analogous to scalac’s <code>Global</code></li>
+<li>Local</li>
+<li>Scope</li>
+<li>Owner</li>
+<li>Settings</li>
+<li>Immutable</li>
+</ul>
+</section>
+<section>
+<pre><code>package example
+
+class A
+
+class B {
+                                                 
+ def f = ???
+ def g = ???
+}
+</code></pre>
+</section>
+<section>
+<pre><code>package example {
+  // Context(owner = example, scope = Scope(A, B))
+  class A
+
+  class B {
+   // Context(owner = B, scope = Scope(A, B, f, g))
+   def f = ???
+   def g = ???
+  }
+}</code></pre>
+</section>
+<section>
+<pre><code>object rs$l1 { implicit val x: String = &quot;wrong&quot; }
+
+object rs$l2 {
+  // Context(owner = rs$l2, scope = ShadowScope(rs$l1._))
+  import rs$l1._
+  implicit val y: String = &quot;right&quot;
+}
+
+object rs$l3 {
+  // Context(owner = rs$l2, scope = ShadowScope(rs$l2._, rs$l1._))
+  import rs$l1._, rs$l2._
+  val res0 = implicitly[String] // val res0: String = &quot;right&quot; 😁👍
+}</code></pre>
+<aside class="notes">
+<ul>
+<li>When typechecking, we can do so in the context of something</li>
+<li>Could manipulate the context to make it seem like we have imports or don’t</li>
+</ul>
+</aside>
+</section>
+<section>
+<pre><code>def compile(input: String): Result[tpd.Tree] =
+  for {
+    exprs     &lt;- parse(input)
+    contained &lt;- wrap(exprs)
+    typed     &lt;- compile(contained)
+  } yield typed</code></pre>
+</section>
+<section>
+<pre><code>def compile(tree: untpd.Tree)(implicit ctx: Context): tpd.Tree = {
+
+  def addMagicImports(initCtx: Context): Context =
+    (initCtx /: lineNumbers) { (ctx, line) =&gt;
+      ctx.setNewScope.setImportInfo(importRef(line))
+    }
+
+  // Use dotty internals to compile the `tree` =&gt; then
+  // return the typed version of it
+}</code></pre>
+</section>
+<section>
+<pre><code>def interpret(input: String): Result[String] =
+  compile(input).flatMap(evaluate)
+
+def evaluate(tree: tpd.Tree): Result[String] = {
+  // 1. Render definitions: class, trait, object, type, def
+  // 2. Render values: val, var
+}</code></pre>
+</section>
+<section>
+<pre><code>def evaluate(tree: tpd.Tree): Result[String] = {
+  val defs = ctx.atPhase(ctx.typerPhase.next) {
+    tree.symbol
+      .find(isWrapper).toList
+      .flatMap(collectDefs)
+      .map(renderDefs)
+  }
+
+  val values = renderValues(tree)
+
+  // Return everything separated by newlines:
+  (defs ++ values).mkString(&quot;\n&quot;)
+}</code></pre>
+</section>
+<section>
+<h2 id="what-does-haskell-do">What does Haskell do?</h2>
+<h3 id="interpreter" class="fragment">Interpreter</h3>
+<aside class="notes">
+<ul>
+<li>When you find yourself implementing something like this - ask yourself, what does haskell do</li>
+</ul>
+</aside>
+</section>
+<section>
+<blockquote>
+“Let’s just use Reflection” - Java devs
+</blockquote>
+</section>
+<section>
+<pre><code>def renderValues(tree: tpd.Tree): List[String] = {
+  def valueOf(sym: Symbol): Option[String] = { ...  }
+
+  collectValues(tree).map { symbol =&gt;
+    val dcl = symbol.showUser
+    val res = if (symbol.is(Lazy)) Some(&quot;&lt;lazy&gt;&quot;) else valueOf(symbol)
+
+    res.map(value =&gt; show&quot;$dcl = $value&quot;)
+  }
+}</code></pre>
+</section>
+<section>
+<pre><code>def valueOf(sym: Symbol): Option[String] = {
+  val wrapperName = sym.owner.name
+  val wrapper = Class.forName(wrapperName, true, classLoader)
+
+  val res =
+    wrapper
+      .getDeclaredMethods.find(_.getName == sym.name + &quot;Show&quot;)
+      .map(_.invoke(null).toString)
+
+  if (!sym.is(Flags.Method) &amp;&amp; sym.info == defn.UnitType)
+    None
+  else res
+}</code></pre>
+</section>
+<section>
+<pre><code>trait Show[-T] {
+  def show(t: T): String
+}</code></pre>
+</section>
+<section>
+<h2 id="what-should-we-be-compiling-3">What should we be compiling?</h2>
+<pre><code>scala&gt; val x = 5
+
+// =&gt;
+
+object rs$l1 {
+  val x = 5
+  def xShow = x.show
+}</code></pre>
+<p><span class="fragment">Trivia - why a <code>def</code>?</span></p>
+</section>
+<section>
+<pre><code>def valueOf(sym: Symbol): Option[String] = {
+  val wrapperName = sym.owner.name
+  val wrapper = Class.forName(wrapperName, true, classLoader)
+
+  val res =
+    wrapper
+      .getDeclaredMethods.find(_.getName == sym.name + &quot;Show&quot;)
+      .map(_.invoke(null).toString) // Initializes the object 🙊
+
+  if (!sym.is(Flags.Method) &amp;&amp; sym.info == defn.UnitType)
+    None
+  else res
+}</code></pre>
+</section>
+<section>
+<pre><code>Expression =&gt; Result</code></pre>
+<br />
+
+<pre class="fragment"><code>🎩 + 🐿 == `Ship it!`</code></pre>
+</section>
+<section>
+<h2 id="new-language-features">New Language Features</h2>
+<h3 id="and-how-they-were-mis-used-in-this-project">And how they were (mis-)used in this project</h3>
+</section>
+<section>
+<h2 id="dotty-has-union-types-1">Dotty has union types! 💡</h2>
+<pre><code>type Result[T] = List[ErrorMessage] | T </code></pre>
+</section>
+<section>
+<pre><code>type Result[T] = List[ErrorMessage] | T
+
+implicit class ResultOps[A](res: Result[A]) extends AnyVal {
+  def flatMap[B](f: A =&gt; Result[B]): Result[B] = res match {
+    case err: List[ErrorMessage] =&gt; err // warning: type erasure
+    case a: A =&gt; f(a)                   // warning: match on generic type
+  }
+}</code></pre>
+</section>
+<section>
+<pre><code>type Result[T] = Errors | T
+private case class Errors(values: List[ErrorMessage])
+
+implicit class ResultOps[A](res: Result[A]) extends AnyVal {
+  def flatMap[B](f: A =&gt; Result[B]): Result[B] = res match {
+    case err: Errors =&gt; err
+    case a: A @unchecked =&gt; f(a)
+  }
+
+  ...
+}</code></pre>
+</section>
+<section>
+<pre><code>for { x &lt;- 1 } yield 1</code></pre>
+<p>🙈</p>
+<pre class="fragment clear"><code>1 &lt;:&lt; Result[T]</code></pre>
+<br />
+
+<pre class="fragment clear"><code>1 &lt;:&lt; (Errors | T)</code></pre>
+<br />
+
+<pre class="fragment clear"><code>(1 &lt;:&lt; Errors) || (1 &lt;:&lt; T)</code></pre>
+<br />
+
+<pre class="fragment clear"><code>false || (1 &lt;:&lt; T)</code></pre>
+<br />
+
+<pre class="fragment clear"><code>true</code></pre>
+</section>
+<section>
+<h2 id="when-not-to-use-a-union-type">When not to use a union type</h2>
+<ul>
+<li>Instead of <code>Either</code></li>
+<li>Instead of <code>Coproduct</code></li>
+<li>When part of the union is generic</li>
+</ul>
+</section>
+<section>
+<h2 id="when-to-use-union-types">When to use union types</h2>
+<ul>
+<li>Anonymous ADTs</li>
+<li>Unordered disjunctions</li>
+<li>Value Enumerations</li>
+<li>Dynamic Language Interop</li>
+</ul>
+</section>
+<section>
+<pre><code>enum Message {
+  case PlainMessage[A](value: A)
+  case ComputableMessage[A](value: () =&gt; A)
+  case NoMessage
+}
+
+type SomeMessage[A] = PlainMessage[A] | ComputableMessage[A]
+
+def log[A : Broker](msg: SomeMessage): IO[Unit] =
+  msg match {
+    case msg: PlainMessage      =&gt; IO { println(msg) }
+    case msg: ComputableMessage =&gt; IO { println(msg.compute) }
+  }</code></pre>
+</section>
+<section>
+<h2 id="when-to-use-union-types-1">When to use union types</h2>
+<ul>
+<li>Anonymous ADTs</li>
+<li>Unordered disjunctions</li>
+<li>Value Enumerations</li>
+<li>Dynamic Language Interop</li>
+</ul>
+</section>
+<section>
+<pre><code>(String | Int) =:= (Int | String)</code></pre>
+</code>
+</section>
+<section>
+<h2 id="when-to-use-union-types-2">When to use union types</h2>
+<ul>
+<li>Anonymous ADTs</li>
+<li>Unordered disjunctions</li>
+<li>Value Enumerations</li>
+<li>Dynamic Language Interop</li>
+</ul>
+</section>
+<section>
+<pre><code>enum Days {
+  case Monday
+  case Tuesday
+  case Wednesday
+  case Thursday
+  case Friday
+  case Saturday
+  case Sunday
+}
+
+type Weekday = Monday.type   | Tuesday.type | ... | Friday.type
+type Weekend = Saturday.type | Sunday.type
+    </code></pre>
+</code>
+</section>
+<section>
+<h2 id="sadly">Sadly</h2>
+<div class="fragment">
+<h3 id="allow-singleton-types-in-union-types">Allow singleton types in union types</h3>
+<a href="https://github.com/lampepfl/dotty/issues/1551">#1551</a>
+</div>
+</section>
+<section>
+<h2 id="when-to-use-union-types-3">When to use union types</h2>
+<ul>
+<li>Anonymous ADTs</li>
+<li>Unordered disjunctions</li>
+<li>Value Enumerations</li>
+<li>Dynamic Language Interop</li>
+</ul>
+</section>
+<section>
+<pre><code>type UndefOr[A] = A | Unit</code></pre>
+</code>
+</section>
+<section>
+<h2 id="improved-type-inference">Improved Type Inference</h2>
+<pre><code>val res: Either[Exception, Int] = Right(1)
+
+res.map(_ + 1)
+    </code></pre>
+</code>
+</section>
+<section>
+<h2 id="improved-type-inference-1">Improved Type Inference</h2>
+<pre><code>val res: Either[Exception, (Int, String)] = Right((1, &quot;foo&quot;))
+
+res.map((i, str) =&gt; (i + 1, str + &quot;bar&quot;))
+// error: found (Int, String) =&gt; (Int, String),
+//        required ((Int, String)) =&gt; ?
+
+res.map { case (i, str) =&gt; (i + 1, str + &quot;bar&quot;) }
+    </code></pre>
+</code>
+<aside class="notes">
+Adapting by auto-tupling
+</aside>
+</section>
+<section>
+<pre><code>implicit class ListOps[A](val xs: List[A]) extends AnyVal {
+  def myFoldLeft1[B](init: B, f: (B, A) =&gt; B): B = ...
+
+  def myFoldLeft2[B](init: B)(f: (B, A) =&gt; B): B = ...
+}
+
+List(1, 2, 3).myFoldLeft2(0)(_ + _)
+List(1, 2, 3).myFoldLeft1(0, _ + _)
+// error: missing parameter type for expanded function
+//        ((x$1: , x$2: Int) =&gt; x$1.$plus(x$2))
+List(1, 2, 3).myFoldLeft1(0, (a: Int, x: Int) =&gt; a + x)
+List(1, 2, 3).myFoldLeft1[Int](0, _ + _)
+
+</code></pre>
+</code>
+<aside class="notes">
+<ul>
+<li>As beginner, implement all the functions</li>
+</ul>
+</aside>
+</section>
+<section>
+<pre><code>xs.foldRight(List.empty)(_ :: _)
+// res0: List[Any](1, 2, 3)
+
+def foo: List[Int] = xs.foldRight(List.empty)(_ :: _)
+    </code></pre>
+<span class="fragment" data-fragment-index="2">🤗</span>
+<aside class="notes">
+<ul>
+<li>Type bounds, scalac infers Nothing - Dotty chooses different bound.</li>
+<li>Unconstrained in this case =&gt; Any</li>
+<li>With expected type, you get the correct behaviour</li>
+</ul>
+</aside>
+</section>
+<section>
+<pre><code>trait Foo[A] { type B }
+
+def foo[A](t: A)
+          (implicit f: Foo[A], m: Monoid[f.B]): f.B = m.zero</code></pre>
+</code>
+</section>
+<section>
+<h2 id="a-note-on-contraviariance">A Note on Contraviariance</h2>
+<pre><code>trait Show[-T] {
+  def apply(t: T): String
+}</code></pre>
+</section>
+<section>
+<pre><code>trait Show[-T] {
+  def apply(t: T): String
+}
+
+class A
+class B extends A
+class C extends B
+
+implicit val showAny = new Show[Any] { def apply(any: Any) = &quot;showing Any&quot; }
+implicit val showA   = new Show[A]   { def apply(a: A)     = &quot;showing A&quot; }
+implicit val showB   = new Show[B]   { def apply(b: B)     = &quot;showing B&quot; }
+implicit val showC   = new Show[C]   { def apply(c: C)     = &quot;showing C&quot; }
+
+implicitly[Show[C]].apply(new C) // res: &quot;showing Any&quot;</code></pre>
+</section>
+<section>
+<pre><code>trait Show[-T] {
+  def apply(t: T): String
+}
+
+class A
+class B extends A
+class C extends B
+
+implicit val showAny: Show[Any] = new { def apply(any: Any) = &quot;showing Any&quot; }
+implicit val showA:   Show[A]   = new { def apply(a: A)     = &quot;showing A&quot; }
+implicit val showB:   Show[B]   = new { def apply(b: B)     = &quot;showing B&quot; }
+implicit val showC:   Show[C]   = new { def apply(c: C)     = &quot;showing C&quot; }
+
+implicitly[Show[C]].apply(new C) // res: &quot;showing C&quot;</code></pre>
+</section>
+<section>
+<h2 id="state-of-dotty">State of Dotty</h2>
+<ul>
+<li><h3 id="already-feels-very-stable">Already feels very stable</h3></li>
+<li><h3 id="x-releases">0.X-releases</h3></li>
+<li><h3 id="macro-system-coming-soon">Macro system coming soon™</h3></li>
+<li><h3 id="try-it-out">Try it out!</h3>
+<pre><code>$ sbt new lampepfl/dotty.g8
+
+$ brew install lampepfl/brew/dotty</code></pre></li>
+</ul>
+</section>
+<section>
+<h1 id="thank-you">Thank you!</h1>
+</section>
+</section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2"></script>
+
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: false,
+        progress: false,
+        slideNumber: 'c/t',
+        //center: false,
+        hash: true,
+        transition: 'none', // none/fade/slide/convex/concave/zoom
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [ { src: '/js/reveal.js/plugin/zoom-js/zoom.js', async: true }
+                      , { src: '/js/reveal.js/plugin/highlight/highlight.js', async: true }
+                      , { src: '/js/reveal.js/plugin/notes/notes.js', async: true }
+                      ]
+      });
+    </script>
+  </body>
+</html>
