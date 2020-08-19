@@ -46,6 +46,10 @@ buildRules = do
     route idRoute
     compile copyFileCompiler
 
+  match "assets/**/*" $ do
+    route idRoute
+    compile copyFileCompiler
+
   match "js/*" $ do
     route idRoute
     compile copyFileCompiler
@@ -76,7 +80,7 @@ buildRules = do
   create ["talks.html"] $ do
     route idRoute
     compile $ do
-      articles <- loadAll "talks/*"
+      articles <- loadAll "talks/*" <&> sortBy (compare `on` itemIdentifier) <&> reverse
       makeItem ""
         >>= loadAndApplyTemplate "templates/talks.html" (postCtx "Talks" articles)
         >>= loadAndApplyTemplate "templates/navbar.html" defaultContext

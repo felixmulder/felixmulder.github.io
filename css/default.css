@@ -144,6 +144,11 @@ hr {
   padding-left: 0;
 }
 
+.articles-container li {
+  margin-top: 3em;
+  margin-bottom: 3em;
+}
+
 .talk-title {
   font-size: 18px;
   border-bottom: 0.5px solid rgba(0, 0, 0, 1);

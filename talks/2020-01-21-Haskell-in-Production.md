@@ -16,7 +16,7 @@ Services at Klarna written in Haskell
 
 ---
 
-![](/img/klarna_jvm_history.png)
+![](/assets/talks/haskell-in-production-meetup/klarna_jvm_history.png)
 
 ---
 
@@ -83,11 +83,11 @@ Services at Klarna written in Haskell
 
 ---
 
-![](/img/why_isnt_fp_the_norm.png)
+![](/assets/talks/haskell-in-production-meetup/why_isnt_fp_the_norm.png)
 
 ---
 
-![](/img/you_are_but_a_child_profunctor.jpg)
+![](/assets/talks/haskell-in-production-meetup/you_are_but_a_child_profunctor.jpg)
 
 ---
 
@@ -389,7 +389,7 @@ getPet :: PetId -> Handler Pet
 ---
 
 #### Handler
-![](/img/handler_hackage.png){ width=40% }
+![](/assets/talks/haskell-in-production-meetup/handler_hackage.png){ width=40% }
 
 ---
 
