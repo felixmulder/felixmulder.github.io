@@ -1,0 +1,30 @@
+<div class="articles-container">
+  <h1>$title$</h1>
+  <ul>
+    $for(articles)$
+    <li>
+
+      <h1 class="talk-title">
+        $if(video_url)$
+        <a href="$video_url$">$title$</a>
+        $else$
+        $title$
+        $endif$
+      </h1>
+
+      $if(venue)$
+      <h2 class="talk-venue">$venue$</h2>
+      $endif$
+
+      $if(summary)$
+      <p>$summary$</p>
+      $endif$
+
+
+      <a href="$url$">Slides</a>
+      $date$
+      </div>
+    </li>
+    $endfor$
+  </ul>
+</div>

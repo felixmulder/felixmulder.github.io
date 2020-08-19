@@ -8,9 +8,9 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="https://revealjs.com/css/reset.css">
-    <link rel="stylesheet" href="https://revealjs.com/css/reveal.css">
-    <link rel="stylesheet" href="https://revealjs.com/css/theme/black.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.js/reset.css">
+    <link rel="stylesheet" href="/css/reveal.js/reveal.css">
+    <link rel="stylesheet" href="/css/reveal.js/theme/black.css">
     <link rel="stylesheet" href="/css/atom-one-dark.css">
 
     <!-- customization for slides -->
@@ -22,8 +22,8 @@
       link.rel = 'stylesheet';
       link.type = 'text/css';
       link.href = window.location.search.match( /print-pdf/gi )
-                ? 'https://revealjs.com/css/print/pdf.css'
-                : 'https://revealjs.com/css/print/paper.css';
+                ? '/css/reveal.js/print/pdf.css'
+                : '/css/reveal.js/print/paper.css';
       document.getElementsByTagName( 'head' )[0].appendChild( link );
     </script>
 
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <script src="https://revealjs.com/js/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2"></script>
 
     <script>
       // More info https://github.com/hakimel/reveal.js#configuration
@@ -50,9 +50,9 @@
         transition: 'none', // none/fade/slide/convex/concave/zoom
 
         // More info https://github.com/hakimel/reveal.js#dependencies
-        dependencies: [ { src: 'https://revealjs.com/plugin/zoom-js/zoom.js', async: true }
-                      , { src: 'https://revealjs.com/plugin/highlight/highlight.js', async: true }
-                      , { src: 'https://revealjs.com/plugin/notes/notes.js', async: true }
+        dependencies: [ { src: '/js/reveal.js/plugin/zoom-js/zoom.js', async: true }
+                      , { src: '/js/reveal.js/plugin/highlight/highlight.js', async: true }
+                      , { src: '/js/reveal.js/plugin/notes/notes.js', async: true }
                       ]
       });
     </script>

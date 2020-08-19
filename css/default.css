@@ -7,6 +7,10 @@
   src: url('/assets/iosevka-light.woff') format('woff');
 }
 
+a, a:active, a:focus {
+  outline: none;
+}
+
 .container {
   display: flex;
   width: 100%;
@@ -35,13 +39,45 @@
   padding: 20px;
 }
 
-.back-button {
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
+  padding: 1.74rem 0;
+  text-align: center;
+}
+
+.navbar h1 {
+  font-size: 1.7411rem;
+}
+
+.navbar nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  list-style-type: none;
+  list-style-position: inside;
+  margin: 0;
+}
+
+.navbar nav ul li {
+  margin-left: 3em;
+  margin-right: 0;
+}
+
+h1.back-button {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 14px;
+  font-family: 'Raleway', sans-serif !important;
+  font-weight: 100;
+  margin: 0;
+}
+
+.navbar a {
   color: #111;
   text-decoration: none;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font-family: 'Raleway', sans-serif;
 }
 
 .article-container,
@@ -56,7 +92,12 @@
 .article-container h2,
 .article-container h3,
 .article-container h4,
-.article-container h5
+.article-container h5,
+.articles-container h1,
+.articles-container h2,
+.articles-container h3,
+.articles-container h4,
+.articles-container h5
 {
   font-family: 'Lato', sans-serif;
 }
@@ -96,4 +137,19 @@ hr {
   background-color: rgba(0,0,0,0.1);
   height: 0.8px;
   border: none;
+}
+
+.articles-container ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.talk-title {
+  font-size: 18px;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 1);
+  padding-bottom: 14px;
+}
+
+.talk-venue {
+  font-size: 14px;
 }

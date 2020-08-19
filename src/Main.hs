@@ -38,7 +38,19 @@ buildRules = do
     route idRoute
     compile compressCssCompiler
 
+  match "css/**/*" $ do
+    route idRoute
+    compile compressCssCompiler
+
   match "assets/*" $ do
+    route idRoute
+    compile copyFileCompiler
+
+  match "js/*" $ do
+    route idRoute
+    compile copyFileCompiler
+
+  match "js/**/*" $ do
     route idRoute
     compile copyFileCompiler
 
@@ -53,6 +65,7 @@ buildRules = do
     route $ customRoute dateRoute
     compile $ pandocCompiler
       >>= loadAndApplyTemplate "templates/article.html" defaultContext
+      >>= loadAndApplyTemplate "templates/navbar.html" defaultContext
       >>= loadAndApplyTemplate "templates/root.html" defaultContext
       >>= relativizeUrls
 
@@ -65,7 +78,8 @@ buildRules = do
     compile $ do
       articles <- loadAll "talks/*"
       makeItem ""
-        >>= loadAndApplyTemplate "templates/writing.html" (postCtx "Talks" articles)
+        >>= loadAndApplyTemplate "templates/talks.html" (postCtx "Talks" articles)
+        >>= loadAndApplyTemplate "templates/navbar.html" defaultContext
         >>= loadAndApplyTemplate "templates/root.html" defaultContext
         >>= relativizeUrls
 
@@ -75,6 +89,7 @@ buildRules = do
       articles <- loadAll "writing/*" <&> sortBy (compare `on` itemIdentifier) <&> reverse
       makeItem ""
         >>= loadAndApplyTemplate "templates/writing.html" (postCtx "Writing" articles)
+        >>= loadAndApplyTemplate "templates/navbar.html" defaultContext
         >>= loadAndApplyTemplate "templates/root.html" defaultContext
         >>= relativizeUrls
 

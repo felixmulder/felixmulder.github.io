@@ -1,6 +1,8 @@
 ---
 title: Haskell in Production
 date: 2020-01-21
+venue: Funcprog Stockholm meetup
+summary: A walkthrough of how we write web APIs using Haskell at Klarna
 published: true
 ---
 
