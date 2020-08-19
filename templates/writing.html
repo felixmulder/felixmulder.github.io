@@ -3,8 +3,11 @@
   <ul>
     $for(articles)$
     <li>
-      <a href="$url$">$title$</a>
-      $date$
+      <h1 class="article-title"><a href="$url$">$title$</a><span class="article-date">- $date$</span></h1>
+
+      $if(summary)$
+      <p>$summary$</p>
+      $endif$
     </li>
     $endfor$
   </ul>

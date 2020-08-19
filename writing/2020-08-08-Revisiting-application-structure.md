@@ -2,6 +2,15 @@
 title: Revisiting application structure
 date: 2020-08-08
 published: true
+summary: >
+  After more than two years of writing production code using Haskell at Klarna,
+  we've learned a ton. Initially we leaned a lot on <code>ReaderT</code> but now
+  we've gone back to the drawing board of how we structure our applications.
+  </br></br>
+
+  In this article, we'll go through how we went from a <code>ReaderT</code>
+  based polymorphic approach to a MTL style approach that does not have the
+  dreaded <code>n^2</code> instances issue.
 ---
 
 # Revisiting application structure

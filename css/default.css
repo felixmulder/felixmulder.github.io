@@ -149,10 +149,22 @@ hr {
   margin-bottom: 3em;
 }
 
-.talk-title {
+.talk-title, .article-title {
   font-size: 18px;
   border-bottom: 0.5px solid rgba(0, 0, 0, 1);
   padding-bottom: 14px;
+}
+
+.article-title > a {
+  text-decoration: none;
+  color: #000;
+}
+
+.article-date {
+  font-size: 18px;
+  font-weight: 100;
+  font-family: 'Raleway', sans-serif;
+  margin-left: 5px;
 }
 
 .talk-venue {
