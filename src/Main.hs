@@ -68,20 +68,22 @@ buildRules = do
     route idRoute
     compile do
       articles <- loadAll "talks/*" <&> sortBy (compare `on` itemIdentifier) <&> reverse
+      let ctx = postCtx "FM - Talks" articles
       makeItem ""
-        >>= loadAndApplyTemplate "templates/talks.html" (postCtx "Talks" articles)
-        >>= loadAndApplyTemplate "templates/navbar.html" defaultContext
-        >>= loadAndApplyTemplate "templates/root.html" defaultContext
+        >>= loadAndApplyTemplate "templates/talks.html" ctx
+        >>= loadAndApplyTemplate "templates/navbar.html" ctx
+        >>= loadAndApplyTemplate "templates/root.html" ctx
         >>= relativizeUrls
 
   create ["writing.html"] do
     route idRoute
     compile do
       articles <- loadAll "writing/*" <&> sortBy (compare `on` itemIdentifier) <&> reverse
+      let ctx = postCtx "FM - Writing" articles
       makeItem ""
-        >>= loadAndApplyTemplate "templates/writing.html" (postCtx "Writing" articles)
-        >>= loadAndApplyTemplate "templates/navbar.html" defaultContext
-        >>= loadAndApplyTemplate "templates/root.html" defaultContext
+        >>= loadAndApplyTemplate "templates/writing.html" ctx
+        >>= loadAndApplyTemplate "templates/navbar.html" ctx
+        >>= loadAndApplyTemplate "templates/root.html" ctx
         >>= relativizeUrls
 
   match "index.html" do
