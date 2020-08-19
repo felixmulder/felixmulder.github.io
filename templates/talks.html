@@ -21,7 +21,11 @@
       $endif$
 
 
+      $if(slides)$
+      <a href="$slides$">Slides</a>
+      $else$
       <a href="$url$">Slides</a>
+      $endif$
       $date$
     </li>
     $endfor$

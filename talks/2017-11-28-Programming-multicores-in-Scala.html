@@ -1,0 +1,490 @@
+---
+title: Programming Multicores in Scala
+venue: Swedish Institute of Computer Science
+summary: >
+  Scala is a diverse language combining functional with object oriented
+  programming. This has given rise to multiple approaches to concurrency and
+  parallelism.
+
+  In this talk, I'll break down the different approaches as well as talking
+  about upcoming features in Scala 3 that will aid in building fast, scalable
+  and, above all correct, systems.
+published: true
+date: 2017-11-28
+---
+
+<section>
+    <h3>Programming Multicores in Scala</h3>
+    <h1>Past, Present, Future</h1>
+    <h3>Felix Mulder</p>
+</section>
+
+<section>
+    <img class="no-bg" src="/assets/talks/programming-multicores-in-scala/klarna.svg" width="250"/>
+</section>
+
+<section>
+    <img class="no-bg" src="/assets/talks/programming-multicores-in-scala/epfl.svg" width="250"/>
+
+    <aside class="notes">
+        <ul>
+            <li>Compiler engineer & release manager</li>
+            <li>Big picture</li>
+            <li>Pull in the same dir</li>
+            <li>Get us on to a release schedule</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <ul style="text-transform: uppercase; list-style-type:none">
+        <li>
+            <i class="fa fa-twitter"></i><i class="fa fa-github"></i> felixmulder
+        </li>
+        <li>
+            <i class="fa fa-home" style="opacity: 0"></i><i class="fa fa-home"></i> <a href="http://felixmulder.com"> felixmulder.com</a>
+        </li>
+
+    <aside class="notes">
+        I'm felixmulder on most social media, further contact info is available
+        on my website.
+    </aside>
+</section>
+
+<section>
+    <h1>So, why scala?</h1>
+</section>
+
+<section>
+    <h1 class="fragment">Types</h1>
+    <h1 class="fragment">Types</h1>
+    <h1 class="fragment">Types</h1>
+
+    <aside class="notes">
+        The three reasons!
+    </aside>
+</section>
+
+<section>
+    <pre><code class="scala">val x = 1<span class="fragment"> // x: Int</span>
+</code></pre>
+    <aside class="notes">
+        type-inference, statically typed
+    </aside>
+</section>
+
+<section>
+    <pre><code class="scala">def foo[A](a: A): a.type = a</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">trait Functor[F[_]] {
+  def map[A, B](fa: F[A])(f: A => B): F[B]
+}</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">implicit val ListFunctor = new Functor[List] {
+  def map[A, B](fa: List[A])(f: A => B): List[B] = fa.map(f)
+}
+
+def compose[F[_]: Functor, A, B, C](fa: F[A])(f: B => C, g: A => B) =
+  F.map(fa)(f compose g)</code></pre>
+
+    <aside class="notes">
+        <ul>
+            <li>With the notion of implicits</li>
+            <li>model type classes</li>
+            <li>ad-hoc polymorphism</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <h2>Make illegal state unrepresentable</h2>
+</section>
+
+<section>
+    <h2>Finite State Machine</h2>
+    <img class="no-bg" src="/assets/talks/programming-multicores-in-scala/on-off.png">
+
+</section>
+
+<section>
+    <pre><code class="scala">trait State {
+  type NewState <: State
+  type Transition
+}
+<span class="fragment">
+case class TurnOn()
+case class TurnOff()
+
+case object On {
+  type Transition = TurnOff
+  type NewState = Off
+}</span>
+<span class="fragment">
+case object Off {
+  type Transition = TurnOn
+  type NewState = On
+}
+</span>
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">case object Broken {
+  type Transition = Nothing
+  type NewState = Broken
+}</span>
+
+</span>
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">
+def trans[S <: State](event: S#Transition, target: S#NewState): S#NewState =
+  target
+<span class="fragment">
+def trans[S <: State](implicit ev: S#Transition =:= Nothing, t: ValueOf[S#NewState]): S#NewState =
+  t.value</span>
+</code></pre>
+</section>
+
+<section>
+    <h1>The big picture</h1>
+    <ul>
+        <li class="fragment">Correct</li>
+        <li class="fragment">Scalable</li>
+        <li class="fragment">Fast</li>
+    </ul>
+
+    <aside class="notes">
+        The big picture AT KLARNA.
+
+        Scalable =:= maintainable
+
+        Choice of language heavily impacts this, static types
+    </aside>
+</section>
+
+<section>
+    <ul>
+        <li>Actors</li>
+        <li>Futures and friends</li>
+        <li>Distributed programming models</li>
+    </ul>
+</section>
+
+<section>
+    <h1>Actors</h1>
+    <pre><code class="scala">class MyActor extends Actor {
+  def receive = {
+    case "ping" => sender ! "pong"
+  }
+}
+</code></pre>
+    <aside class="notes">
+    </aside>
+</section>
+
+<section>
+    <h1>Actors</h1>
+    <h2>Pros</h2>
+    <ul>
+        <li>Cheap</li>
+        <li>Easy to bootstrap</li>
+        <li>Akka</li>
+    </ul>
+    <aside class="notes">
+        Receive function is synchronous
+
+        Akka provides excellent tooling, there's advanced monitoring, lightbend
+        etc
+    </aside>
+</section>
+
+<section>
+    <h1>Actors</h1>
+    <h2>Cons?</h2>
+
+    <h1 class="fragment" style="color: red;">Untyped 😰</h1>
+</section>
+
+<section>
+    <pre><code class="scala">
+case class StartPong(ref: ActorRef)
+
+class Pinger extends Actor {
+  def receive = {
+    case StartPong(ref) => ref ! "ping"
+    case "pong"         => sender ! "ping"
+  }
+}
+
+class Ponger extends Actor {
+  def receive = {
+    case "ping" => sender ! Expletive.random
+  }
+}
+</code></pre>
+</section>
+
+<section>
+<pre>
+[<span style="color: red;">error</span>] scala.MatchError: Expletive(@#!$) (of class Expletive)
+  ... 36 elided
+</pre>
+<div class="fragment">😡</div>
+</section>
+
+<section>
+    <pre><code class="scala">def receive: PartialFunction[Any, Unit]</code></pre>
+    <h1 class="fragment">🤦‍♂️</h1>
+</section>
+
+<section>
+    <h1>Can we remedy this?</h1>
+</section>
+
+<section>
+    <pre><code class="scala">
+case class StartPong(ref: ActorRef)
+
+
+class Pinger extends Actor {
+  def receive = {
+    case StartPong(ref) => ref ! "ping"
+    case "pong"         => sender ! "ping"
+  }
+}
+                                                                   
+class Ponger extends Actor {
+  def receive = {
+    case "ping" => sender ! Expletive.random
+  }
+}
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">
+case class Pong(ref: TypedActorRef[Ping])
+case class Ping(ref: TypedActorRef[Pong])
+
+class Pinger extends TypedActor[Pong] {
+  def receive = {
+    case Pong(ref) => sender ! Ping(self)
+  }
+}
+
+class Ponger extends TypedActor[Ping] {
+  def receive = {
+    case Ping(ref) => sender ! Expletive.random // still compiles 😰
+  }
+}
+</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">
+case class Pong(ref: TypedActorRef[Ping])
+case class Ping(ref: TypedActorRef[Pong])
+
+class Pinger extends TypedActor[Pong] {
+  def receive = {
+    case Pong(ref) => ref ! Ping(self)
+  }
+}
+
+class Ponger extends TypedActor[Ping] {
+  def receive = {
+    case Ping(ref) => ref ! Expletive.random // doesn't compile! 😬 
+  }
+}
+</code></pre>
+</section>
+
+<section>
+    <h1>akka-typed</h1>
+    <aside class="notes">
+        <ul>
+            <li>Still exeprimental</li>
+            <li>Mixing typed and untyped?</li>
+            <li>Runtime is still inherently untyped - has to match typed actor messages to their actors somehow</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <pre><code class="scala">Future[T]</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">def map[B](f: A => B)(implicit EC: ExecutionContext): Future[B]
+
+<span class="fragment">def flatMap[B](f: A => Future[B])(implicit EC: ExecutionContext): Future[B]</span>
+  </code></pre>
+</section>
+
+<section>
+    <div style="font-size: 6rem;">
+        <pre><code class="scala">IO[T]</code></pre>
+    </div>
+    <div class="fragment">
+        Lazy initialization, simply describes a computation
+    </div>
+    <div class="fragment">
+        Type class instances: Effect <: Monad
+    </div>
+</section>
+
+<section>
+    <h2>fp == category theory?</h2>
+    <aside class="notes">
+        <p>
+            We find ourselves drifting more and more towards the functional
+            style of programming
+        </p>
+        <p>
+            So what is functional programming to us?
+        </p>
+    </aside>
+</section>
+
+<section>
+    <h2>Referential transparency</h2>
+    <h2>&</h2>
+    <h2>Controlled effects</h2>
+    <aside class="notes">
+        <p>
+            Essentially, categories are good. They provide a meta meta theory
+            to the code being built. But the main use-case for companies
+            building code using categories like - Monad, Free and friends is to
+            control effects.
+        </p>
+        <p>
+            Monads don't compose
+        </p>
+    </aside>
+</section>
+
+<section>
+    <blockquote>"Effects are good, side-effects are bugs"<br>- <a href="https://www.youtube.com/watch?v=po3wmq4S15A">Rob Norris</a></blockquote>
+</section>
+
+<section>
+    <h1>Scala 3</h1>
+    <h2>The age of DOT</h2>
+</section>
+
+<section>
+    <h2>Parallelism/Concurrency as Libraries</h2>
+    <ul>
+        <li>akka</li>
+        <li><a href="https://github.com/heathermiller/f-p">f-p</a></li>
+        <li>scala-async</li>
+        <li>cats, scalaz</li>
+    </ul>
+</section>
+
+<section>
+    <h1>Scala 3</h1>
+    <h2>The age of DOT</h2>
+</section>
+
+<section>
+    <ul>
+        <li>Formalization: Dependent Object Types</li>
+        <li>New compiler, focus is on speed and simplicity</li>
+        <li>User-friendliness</li>
+        <li class="fragment">Effect system</li>
+    </ul>
+</section>
+
+<section>
+    <h1>Effect System</h1>
+    <ul>
+        <li>Implicits</li>
+        <li>Phantom Types</li>
+    </ul>
+</section>
+
+<section>
+    <pre><code class="scala">def setNull[A: SetNull](a: A): A | Null = { a = null; a }
+
+<span class="fragment">def foo(a: A) = println { setNull(a) }</span>
+
+<span class="fragment">def bar[A: SetNull](a: A) = {
+  val a0 = setNull(a)
+  a0.x // does not compile!
+}</span>
+
+<span class="fragment">type UnsafeNull[A] =
+  SetNull[A] & CanThrow[NullPointerException]
+
+def qux[A: UnsafeNull](a: A) = {
+  val a0 = setNull(a)
+  a0.x
+}</span>
+
+</code></pre>
+</section>
+
+<section>
+    <h1>LaCasa</h1>
+    <h2>Lightweight affine types and object capabilities in Scala</h2>
+
+    <aside class="notes">
+        <ul>
+            <li>Controlled mutation</li>
+            <li>Borrowing system similar to Rust</li>
+            <li>Actor-like messaging</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <h1>F-P</h1>
+    <h2>Function Passing</h2>
+    <aside class="notes">
+        <ul>
+            <li>Safe abstraction over SPARK</li>
+            <li>Safe serialization without capture of this - next slide</li>
+        </ul>
+    </aside>
+</section>
+
+<section>
+    <pre><code class="scala">class SparkJob {
+  val theAnswer = 42
+
+  def send = sendToOtherNode {
+    heavyComputation(theAnswer)     
+  }
+}</code></pre>
+</section>
+
+<section>
+    <pre><code class="scala">class SparkJob {
+  val theAnswer = 42
+
+  def send = sendToOtherNode {
+    heavyComputation(this.theAnswer)
+  }
+}</code></pre>
+</section>
+
+<section>
+    <h1>Conclusion</h1>
+    <ul>
+        <li class="fragment">Types allow us to write - correct, scalable and fast code</li>
+        <li class="fragment">Monads are cool</li>
+        <li class="fragment">Maybe an effect system is even cooler?</li>
+    </ul>
+</section>
+
+<section>
+    <h1>Thank you!</h1>
+</section>

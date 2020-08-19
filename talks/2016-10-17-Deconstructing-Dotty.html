@@ -1,0 +1,632 @@
+---
+title: Deconstructing Dotty
+venue: Guest Lecture at Lund University
+date: 2016-10-17
+published: true
+summary: >
+  Dotty is a next generation compiler aimed at trying new language concepts and
+  compiler technologies for Scala. In this talk I aim to explore the future of
+  Scala from a compiler engineer's perspective. I will explore the compiler
+  pipeline, type inferencing, library rewrite rules and compiler optimizations as
+  well as giving an overall view of the differences between Scala and the Dotty
+  version of Scala.
+---
+
+<section>
+    <h1>DECONSTRUCTING DOTTY</h1>
+    <h4>A next generation Scala compiler</h4>
+    <p class="white">
+        Felix Mulder
+    </p>
+    <p>
+        <img id="epfl-logo" src="/assets/talks/deconstructing-dotty/Logo_EPFL-white.svg">
+    </p>
+</section>
+
+<section>
+    <h3>ABOUT ME</h3>
+    <ul>
+        <li><a href="https://github.com/felixmulder">github.com/felixmulder</a></li>
+        <li class="fragment" data-fragment-index="0">
+            Graduated last winter from LTH
+        </li>
+        <li class="fragment" data-fragment-index="1">
+            Built the new 2.12.x Scaladoc
+        </li>
+        <li class="fragment" data-fragment-index="2">
+            Research fellow EPFL, working on Dottydoc at LAMP
+        </li>
+        <li class="fragment" data-fragment-index="3">
+            Compiler Engineer working on Dotty with Martin Odersky at LAMP
+        </li>
+    </ul>
+</section>
+
+<section>
+    <img class="border" src="/assets/talks/deconstructing-dotty/contribs.png">
+    /end of bragging
+</section>
+
+<section>
+    <h2>Scala</h2>
+    Who uses Scala?
+</section>
+
+<section>
+    <h2>Camp I</h2>
+    <p>"Scala is a better Java, type inference!"</p>
+    <img class="no-shadow" src="/assets/talks/deconstructing-dotty/corporate.png">
+</section>
+
+<section>
+    <h2>Camp F</h2>
+    <p>"Liek OMG, a monad's just a monoid in the category of endofunctors"
+    <img class="no-shadow" src="/assets/talks/deconstructing-dotty/hipster.jpg">
+</section>
+
+<section>
+    <blockquote>
+        &#8220;There is not agreement on what is "best", so all we
+        can really do is try to find a local optimum. But finding
+        that optimum is what drives me&#8221;
+    </blockquote>
+    <img class="no-shadow" src="/assets/talks/deconstructing-dotty/martin.png">
+</section>
+
+<section>
+    <h2>WHAT IS DOTTY?</h2>
+    <ul>
+        <li>A compiler to try out new language and compiler concepts</li>
+        <li>Developed at LAMP EPFL</li>
+        <li>Nearing beta readiness</li>
+    </ul>
+</section>
+
+<section>
+    <h2>DOTTY'S FOCUS</h2>
+    <ul>
+        <li>A proven sound foundation - DOT</li>
+        <li>Focus on simplification</li>
+        <li>Compilation speed</li>
+        <li>Library defined optimizations</li>
+        <li>Developer usability</li>
+    </ul>
+</section>
+
+<section>
+    <h2>KEY DIFFERENCES</h2>
+    <ul>
+        <li>No more procedure syntax</li>
+        <li>Union Types</li>
+        <li>Intersection Types</li>
+        <li>Trait Parameters</li>
+        <li>TASTY</li>
+    </ul>
+</section>
+
+<section>
+    <h3>TASTY</h3>
+    <ul>
+        <li>Pickling format</li>
+        <li>Typed Trees</li>
+        <li>Efficiently stored in bytecode</li>
+        <li>Interop between binary incompatible compilers</li>
+    </ul>
+</section>
+
+<section>
+    <h3>Procedure Syntax</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def foo {}
+// error!
+
+def foo = {}
+// res: Unit</code></pre>
+    <span class="fragment">But there's a flag for that: <code>-language:Scala2</code></span>
+</section>
+
+<section>
+    <h3>Intersection and Union Types</h3>
+    <ul>
+        <li>
+            <code>A & B</code> is the <i>greatest lower bound</i>: a supertype
+            of all subtypes of both A and B
+        </li>
+        <li>
+            <code>A | B</code> is the <i>least upper bound</i>: a subtype
+            of all supertypes of both A and B
+        </li>
+    </ul>
+</section>
+
+<!-- No longer compiles :(
+<section>
+    <h3>Union Types in arguments - Scala.js</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">
+trait A {
+def name: String = "A"
+}
+
+trait B {
+def name: String = "B"
+}
+
+def foo(x: A | B): String = x.name
+
+// reduced boilerplate! `foo` is equivalent to:
+def foo$1(x: AnyRef): String =
+if (x.isInstanceOf[A]) x.asInstanceOf[A].name
+else x.asInstanceOf[B].name
+    </code></pre>
+</section>
+-->
+
+<section>
+    <h3>Union Types for Enums</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">case object Monday
+case object Tuesday
+case object Wednesday
+case object Thursday
+case object Friday
+case object Saturday
+case object Sunday
+
+type Weekend = Saturday.type | Sunday.type
+type Weekday = Monday.type | Tuesday.type...
+type AnyDay  = Weekday | Weekend</code></pre>
+</section>
+
+<section>
+    <h3>Patternmatch exhaustivity checks</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>(Saturday: Weekend) match {
+case Sunday => // incomplete!
+}</code></pre>
+</section>
+
+<section>
+    <h3>Intersection Types are the new `with`</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait A {
+def foo: Int
+}
+trait B {
+def bar: Int
+}
+
+def baz(ab: A & B) = ab.foo + ab.bar</code></pre>
+</section>
+
+<section>
+    <h3>Trait Parameters instead of Early Initializers</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super {
+def x: String
+println(x)
+}
+class Foo extends Super {
+val x = "hello"
+}
+
+new Foo
+// prints: null</code></pre>
+    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super(x: String) {
+println(x)
+}
+class Foo extends Super("hello")
+
+new Foo
+// prints: "hello"</code></pre>
+</section>
+
+<section>
+    <h3>So now the fun stuff - Compiler internals</h3>
+</section>
+
+<section>
+    <h3>javac pipeline</h3>
+    <ol>
+        <li>Parse</li>
+        <li>Enter</li>
+        <li>Annotate</li>
+        <li>Attribue</li>
+        <li>Flow</li>
+        <li>Desugar</li>
+        <li>Generate</li>
+    </ol>
+</section>
+
+<section>
+    <h3>dotty pipeline</h3>
+    <a target="_blank" href="https://github.com/lampepfl/dotty/blob/master/src/dotty/tools/dotc/Compiler.scala">source code</a>
+</section>
+
+<section>
+    <h3>Regular Phases</h3>
+    <div class="node-container" style="width:216px">
+        <div class="level">
+            <div class="empty-node"></div>
+            <div class="node">
+                <div data-fragment-index="3" class="color fragment" style="background-color:red;"></div>
+                <div data-fragment-index="6" class="color fragment" style="background-color:blue;"></div>
+                <div data-fragment-index="9" class="color fragment" style="background-color:green;"></div>
+                <svg id="dl" width="50" height="60">
+                    <defs>
+                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                        </marker>
+                    </defs>
+                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                </svg>
+                <svg id="dr" width="50" height="60">
+                    <defs>
+                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                        </marker>
+                    </defs>
+                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                </svg>
+            </div>
+            <div class="empty-node"></div>
+        </div>
+        <div class="level">
+            <div class="node">
+                <div data-fragment-index="1" class="color fragment" style="background-color:red;"></div>
+                <div data-fragment-index="4" class="color fragment" style="background-color:blue;"></div>
+                <div data-fragment-index="7" class="color fragment" style="background-color:green;"></div>
+            </div>
+            <div class="empty-node"></div>
+            <div class="node">
+                <div data-fragment-index="2" class="color fragment" style="background-color:red;"></div>
+                <div data-fragment-index="5" class="color fragment" style="background-color:blue;"></div>
+                <div data-fragment-index="8" class="color fragment" style="background-color:green;"></div>
+            </div>
+        </div>
+        <div class="level desc">
+            <div class="node" style="background-color:red;margin-left:16px;">
+                <span class="title">Phase 1</span>
+            </div>
+            <div class="node" style="background-color: blue;">
+                <span class="title">Phase 2</span>
+            </div>
+            <div class="node" style="background-color: green;">
+                <span class="title">Phase 3</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <h3>Fused Phases</h3>
+    <div class="node-container" style="width:216px">
+        <div class="level">
+            <div class="empty-node"></div>
+            <div class="node">
+                <div data-fragment-index="7" class="color fragment" style="background-color:red;"></div>
+                <div data-fragment-index="8" class="color fragment" style="background-color:blue;"></div>
+                <div data-fragment-index="9" class="color fragment" style="background-color:green;"></div>
+                <svg id="dl" width="50" height="60">
+                    <defs>
+                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                        </marker>
+                    </defs>
+                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                </svg>
+                <svg id="dr" width="50" height="60">
+                    <defs>
+                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                        </marker>
+                    </defs>
+                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                </svg>
+            </div>
+            <div class="empty-node"></div>
+        </div>
+        <div class="level">
+            <div class="node">
+                <div data-fragment-index="1" class="color fragment" style="background-color:red;"></div>
+                <div data-fragment-index="2" class="color fragment" style="background-color:blue;"></div>
+                <div data-fragment-index="3" class="color fragment" style="background-color:green;"></div>
+            </div>
+            <div class="empty-node"></div>
+            <div class="node">
+                <div data-fragment-index="4" class="color fragment" style="background-color:red;"></div>
+                <div data-fragment-index="5" class="color fragment" style="background-color:blue;"></div>
+                <div data-fragment-index="6" class="color fragment" style="background-color:green;"></div>
+            </div>
+        </div>
+        <div class="level desc">
+            <div class="node" style="background-color:red;margin-left:16px;">
+                <span class="title">Phase 1</span>
+            </div>
+            <div class="node" style="background-color: blue;">
+                <span class="title">Phase 2</span>
+            </div>
+            <div class="node" style="background-color: green;">
+                <span class="title">Phase 3</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <h2>Let's create a MiniPhase!</h2>
+    <ul>
+        <li>A simplistic static linter</li>
+        <li>This linter really cares about division by zero</li>
+    </ul>
+    <div class="fragment">
+    <h4 style="margin-top:1em">So what do we need to do?</h4>
+        <ol>
+            <li>Create a MiniPhase</li>
+            <li>Add the Phase to Compiler</li>
+            <li>Override the appropriate node transforms</li>
+        </ol>
+    </div>
+</section>
+
+<section>
+    <h1>Coding time!</h1>
+</section>
+
+<section>
+    <h3>So why aren't we putting things like this in Dotty?</h3>
+    <ul>
+        <li>Principle of least power</li>
+        <li>Domain specific optimizations</li>
+        <li>...maybe we have something more fitting?</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Dotty-Linker to the rescue!</h2>
+    <ul>
+        <li>Whole program optimization</li>
+        <li>Call graph</li>
+        <li>User defined rewrite rules</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Reimplementing our linter</h2>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>@rewrites object rules {
+def customFancyWarning(x: Int | Double | ... | Numeric[_]) =
+Warn(pattern = x / 0,
+msg = "division by zero, you fool!")
+}</code></pre>
+</section>
+
+<section>
+    <h2>Why do we need an optimizer?</h2>
+    <h5>Scala provides:</h5>
+    <ul>
+        <li>higher-order types</li>
+        <li>generic methods</li>
+        <li>generic classes</li>
+        <li>multiple inheritance</li>
+        <li>pattern matching</li>
+        <li>lazy evaluation</li>
+        <li class="fragment highlight-green">garbage collection</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Example</h2>
+    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">public double average(int[] data) {
+int sum = 0;
+for(int i = 0; i < data.length; i++) {
+sum += data[i];
+}
+return sum * 1.0d / data.length;
+}</code></pre>
+    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def average(xs: Array[Int]) =
+xs.reduce(_ + _) * 1.0 / xs.size</code></pre>
+    <table class="fragment">
+        <thead>
+            <td>Java</td>
+            <td>Scala</td>
+        </thead>
+        <tbody>
+            <tr>
+                <td>45 msec</td>
+                <td>872 msec</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section>
+    <h2>Java</h2>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">public double average(int[] data) {
+int sum = 0;
+for(int i = 0; i < data.length; i++) {
+sum += data[i];
+}
+return sum * 1.0d / data.length;
+}</code></pre>
+    <ul>
+        <li>Range check</li>
+        <li>Addition</li>
+        <li>Index increment</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Scala</h2>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def average(xs: Array[Int]) =
+xs.reduce(_ + _) * 1.0 / x.size</code></pre>
+</section>
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def reduce(op: Function2[Obj, Obj, Obj]): Obj = {
+var first = true
+var acc: Obj = null
+this.foreach { e =>
+if (first) {
+acc = e
+first = false
+} else acc = op.apply(acc, e)
+}
+acc
+}
+
+def foreach(f: Funtion1[Obj, Obj]) {
+var i = 0
+val len = length
+while (i < len) {
+f.apply(this(i))
+i += 1
+}
+}</code></pre>
+</section>
+
+<section>
+    <h3>Compiler needs to lower generics</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>def plus[T](a: T, b: T)(implicit num: Numeric[T]): T =
+num.plus(a, b)</code></pre>
+
+    <div class="fragment">
+        <h4>After getting rid of generics:</h4>
+        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>def plus(a: Object, b: Object, num: Numeric): Object =
+num.plus(a, b)</code></pre>
+    </div>
+    <div class="fragment">
+        <h4>What does:</h4>
+        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>plus(1, 1)</code></pre>
+        <h4>look like?</h4>
+    </div>
+    <div class="fragment">
+        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>unbox(plus(box(1), box(1), intNum))</code></pre>
+    </div>
+</section>
+
+<section>
+    <h3>Specialize all the things!</h3>
+    <div class="fragment">
+        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>trait T[A1, A2, ..., An]</code></pre>
+    how many combinations?
+    </div>
+    <div class="fragment"><b>10 ^ n</b></div>
+    <div class="fragment">
+        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>trait T[A1, A2, ..., An] {
+def foo[B1, B2, ..., Bm] = ???
+}</code></pre>
+    and now?
+    </div>
+    <div class="fragment"><b>10 ^ (n + m)</b></div>
+</section>
+
+<section>
+    <h3>Existing solutions for Scala 2</h3>
+    <ul>
+        <li><code>@specialized</code></li>
+        <li>Miniboxing</li>
+    </ul>
+</section>
+
+<section>
+    <h3>Specialization</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>def foo[@specialized A](a: A) = ???</code></pre>
+    Creates one version for each of Scala's 9 primitives:<br>
+    <code>int</code>, <code>long</code>, <code>short</code>,
+    <code>byte</code>, <code>char</code>, <code>float</code>,
+    <code>double</code>, <code>boolean</code>,
+    <code>"void"</code>
+
+    <br><br>+ 1 for reference types
+    <br> == 10 versions
+</section>
+
+<section>
+    <h4>Specialization</h4>
+    <ul>
+        <li>Mark types using <code>@specialized</code></li>
+        <li>Can specify for which types e.g:<br><code>@specialized(Int)</code></li>
+        <li>10^n</li>
+        <li>No inheritance</li>
+    </ul>
+
+    <h4>Miniboxing</h4>
+    <ul>
+        <li>Reduces the factor to: 3^n</li>
+        <li>Handles inheritance</li>
+    </ul>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>trait Function3[-T1, -T2, -T3, +R]</code></pre>
+    <h3>Both: how many specializations are needed?</h3>
+    <ul class="fragment">
+        <li>Specialization: 10000 classes</li>
+        <li>Miniboxing: 81 classes</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Are they asking the right question though?</h2>
+</section>
+
+<section>
+    <h2>Dotty Linker's approach</h2>
+    Don't ask the user what to specialize
+
+    <div class="fragment">- specialize on what's actually being used.</div>
+</section>
+
+<section>
+    <h2>Auto-Specialization in Dotty Linker</h2>
+    <ul>
+        <li>Takes your program <u>&amp; libraries</u>, analyzes how you use them</li>
+        <li>Sees what instantiations are needed</li>
+        <li>Specializes them</li>
+        <li>No need to annotate types</li>
+    </ul>
+</section>
+
+<section>
+    Types and terms are treated the same for specialization:
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>def foo[T](x: Seq[T], id: Int) = x(id)</code></pre>
+    <ul>
+        <li>Type specialization removes boxing</li>
+        <li>Term specialization removes <span class="fragment">virtual dispatch</span></li>
+    </ul>
+</section>
+
+<section>
+    <h2>Status</h2>
+    <ul>
+        <li>
+            Dotty
+            <ul>
+                <li><a href="http://github.com/lampepfl/dotty">http://github.com/lampepfl/dotty</a></li>
+                <li>Example projects working, libraries are being ported</li>
+                <li>User experience: nearing beta</li>
+            </ul>
+        </li>
+        <li>
+            Dotty Linker
+            <ul>
+                <li><a href="http://github.com/dotty-linker/dotty">http://github.com/dotty-linker/dotty</a></li>
+                <li>Rewrite rules are being tested using property based testing</li>
+                <li>Features being ported to Dotty</li>
+                <li>User experience: alpha</li>
+            </ul>
+        </li>
+    </ul>
+</section>
+
+<section>
+    <h2>Developer Usability</h2>
+</section>
+
+<section>
+    <h1>Thank you!</h1>
+</section>

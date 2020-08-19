@@ -1,0 +1,816 @@
+---
+title: Thoughts on Scala 3
+date: 2017-02-07
+published: true
+summary: >
+  Dotty is a next generation compiler aimed at trying new language concepts and
+  compiler technologies for Scala. In this talk I aim to explore the future of
+  Scala from a compiler engineer's perspective. I will explore the compiler
+  pipeline, type inferencing, library rewrite rules and compiler optimizations as
+  well as giving an overall view of the differences between Scala and the Dotty
+  version of Scala.
+---
+<section>
+    <h1>DECONSTRUCTING DOTTY</h1>
+    <h4>A NEXT GENERATION SCALA COMPILER</h4>
+    <p class="white">Felix Mulder</p>
+    <p><img id="epfl-logo" src="/assets/talks/thoughts-on-scala-3/Logo_EPFL-white.svg"></p>
+</section>
+
+<section>
+    <h1>RECONSTRUCTING SCALA</h1>
+    <h4>DOTTY: THE TIME TRAVELLING SUPER COMPILER</h4>
+    <p class="white">Felix Mulder</p>
+    <p><img id="epfl-logo" src="/assets/talks/thoughts-on-scala-3/Logo_EPFL-white.svg"></p>
+</section>
+
+<section>
+    <h1>THOUGHTS ON SCALA 3</h1>
+    <h4>HOW DOTTY SHOULD RESHAPE DEV EXPERIENCE</h4>
+    <p class="white">Felix Mulder</p>
+    <p><img id="epfl-logo" src="/assets/talks/thoughts-on-scala-3/Logo_EPFL-white.svg"></p>
+</section>
+
+<section>
+    Slides on: <a href="http://felixmulder.com">felixmulder.com</a>
+</section>
+
+<section>
+    <h3>ABOUT ME</h3>
+    <ul>
+        <li><a href="https://twitter.com/felixmulder">@felixmulder</a></li>
+        <li><a href="https://github.com/felixmulder">github.com/felixmulder</a></li>
+        <li>
+            Built the 2.12 Scaladoc
+        </li>
+        <li>
+            Research fellow LAMP EPFL
+        </li>
+        <li>
+            Dotty Compiler Engineer
+        </li>
+    </ul>
+</section>
+
+<section>
+    <img class="border" src="/assets/talks/thoughts-on-scala-3/contribs.png">
+    &lt;/bragging&gt;
+</section>
+
+<section>
+    <h1>Who in here knows Scala?</h1>
+</section>
+
+<section>
+    <h1>Who uses it professionally?</h1>
+</section>
+
+<section>
+    <h1>ALL (GOOD) STORIES HAVE A BEGINNING</h1>
+</section>
+
+<section>
+    <img class="border" src="/assets/talks/thoughts-on-scala-3/urcle.gif">
+</section>
+
+<section>
+    <img class="border" src="/assets/talks/thoughts-on-scala-3/awwyiss.gif">
+</section>
+
+<section>
+    <ul>
+        <li>Beautiful syntax</li>
+        <li>Less boilerplate</li>
+        <li>FP without the FUD</li>
+        <li class="fragment" style="color: yellow;">but then again...</li>
+    </ul>
+</section>
+
+<section>
+    <img class="border" src="/assets/talks/thoughts-on-scala-3/power.gif">
+</section>
+
+<section>
+    <h1>&lt;SURPRISES&gt;</h1>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super {
+  def x: String
+  println(s"initialized with: $x")
+}
+
+class Tester extends Super {
+  val x = "wat"
+}
+</code></pre>
+    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">"initializd with: null"
+</code></pre>
+</section>
+
+<section>
+    <h2>DON'T WORRY SCALA, I STILL LOVE YOU</h2>
+    <h2>WE CAN WORK AROUND THIS</h2>
+</section>
+
+<section>
+    <h2>Newbie "Solutions"</h2>
+    <ul>
+        <li>Compromised Immutability</li>
+        <li>Lazification hell</li>
+        <li>Refactor, maybe dump the trait</li>
+    </ul>
+</section>
+
+<section>
+    <img class="border" src="/assets/talks/thoughts-on-scala-3/regret.gif">
+</section>
+
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">public interface Super {
+  default public void $init$() {
+    println("initialized with: " + x());
+  }
+
+  public String x();
+  }
+
+public class Tester implements Super {
+  private final String x;
+  public Tester() {
+    Super.super.$init$();
+    x = "wat";
+  }
+  public String x() { return this.x; }
+}
+</code></pre>
+</section>
+
+<section>
+    <h1>TYPE INFERENCE</h1>
+</section>
+
+<section>
+    <h2>TYPE INFERENCE</h2>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def merp[A,B](a: A, f: A => B): B = f(a)
+
+merp(1, x => x * 2) // error: missing parameter type
+</code></pre>
+</section>
+
+<section>
+    <h2>TYPE INFERENCE</h2>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def merp[A,B](a: A)(f: A => B): B = f(a)
+
+merp(1)(x => x * 2) // 2
+</code></pre>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
+
+  def foldLeft1[B](z: B, f: (B, A) => B) = ???
+  foldLeft1(List.empty, (b, a) => b)           // 1
+  foldLeft1(List.empty, (b, a) => a :: b)      // 2
+
+
+  def foldLeft2[B](z: B)(f: (B, A) => B) = ???
+  foldLeft2(List.empty) { (b, a) => b }        // 3
+  foldLeft2(List.empty) { (b, a) => a :: b }   // 4
+
+}</code></pre>
+scalac compiles what?
+</section>
+
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
+
+  def foldLeft1[B](z: B, f: (B, A) => B) = ???
+  foldLeft1(List.empty, (b, a) => b)           // 1
+  foldLeft1(List.empty, (b, a) => a :: b)      // 2
+
+
+  def foldLeft2[B](z: B)(f: (B, A) => B) = ???
+  <mark>foldLeft2(List.empty) { (b, a) => b }</mark>        // 3
+  foldLeft2(List.empty) { (b, a) => a :: b }   // 4
+
+}</code></pre>
+scalac compiles what?
+</section>
+
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
+
+  def foldLeft1[B](z: B, f: (B, A) => B) = ???
+  foldLeft1(List.empty, (b, a) => b)           // 1
+  foldLeft1(List.empty, (b, a) => a :: b)      // 2
+
+
+  def foldLeft2[B](z: B)(f: (B, A) => B) = ???
+  foldLeft2(List.empty) { (b, a) => b }        // 3
+  foldLeft2(List.empty) { (b, a) => a :: b }   // 4
+
+}</code></pre>
+Dotty compiles what?
+</section>
+
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
+
+  def foldLeft1[B](z: B, f: (B, A) => B) = ???
+  <mark>foldLeft1(List.empty, (b, a) => b)</mark>           // 1
+  <mark>foldLeft1(List.empty, (b, a) => a :: b)</mark>      // 2
+
+
+  def foldLeft2[B](z: B)(f: (B, A) => B) = ???
+  <mark>foldLeft2(List.empty) { (b, a) => b }</mark>        // 3
+  <mark>foldLeft2(List.empty) { (b, a) => a :: b }</mark>   // 4
+
+}</code></pre>
+Dotty compiles.
+</section>
+
+<section>
+    <h1>INSTANTIATE AS LATE AS POSSIBLE</h1>
+</section>
+
+<section>
+    <h3>BUT NOT TOO LATE</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ListOf[+A] {
+
+  def foldLeft1[B](z: B, f: (B, A) => B) = ???
+  foldLeft1(List.empty, (b, a) => b)           // 1
+  foldLeft1(List.empty, (b, a) => a :: b)      // 2
+
+
+  def foldLeft2[B](z: B)(f: (B, A) => B) = ???
+  foldLeft2(List.empty) { (b, a) => b }        // 3
+  foldLeft2(List.empty) { (b, a) => a :: b }   // 4
+
+}</code></pre>
+</section>
+
+<section>
+    <h1>&lt;/SURPRISES&gt;</h1>
+</section>
+
+<section>
+    <!-- show of hands, compile times bother you -->
+    <h1>SLOW COMPILE TIMES</h1>
+</section>
+
+<section>
+    <h5>Scala provides:</h5>
+    <ul>
+        <li>higher-order types</li>
+        <li>generic methods</li>
+        <li>generic classes</li>
+        <li>multiple inheritance</li>
+        <li>pattern matching</li>
+        <li>lazy evaluation</li>
+        <li class="fragment highlight-green">garbage collection</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Compilers crash course</h2>
+    <ul>
+        <li>Tokenize Source</li>
+        <li>Build Trees (AST)</li>
+        <li>Typecheck</li>
+        <li>Simplify</li>
+        <li>Bytecode!</li>
+    </ul>
+</section>
+
+<section>
+    <pre style="width: 5em;"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">1 + 2</pre></code>
+    <pre class="fragment" style="width: 6.25em;"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">  (+)
+  / \
+(1) (2)</pre></code>
+    <pre class="fragment" style="width: 27em"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">Apply(Select(Lit(1), $plus), List(Lit(2)))</pre></code>
+</section>
+
+<section>
+    <div class="node-container" style="width:216px">
+        <div class="level">
+            <div class="empty-node"></div>
+            <div class="node">
+                <div data-fragment-index="3" class="color fragment" style="background-color:#c73434;"></div>
+                <div data-fragment-index="6" class="color fragment" style="background-color:#265fca;"></div>
+                <div data-fragment-index="9" class="color fragment" style="background-color:#1f753a;"></div>
+                <svg id="dl" width="50" height="60">
+                    <defs>
+                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                        </marker>
+                    </defs>
+                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                </svg>
+                <svg id="dr" width="50" height="60">
+                    <defs>
+                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                        </marker>
+                    </defs>
+                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                </svg>
+            </div>
+            <div class="empty-node"></div>
+        </div>
+        <div class="level">
+            <div class="node">
+                <div data-fragment-index="1" class="color fragment" style="background-color:#c73434;"></div>
+                <div data-fragment-index="4" class="color fragment" style="background-color:#265fca;"></div>
+                <div data-fragment-index="7" class="color fragment" style="background-color:#1f753a;"></div>
+            </div>
+            <div class="empty-node"></div>
+            <div class="node">
+                <div data-fragment-index="2" class="color fragment" style="background-color:#c73434;"></div>
+                <div data-fragment-index="5" class="color fragment" style="background-color:#265fca;"></div>
+                <div data-fragment-index="8" class="color fragment" style="background-color:#1f753a;"></div>
+            </div>
+        </div>
+        <div class="level desc">
+            <div class="node" style="background-color:#c73434;margin-left:16px;">
+                <span class="title">Phase 1</span>
+            </div>
+            <div class="node" style="background-color: #265fca;">
+                <span class="title">Phase 2</span>
+            </div>
+            <div class="node" style="background-color: #1f753a;">
+                <span class="title">Phase 3</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section>
+    <h3>javac pipeline</h3>
+    <ol>
+        <li>Parse</li>
+        <li>Enter</li>
+        <li>Annotate</li>
+        <li>Attribue</li>
+        <li>Flow</li>
+        <li>Desugar</li>
+        <li>Generate</li>
+    </ol>
+</section>
+
+<section>
+    <h1>dotty pipeline</h1>
+    <a target="_blank" href="https://github.com/lampepfl/dotty/blob/master/compiler/src/dotty/tools/dotc/Compiler.scala">source code</a>
+</section>
+
+<section>
+    <h2>But, but, but compilation speed?</h2>
+    <span style="font-size: 12px">You said Dotty would be faster!</span>
+</section>
+
+<section>
+    <h3>Fused Phases</h3>
+    <div class="node-container" style="width:216px">
+        <div class="level">
+            <div class="empty-node"></div>
+            <div class="node">
+                <div data-fragment-index="7" class="color fragment" style="background-color:#c73434;"></div>
+                <div data-fragment-index="8" class="color fragment" style="background-color:#265fca;"></div>
+                <div data-fragment-index="9" class="color fragment" style="background-color:#1f753a;"></div>
+                <svg id="dl" width="50" height="60">
+                    <defs>
+                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                        </marker>
+                    </defs>
+                    <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                </svg>
+                <svg id="dr" width="50" height="60">
+                    <defs>
+                        <marker id="arrow" markerWidth="13" markerHeight="13" refx="2" refy="6" orient="auto">
+                            <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;" />
+                        </marker>
+                    </defs>
+                    <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"/>
+                </svg>
+            </div>
+            <div class="empty-node"></div>
+        </div>
+        <div class="level">
+            <div class="node">
+                <div data-fragment-index="1" class="color fragment" style="background-color:#c73434;"></div>
+                <div data-fragment-index="2" class="color fragment" style="background-color:#265fca;"></div>
+                <div data-fragment-index="3" class="color fragment" style="background-color:#1f753a;"></div>
+            </div>
+            <div class="empty-node"></div>
+            <div class="node">
+                <div data-fragment-index="4" class="color fragment" style="background-color:#c73434;"></div>
+                <div data-fragment-index="5" class="color fragment" style="background-color:#265fca;"></div>
+                <div data-fragment-index="6" class="color fragment" style="background-color:#1f753a;"></div>
+            </div>
+        </div>
+        <div class="level desc">
+            <div class="node" style="background-color:#c73434;margin-left:16px;">
+                <span class="title">Phase 1</span>
+            </div>
+            <div class="node" style="background-color: #265fca;">
+                <span class="title">Phase 2</span>
+            </div>
+            <div class="node" style="background-color: #1f753a;">
+                <span class="title">Phase 3</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section>
+    <h2>LANGUAGE IMPROVEMENTS</h2>
+    <ul>
+        <li>Trait Parameters</li>
+        <li>No more procedure syntax</li>
+        <li>No old style macros, embrace the <a href="http://scalameta.org/">meta</a>!</li>
+        <li>Union Types</li>
+        <li>Intersection Types</li>
+        <li>Implicit functions</li>
+    </ul>
+</section>
+
+<section>
+    <h3>Procedure Syntax</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def foo {}
+// error!
+
+def foo = {}
+// res: Unit</code></pre>
+    <span class="fragment">But there's a flag for that: <code>-language:Scala2</code></span>
+</section>
+
+<section>
+    <h3>Intersection and Union Types</h3>
+
+    <h3><code>A & B</code></h3>
+    the <i>greatest lower bound</i>: a supertype
+    of all subtypes of both A and B
+
+    <h3><code>A | B</code></h3>
+    the <i>least upper bound</i>: a subtype
+    of all supertypes of both A and B
+</section>
+
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait A
+trait B
+trait C extends B with A // ==> A & B is a supertype of C
+</code></pre>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">class A(val i: Int)
+class B(val i: Int)
+
+def p1(implicit ev: A <:< (A | B)) = ???
+
+def p2(implicit ev: B <:< (A | B)) = ???
+
+def p3(implicit ev: (A | B) <:< AnyRef) = ???
+
+def p4(implicit ev: (A | B) <:< AnyVal) = ??? // does not compile
+</code></pre>
+</section>
+
+<section>
+    <h3>Supercharged Any</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>final class SuperHipsterInternalAPI {
+def foo(a: Any) = ??? // NO!
+def foo(a: TypeA | TypeB) = ??? // YES!
+}</code></pre>
+    <a href="https://www.youtube.com/watch?v=h8KBLF0AgUc">Precise Types Bring Performance</a> - Dmitry Petrashko
+</section>
+
+<section>
+    <h3>Trait Parameters instead of Early Initializers</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super {
+def x: String
+println(s"initialized with $x")
+}
+class Tester extends Super {
+val x = "wat"
+}
+
+new Tester
+// prints: "initialized with null"</code></pre>
+    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait Super(x: String) {
+println(x)
+}
+class Foo extends Super("wat")
+
+new Foo
+// prints: "initialized with wat."</code></pre>
+</section>
+
+<section>
+    <h3>YOUR AVERAGE BOILERPLATED LIBRARY</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def storeUser(u: User): DBIO[User] = withCtx { implicit transact =>
+// much boilerplate
+}
+</code></pre>
+    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def storeUser(u: User): DBIO[User] = {
+// impossibru in scalac
+}
+</code></pre>
+</section>
+
+<section>
+    <h3>ENTER IMPLICIT FUNCTIONS</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">implicit Context => R
+</code></pre>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">trait ImplicitFunction1[-T,+R] {
+def apply(i: T): R
+}
+</code></pre>
+</section>
+
+<section>
+    <h3>NEW MORE COOL API</h3>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">// In the api somwehere:
+type DBIO[T] = implicit Transaction => T
+
+// In user code:
+def storeUser(u: User): DBIO[User] = {
+// ctx available!
+}
+</code></pre>
+    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def ctx: Transaction[Context] = implicitly[Context]
+</code></pre>
+    <span class="fragment"><a href="http://scala-lang.org/blog/2016/12/07/implicit-function-types.html">Implicit Functions</a> - Martin Odersky</span><br>
+    <span class="fragment"><a href="https://gist.github.com/OlivierBlanvillain/48bb5c66dbb0557da50465809564ee80">Tagless Final Interpreters in Dotty</a> - Olivier Blanvillain</span>
+</section>
+
+<section>
+    <h2>&lt;/SYNTAX DIFFERENCES&gt;</h2>
+</section>
+
+<section>
+    <h2>REPL</h2>
+    <h3>&amp;</h3>
+    <h2>ERROR MESSAGES</h2>
+    <a href="https://www.youtube.com/watch?v=oYk8CKH7OhE">Let's Be Mainstream! - Evan Czaplicki</a>
+</section>
+
+
+<section>
+    <h1>SCALADOC</h1>
+    <q>
+    "Documentation cannot - and so need not - say everything.
+    Its purpose is to help the next programmer build an
+    accurate theory about the system." - Peter Naur
+    </q>
+</section>
+
+<section>
+    <h1>BUILD TOOLS</h1>
+</section>
+
+<section>
+    <h1>LANGUAGE SERVER</h1>
+</section>
+
+<section>
+    <h2>CROSS BUILDING LIBRARIES</h2>
+    <img class="border" src="/assets/talks/thoughts-on-scala-3/impl-resolution.jpg">
+</section>
+
+<section>
+    <h3>TASTY</h3>
+    <ul>
+        <li>Pickling format</li>
+        <li>Typed Trees</li>
+        <li>Efficiently stored in bytecode</li>
+        <li>Interop between binary incompatible compilers</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Developer Usability</h2>
+    <p class="fragment">Get involved today!</p>
+</section>
+
+<section style="text-align: left;">
+    <div style="float: left; width: 50%; height: 100%;">
+        <h2 style="margin-bottom: 0; margin-top: 0.5em;">REPL</h2>
+        <a target="_blank" href="https://github.com/lampepfl/dotty/issues?q=is%3Aopen+is%3Aissue+label%3Aarea%3Arepl">Issues</a>
+        <h2 style="margin-bottom: 0; margin-top: 0.5em;">ERROR MESSAGES</h2>
+        <a target="_blank" href="http://github.com/lampepfl/dotty/issues/1589">Issue #1589</a>
+    </div>
+    <div style="float: left; width: 50%; height: 100%;">
+        <h2 style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">IDEs &amp; TOOLING</h2>
+        <a target="_blank" href="https://github.com/lampepfl/dotty/labels/area%3Atooling">Issues</a>
+        <h2 style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">Build Tools</h2>
+    </div>
+</section>
+
+<section>
+    <h1>OPTIMIZED SCALA CODE</h1>
+</section>
+
+<section>
+    <h2>Dotty Optimizer</h2>
+    <ul>
+        <li>Dmitry Petrashko, <a href="https://github.com/DarkDimius/">@DarkDimius</a>
+        <li>Call graph</li>
+        <li>Whole program optimization</li>
+        <li>User defined rewrite rules</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Implementing a linter</h2>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>@rewrites object rules {
+  def toIsEmpty[T](xs: List[T]) =
+    Rewrite(
+      from = xs.length == 0,
+      to = xs.isEmpty
+    )
+
+  def customFancyWarning(x: Int | Double | ... | Numeric[_]) =
+    Warn(
+      pattern = x / 0,
+      msg = "division by zero, you fool!"
+    )
+}</code></pre>
+</section>
+
+<section>
+    <h2>Example</h2>
+    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">public double average(int[] data) {
+  int sum = 0;
+  for(int i = 0; i < data.length; i++) {
+    sum += data[i];
+  }
+  return sum * 1.0d / data.length;
+}</code></pre>
+    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def average(xs: Array[Int]) =
+  xs.reduce(_ + _) * 1.0 / xs.size</code></pre>
+    <table class="fragment">
+        <thead>
+            <td>Java</td>
+            <td>Scala</td>
+        </thead>
+        <tbody>
+            <tr>
+                <td>45 msec</td>
+                <td>872 msec</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section>
+    <h2>Java</h2>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="java">public double average(int[] data) {
+  int sum = 0;
+  for(int i = 0; i < data.length; i++) {
+    sum += data[i];
+  }
+  return sum * 1.0d / data.length;
+}</code></pre>
+    <ul>
+        <li>Range check</li>
+        <li>Addition</li>
+        <li>Index increment</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Scala</h2>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def average(xs: Array[Int]) =
+  xs.reduce(_ + _) * 1.0 / x.size</code></pre>
+</section>
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def reduce(op: Function2[Obj, Obj, Obj]): Obj = {
+  var first = true
+  var acc: Obj = null
+  this.foreach { e =>
+    if (first) {
+      acc = e
+      first = false
+    } else acc = op.apply(acc, e)
+  }
+  acc
+}</code></pre>
+    <pre class="fragment"><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala">def foreach(f: Funtion1[Obj, Obj]) {
+  var i = 0
+  val len = length
+  while (i < len) {
+    f.apply(this(i))
+    i += 1
+  }
+}</code></pre>
+</section>
+
+<section>
+    <h3>Specialize all the things!</h3>
+    <div class="fragment">
+        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>trait T[A1, A2, ..., An]</code></pre>
+    how many combinations?
+    </div>
+    <div class="fragment"><b>10 ^ n</b></div>
+    <div class="fragment">
+        <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>trait T[A1, A2, ..., An] {
+  def foo[B1, B2, ..., Bm] = ???
+}</code></pre>
+    and now?
+    </div>
+    <div class="fragment"><b>10 ^ (n + m)</b></div>
+</section>
+
+<section>
+    <h3>Existing solutions for Scala 2</h3>
+    <ul>
+        <li>
+            <code>@specialized</code>
+            <ul>
+                <li>Mark types using <code>@specialized</code></li>
+                <li>Can specify for which types e.g:<br><code>@specialized(Int)</code></li>
+                <li>10^n</li>
+                <li>
+                    <a href="http://axel22.github.io/2013/11/03/specialization-quirks.html">
+                        Quirks of Scala Specialization - Alex Prokopec
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li style="margin-top:20px">
+            <a href="http://scala-miniboxing.org/">Miniboxing</a> - Vlad Ureche
+            <ul>
+                <li>Reduces the factor to: 3^n</li>
+                <li>Handles inheritance</li>
+            </ul>
+        </li>
+    </ul>
+</section>
+
+<section>
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>trait Function3[-T1, -T2, -T3, +R]</code></pre>
+    <h3>Both: how many specializations are needed?</h3>
+</section>
+
+<section>
+    <h2>Dotty Linker's approach</h2>
+    Don't ask the user what to specialize
+
+    <div class="fragment">- specialize on what's actually being used.</div>
+</section>
+
+<section>
+    <h2>Auto-Specialization in Dotty Linker</h2>
+    <ul>
+        <li>Takes your program <u>&amp; libraries</u>, analyzes how you use them</li>
+        <li>Sees what instantiations are needed</li>
+        <li>Specializes them</li>
+        <li>No need to annotate types</li>
+    </ul>
+</section>
+
+<section>
+    Types and terms are treated the same for specialization:
+    <pre><code data-trim data-noescape style="padding: 1em;border-radius: 0.2em;" class="scala"
+>def foo[T](x: Seq[T], id: Int) = x(id)</code></pre>
+    <ul>
+        <li>Type specialization removes boxing</li>
+        <li>Term specialization removes <span class="fragment">virtual dispatch</span></li>
+    </ul>
+</section>
+
+<section>
+    <h2>STATUS</h2>
+    <ul>
+        <li>
+            Dotty
+            <ul>
+                <li><a href="http://github.com/lampepfl/dotty">http://github.com/lampepfl/dotty</a></li>
+                <li>Example projects working, libraries are being ported</li>
+                <li>Nearing beta</li>
+            </ul>
+        </li>
+        <li>
+            Dotty Optimizer alias Dotty Linker
+            <ul>
+                <li><a href="http://github.com/dotty-linker/dotty">http://github.com/dotty-linker/dotty</a></li>
+                <li>Rewrite rules are being tested using property based testing</li>
+                <li>Features being ported to Dotty</li>
+            </ul>
+        </li>
+    </ul>
+</section>
+
+<section>
+    <h1>Thank you!</h1>
+</section>
