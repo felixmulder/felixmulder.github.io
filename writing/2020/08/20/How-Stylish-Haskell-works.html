@@ -32,7 +32,7 @@
 <p>This poses a couple of challenges to us - only one of which we’re dealing with in this article!</p>
 <p>There are the basics of how we build the applications and make sure that tooling works great for everyone involved, to how the CI tests and deploys the artifacts.</p>
 <p>Then there are more subtle things: how we make sure that code reviews focus on the right things - and that people don’t introduce new patterns and ways of doing things.</p>
-<p>I believe that one of the most important things that you can do as a developer is to make sure that the above is automated. Which leads us to one of my pet peaves:</p>
+<p>I believe that one of the most important things that you can do as a developer is to make sure that the above is automated. Which leads us to one of my pet peeves:</p>
 <h2 id="code-formatting">Code formatting</h2>
 <p>When there’s no (enforced) canonical way of formatting something in a language - people tend to think up their own way of doing something. Let’s take something as simple as formatting <code>data</code> in Haskell. Here are a couple of alternatives for how to format a record type:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="co">-- JS style:</span></span>
@@ -132,7 +132,7 @@
 <h2 id="haskell-source-extensions">Haskell source extensions</h2>
 <p>The limitations of stylish rest fundamentally on the functionality of <a href="https://hackage.haskell.org/package/haskell-src-exts">haskell-src-exts</a>. This means that any new language feature enabled by language pragma or other flag, needs to first gain support in this dependency before stylish can make use of it.</p>
 <p>The pros of using this library is that it’s quite easy to manipulate the resulting AST that you get from parsing. In contrast to most real compiler parsers, it keeps a lot of source file information that normal parsers might discard. Compiler parsers tend to discard things that aren’t useful to compilation - such as comments.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
-<p>Other tooling projects in Haskell land have started using the GHC parser directly instead as means to mitigate this limitiaton. The parser as well as the AST is available in the <a href="https://hackage.haskell.org/package/ghc-lib-parser">ghc-lib-parser</a> package, which is the GHC API but usable as a library.</p>
+<p>Other tooling projects in Haskell land have started using the GHC parser directly instead as means to mitigate this limitation. The parser as well as the AST is available in the <a href="https://hackage.haskell.org/package/ghc-lib-parser">ghc-lib-parser</a> package, which is the GHC API but usable as a library.</p>
 <h2 id="rewriting-stylish">Rewriting stylish</h2>
 <p>In order to fix our issue, I started re-writing the parts of stylish that I thought relevant to my team’s needs using <a href="https://hackage.haskell.org/package/ghc-lib-parser">ghc-lib-parser</a>. The result of this work is that this <a href="https://github.com/jaspervdj/stylish-haskell/pull/293">PR branch</a> now formats our &gt;50kLOC haskell monorepo on every PR and every branch build.</p>
 <p>I think it might be interesting to write a separate article on how the GHC AST works and how I adapted stylish to work with it. It contains a couple of interesting things like a printer monad. I’ll try to put something together soon, hope this was an interesting read!</p>
