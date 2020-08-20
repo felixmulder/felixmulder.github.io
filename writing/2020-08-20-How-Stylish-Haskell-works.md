@@ -3,7 +3,7 @@ title: How Stylish Haskell works
 published: true
 date: 2020-08-20
 summary: >
-  Stylish haskell is a code formatter for the Haskell language. In this post,
+  Stylish Haskell is a code formatter for the Haskell language. In this post,
   we'll go through how the application works and give you a glimpse of what
   it's like working with the codebase.
 ---
@@ -27,7 +27,7 @@ doing things.
 
 I believe that one of the most important things that you can do as a developer
 is to make sure that the above is automated. Which leads us to one of my pet
-peaves:
+peeves:
 
 ## Code formatting
 When there's no (enforced) canonical way of formatting something in a language
@@ -209,7 +209,7 @@ discard. Compiler parsers tend to discard things that aren't useful to
 compilation - such as comments.[^scala-meta]
 
 Other tooling projects in Haskell land have started using the GHC parser
-directly instead as means to mitigate this limitiaton. The parser as well as
+directly instead as means to mitigate this limitation. The parser as well as
 the AST is available in the [ghc-lib-parser][ghc-lib-parser] package, which is
 the GHC API but usable as a library.
 
