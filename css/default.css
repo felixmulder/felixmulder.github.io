@@ -11,6 +11,10 @@ a, a:active, a:focus {
   outline: none;
 }
 
+p {
+  color: rgb(75, 85, 99);
+}
+
 .container {
   display: flex;
   width: 100%;
@@ -18,25 +22,54 @@ a, a:active, a:focus {
 }
 
 .index-container {
+  max-width: 800px;
+  margin: auto;
+  font-size: 14px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: rgb(75, 85, 99);
+}
+
+.index-contents {
   display: flex;
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  font-family: 'Raleway', sans-serif;
 }
 
-.index-title, .index-subtitle {
-  text-align: center;
+.index-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 3rem;
+  line-height: 1;
+  margin: 0;
+  color: rgb(0, 0, 0);
+}
+
+.index-subtitle {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  margin: 0 0 20px;
+  padding-left: 3px;
+  color: rgb(55 65 81);
 }
 
 .pages {
   display: flex;
-  justify-content: center;
+  margin-left: -3.5px;
 }
 
 .page-link {
-  color: #111;
-  padding: 20px;
+  margin-right: 20px;
+  color: rgb(55 65 81);
+  text-decoration: none;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.page-link:hover {
+  border: 1px solid rgba(55, 65, 81);
 }
 
 .navbar {
@@ -76,8 +109,19 @@ h1.back-button {
 }
 
 .navbar a {
-  color: #111;
+  padding: 4px 0px;
+  color: rgb(75, 85, 99);
   text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.navbar nav a {
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.navbar nav a:hover {
+  border: 1px solid rgb(75, 85, 99);
 }
 
 .article-container,
@@ -85,21 +129,26 @@ h1.back-button {
   max-width: 800px;
   margin: 0 auto;
   font-size: 14px;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
+  overflow-y: auto;
 }
 
 .article-container h1,
+.articles-container h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+}
+
 .article-container h2,
 .article-container h3,
 .article-container h4,
 .article-container h5,
-.articles-container h1,
 .articles-container h2,
 .articles-container h3,
 .articles-container h4,
 .articles-container h5
 {
-  font-family: 'Lato', sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 
 .article-container blockquote {
