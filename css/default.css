@@ -126,9 +126,10 @@ h1.back-button {
 
 .article-container,
 .articles-container {
-  max-width: 800px;
+  max-width: 42rem;
+  text-align: justify;
   margin: 0 auto;
-  font-size: 14px;
+  font-size: 16px;
   font-family: 'IBM Plex Sans', sans-serif;
   overflow-y: auto;
 }
@@ -149,6 +150,7 @@ h1.back-button {
 .articles-container h5
 {
   font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 500;
 }
 
 .article-container blockquote {
