@@ -46,10 +46,14 @@ These do differ slightly between companies. E.g. some companies don't have the
 manager chat in the qualifying round of interviews, and some have several
 programming challenges during the on-site.
 
-## Qualifying interviews
-These interviews are intended to assess the candidate's probability of success
-for the on-site interviews. In my experience, they're more brief but roughly
-equal in difficulty to the on-site interviews.
+The qualifying interviews are intended to assess the candidate's probability of
+success for the on-site interviews. In my experience, they're more brief but
+roughly equal in difficulty to the on-site interviews.
+
+## Interviews
+Some of the interviews overlap in their rubric, for instance the programming
+interviews are most often judged in similar fashions. I'll try to not repeat
+myself too much below.
 
 ### Chat with a recruiter
 The initial step of the process is a chat with a recruiter. Most times they'll
@@ -75,7 +79,39 @@ Make sure you let them know you'd be excited to work for them! Barring anything
 strange popping up, the recruiter screen mostly feels like a sanity check before
 kicking off the real process.
 
+### Communication
+This is not an interview itself, but it's a common to all interviews and by far
+one of the most important skills you will be judged on as an engineer.
+
+Whether the interview has you programming, sketching a system, or talking to
+someone -- you will be judged on how you communicate. This is true both when
+the interview is going well and when it is going poorly.
+
+During the practical interviews, you're being judged on how you're approaching
+the problem. Make sure you communicate, not just what you're doing, but what
+you're thinking about doing next.
+
+If you're stuck when debugging something, say that out loud: "I'm now stuck,
+because I don't know X". Then proceed to let the interviewer know how you'll
+try to forge ahead.
+
+In all the places I've worked, candidates can receive a hire recommendation
+despite bombing an interview, but that's prefaced on knowing why the candidate
+did poorly during that phase of the process.
+
+A good candidate doesn't just give great answers when prompted, but also asks
+great questions of the interviewers. Some of the greatest interviews I've had,
+the candidate has been in the driver's seat from getting their prompt - they're
+asking all the questions and driving the problem forward.
+
+Lastly, make sure that you're receptive to feedback and questions. If the
+interviewer is hinting about something, hear them out. There's nothing worse
+than an interview where the candidate is adamant about their solution. Most
+interviews can be at least somewhat collaborative.
+
 ### Programming
+This section covers both programming in the qualifying and during the on-site.
+
 The programming challenge is different depending on organization. Apart from
 Google and Facebook, most companies I've interviewed for have a simple
 programming challenge[^cracking-the-coding-interview].
@@ -114,7 +150,7 @@ When you start implementing the code, think about the function, its arguments an
 return value before writing any implementation. E.g. in Java
 
 ```java
-static List<Color> parseColors(String input) {
+public static List<Color> parseColors(String input) {
   // TODO - implement
   return List.of();
 }
@@ -147,17 +183,132 @@ latter unless you use a very sophisticated editor.
 In none of the places where I've interviewed candidates have we "deducted
 points" for when the program doesn't compile or give the expected output on the
 first try. It _is_, however, quite common that I see folks writing _a lot of code_
-without knowing if it'll compile. That puts these candidates at a disadvantage.
+without knowing if it'll compile. It puts these candidates at a disadvantage.
 They'll have to spend a bunch of time fixing their mistakes before seeing if
 the code actually does what it is supposed to.
 
-#### Proficiency with language and tools
+Another consideration is just how testable your code is. Sometimes you'll be
+asked to write a function that is side-effectful in nature. It requires access
+to a randomness or perhaps reading something from the environment. This makes
+testing your solution effectively, a lot harder. Consider creating an internal
+function that you can delegate to:
 
-#### Communication
+```java
+public static User createUser() {
+  var uuid = UUID.randomUUID();
+  return createuser(uuid);
+}
+
+static createUser(UUID uuid) { ... }
+```
+
+now you can test the package private one deterministically.
+
+#### Language proficiency
+Make sure you're able to fluidly write code in your chosen language. Most
+companies would be happy for you to search the web for how to do things, that
+is an important part of your real job.
+
+That being said, you should probably not be searching for how to do basic things
+in your language. You should know how to iterate through collections, how to use
+common data structures like sets, maps, and lists.
+
+Be up-to-date on the language of choice, but don't unnecessarily lean into
+advanced features. If you choose Java, do you know about modern additions like
+`var`? If you choose JavaScript, do you know how to destructure maps and lists?
+
+You should also know how to test given your language of choice. That means
+familiarizing yourself with unit testing frameworks.
 
 ### Chat with a manager
+This is usually scheduled with the hiring manager, the person who'll likely be
+your direct superior. During this interview you'll likely discuss your
+experience at previous employers, your greatest accomplishments, biggest
+regrets, as well as your future goals. Be ready to answer why you're looking
+for a new opportunity.
 
-## On-site interviews
+Your answers don't have to be clever, especially when asked about regrets and
+weaknesses. Be genuine. If you made a mistake, show that your learned something
+from it. When describing your weaknesses, don't turn them into strengths. Show
+that you're aware of them and let the interviewer know how you handle them.[^best-advice]
+
+When discussing your past contributions, be concrete. Sometimes engineers who
+do a lot of cross team collaboration and glue work, feel like their work wasn't
+as important as the ones who wrote the code and will hand-wave. I say, it is as
+important, own it!
+
+This brings us to goals. For junior engineers, I know it's hard to be concrete
+here. Here you've got to play the game, the interviewer has probably let you in
+on what the team is about, be cognizant of that in your goals. Does the org or
+team align with those?
+
+I've sometimes seen people ask about mobility within the company. Sometimes
+that's a great selling point, but bear in mind that the hiring manager is most
+likely trying to fill a slot on _their_ team.
+
+As an individual contributor, the manager is also looking to see that you're
+easy to collaborate with. No matter how senior you are, show that you're
+coachable.
+
+### Debugging
+I've seen a few versions of this. Spotify had an interesting one, where we
+roleplayed that a service was misbehaving and it was up to me to diagnose it.
+
+Others present you with some code where you attempt to diagnose, fix and verify
+the issue.
+
+The [Systems architecture](#systems-architecture) section has some overlap with
+debugging a service, so I'll focus on debugging code in this section.
+
+#### Approach
+Fixing bugs is something every engineer does, even if it wasn't they who
+introduced the error. The point of these types of excercises is to see how you
+diagnose and fix issues. Sometimes you'll be given a failing test-case which
+you can use as an entry point. Sometimes, you'll need to recreate the error
+yourself. If you can, capture the issue in a unit test.
+
+How you navigate the codebase is important here. Do you wildly grep and pray?
+Or do you have a methodical approach to finding the root cause?
+
+When you've an IDE where you can jump to definition, that's most commonly enough
+to navigate the code. If you're using a dynamic language without such support,
+grep might be justified.
+
+Try to build an intuition for how the code is structured, and then build a
+hypothesis. Once you have an idea, try to confirm it somehow. If it proves
+false, abandon it and backtrack to the last place where you had a firm footing.
+
+Don't try to read all of the code. Most likely if you're given a repo, it'll
+be too large for you to be able to digest and fix the error within the alotted
+time.
+
+Making progress is key, most likely you won't have to solve the bug in order
+to pass the interview. Build an intuition for the structure of the code come up
+with a hypothesis, confirm or reject, iterate.
+
+#### Proficiency with language and tools
+I cannot recommend enough that you're strategic in your choice of language and
+setup. I've seen candidates choose a language that they'd like to work in
+(Haskell), and failed miserably because they're either not proficient enough in
+it - or they're not able to get their setup to work for the interview. Most
+commonly, people can't get the debugger to work properly, or the language server
+doesn't work for one of the common toolchains (Stack vs Cabal, Maven vs Gradle).
+
+Also, make sure you're able to build and modify sample projects. Clone something
+from GitHub and try to build it, change some tests, run them, use the debugger.
+These are basic things you should know how to do.
+
+Learn how to set breakpoints, what stepping in, out and over mean, and how to
+evaluate expressions.
+
+If your language of choice has several package or build managers (yarn vs npm,
+maven vs gradle, stack vs cabal), it's a good idea to be able to do the above
+for all of them!
+
+What about debug by print statements? That can be fine, make sure you're
+methodical thee as well. Try to print relevant things, not just `"HERE"`!
+
+### Systems architecture
 
 [^covid]: Naturrally, during COVID-19 both parts of the interview process would
   be remote.
@@ -169,3 +320,8 @@ the code actually does what it is supposed to.
 [^none]: None of these are the actual questions I've been asked, or I've given.
   However, the themes of them should be enough for you to gauge the sort of
   challenges.
+
+[^best-advice]: One of the best pieces of advice I ever received was not to
+  focus on eliminating my weaknesses, but to lean into my strengths.
+
+
