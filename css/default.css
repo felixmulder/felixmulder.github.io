@@ -138,6 +138,8 @@ h1.back-button {
 .articles-container h1 {
   font-family: 'Montserrat', sans-serif;
   font-weight: 800;
+  font-size: 32px;
+  text-align: left;
 }
 
 .article-container h2,
@@ -151,6 +153,35 @@ h1.back-button {
 {
   font-family: 'IBM Plex Sans', sans-serif;
   font-weight: 500;
+  text-align: left;
+}
+
+.article-container h2,
+.articles-container h2
+{
+  font-weight: 600;
+  font-size: 28px;
+}
+
+.article-container h3,
+.articles-container h3
+{
+  font-weight: 600;
+  font-size: 22px;
+}
+
+.article-container h4,
+.articles-container h4
+{
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.article-container h5,
+.articles-container h5
+{
+  font-weight: 500;
+  font-size: 16px;
 }
 
 .article-container blockquote {
@@ -172,6 +203,8 @@ pre.sourceCode {
   background-color: rgba(0,0,0,0.03);
   padding: 20px;
   border-radius: 3px;
+  max-width: 40rem;
+  overflow: hidden;
 }
 
 p code {
@@ -220,4 +253,22 @@ hr {
 
 .talk-venue {
   font-size: 14px;
+}
+
+dd {
+  margin-bottom: 1rem;
+}
+
+dd:last-child {
+  margin-bottom: 0;
+}
+
+dt > strong {
+  font-weight: 500;
+}
+
+dl {
+  background-color: rgba(0,0,0,0.03);
+  padding: 20px;
+  border-radius: 3px;
 }
