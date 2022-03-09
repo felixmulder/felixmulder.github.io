@@ -42,7 +42,7 @@ an on-site portion.[^covid]
 - Programming
 - Debugging
 - Systems architecture
-* Career
+* Career and company fit
 
 These do differ slightly between companies. E.g. some companies don't have the
 manager chat in the qualifying round of interviews, and some have several
@@ -369,7 +369,7 @@ Here are some questions I'd ask to determine requirements:
 * What does traffic look like to our website? I.e. what type of scale do we
   want? How many actions per user per minute do we expect?
 * How fast should the data appear in our operator UI? Can the system be
-* eventually consistent?
+  eventually consistent?
 * What are the availability requirements for our operator UI?
 * What should be visible via the UI? Does it affect our events? Do we need to
   fetch data from other systems?
@@ -573,7 +573,35 @@ the number of partitions.
 A system like Kafka can typically process ~900k transactions per second on a
 single partition, depending of course on message size.
 
-##### Monitoring
+##### Monitoring and alerting
+There are several monitoring solutions to consider. Cloud providers typically
+provide their own (AWS CloudWatch, Google Operation Suite). At the most basic
+level these should give you insight into how your system performs.
+
+These systems can integrate with paging services like PagerDuty, Opsgenie and
+more. The paging services will text you, send you a notification, or even call
+you. Typically if you don't respond, the page will escalate to someone else on
+your team, and then up the food chain.
+
+As a rule of thumb, I wouldn't page on things like CPU usage. Instead page on
+input, output, and potentially throughput of your system.
+
+In our case study good alerting would cover:
+
+* API calls to `ingestion-srv` and `ui-srv`, are we returning internal errors
+  like 5XXs etc, is there an elevated number of 4XXs?
+* Heart beat on `ingestion-srv` and `ui-srv`, is the API reachable?
+* Consumer offest on messaging broker, are we far enough behind that we're
+  risking breaking SLO?
+* Database health, are we able to reach and query the DB? Can we persist our
+  updates in `consumer-srv`?
+
+Usually alerting on things like CPU and memory usage is not all that useful;
+but being able to drill down and see it is. Imagine you're paged in the middle
+of the night because the CPU usage is pinned at ~100%. Great. What is the
+observable effect? You don't know. Instead if we alert on consumer lag, we'll
+immediately know that our consumers are not keeping up, if it then turns out to
+be due to CPU usage we'll probably just scale our infra and go back to sleep.
 
 ##### Cloud storage
 
