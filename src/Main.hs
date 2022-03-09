@@ -18,8 +18,8 @@ import Data.List.Extra (split)
 import Data.Text (unpack)
 import Hakyll
 import Text.Pandoc.Class (runPure)
-import Text.Pandoc.Definition (Pandoc)
-import Text.Pandoc.Options (WriterOptions(..))
+import Text.Pandoc.Definition (Pandoc(..), Block(..), Inline(..))
+import Text.Pandoc.Options (WriterOptions(..), HTMLMathMethod(..))
 import Text.Pandoc.Writers (writeRevealJs)
 
 main :: IO ()
@@ -54,7 +54,7 @@ buildRules = do
 
   match "writing/*" do
     route $ customRoute dateRoute
-    compile $ pandocCompiler
+    compile $ mdCompiler
       >>= loadAndApplyTemplate "templates/article.html" defaultContext
       >>= loadAndApplyTemplate "templates/navbar.html" defaultContext
       >>= loadAndApplyTemplate "templates/root.html" defaultContext
@@ -91,6 +91,19 @@ buildRules = do
     compile $ getResourceBody
       >>= loadAndApplyTemplate "templates/root.html" defaultContext
       >>= relativizeUrls
+
+mdCompiler :: Compiler (Item String)
+mdCompiler = pandocCompilerWithTransform readerOpts writerOpts pandocFilter
+  where
+    writerOpts = defaultHakyllWriterOptions { writerHTMLMathMethod = MathJax "" }
+    readerOpts = defaultHakyllReaderOptions
+
+pandocFilter :: Pandoc -> Pandoc
+pandocFilter (Pandoc meta blocks) = Pandoc meta $ fmap mermaid blocks
+  where
+    -- Transform mermaid codeblocks to regular divs with mermaid class:
+    mermaid (CodeBlock attr@(_, ["mermaid"], _) txt) = Div attr [Plain [Str txt]]
+    mermaid x = x
 
 revealJsCompiler :: Compiler (Item String)
 revealJsCompiler
