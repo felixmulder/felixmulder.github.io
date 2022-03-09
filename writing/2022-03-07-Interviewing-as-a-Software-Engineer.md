@@ -248,11 +248,11 @@ likely trying to fill a slot on _their_ team.
 
 As an individual contributor, the manager is also looking to see that you're
 easy to collaborate with. No matter how senior you are, show that you're
-coachable.
+coach-able.
 
 ### Debugging
 I've seen a few versions of this. Spotify had an interesting one, where we
-roleplayed that a service was misbehaving and it was up to me to diagnose it.
+role-played that a service was misbehaving and it was up to me to diagnose it.
 
 Others present you with some code where you attempt to diagnose, fix and verify
 the issue.
@@ -262,7 +262,7 @@ debugging a service, so I'll focus on debugging code in this section.
 
 #### Approach
 Fixing bugs is something every engineer does, even if it wasn't they who
-introduced the error. The point of these types of excercises is to see how you
+introduced the error. The point of these types of exercises is to see how you
 diagnose and fix issues. Sometimes you'll be given a failing test-case which
 you can use as an entry point. Sometimes, you'll need to recreate the error
 yourself. If you can, capture the issue in a unit test.
@@ -279,7 +279,7 @@ hypothesis. Once you have an idea, try to confirm it somehow. If it proves
 false, abandon it and backtrack to the last place where you had a firm footing.
 
 Don't try to read all of the code. Most likely if you're given a repo, it'll
-be too large for you to be able to digest and fix the error within the alotted
+be too large for you to be able to digest and fix the error within the allotted
 time.
 
 Making progress is key, most likely you won't have to solve the bug in order
@@ -292,7 +292,7 @@ setup. I've seen candidates choose a language that they'd like to work in
 (Haskell), and failed miserably because they're either not proficient enough in
 it - or they're not able to get their setup to work for the interview. Most
 commonly, people can't get the debugger to work properly, or the language server
-doesn't work for one of the common toolchains (Stack vs Cabal, Maven vs Gradle).
+doesn't work for one of the common tool chains (Stack vs Cabal, Maven vs Gradle).
 
 Also, make sure you're able to build and modify sample projects. Clone something
 from GitHub and try to build it, change some tests, run them, use the debugger.
@@ -314,7 +314,7 @@ than some of the other interviews. As such, there is _so much_ to write on
 the subject of this interview type.
 
 Some of the design interviews talk about API design, and some of them focus
-solely on building a system with different standard compontents.
+solely on building a system with different standard components.
 
 When it comes to designing a good HTTP API, I recommend reading up on how
 to create a REST API. It's not a panacea and there are times when diverging
@@ -323,7 +323,7 @@ tool to have in your toolbox.
 
 Let's focus on the interview type where you're asked to design a system. In
 this type of interview, assume general components. RDBMS over Postgres, NoSQL
-over MongoDB or DynamoDB, pub-sub over Kafka, messsage queue over SQS. Specific
+over MongoDB or DynamoDB, pub-sub over Kafka, message queue over SQS. Specific
 knowledge of how these types of components work and scale is a must to succeed
 in this interview.
 
@@ -359,7 +359,7 @@ solution.
 
 Here are some questions I'd ask to determine requirements:
 
-* What data should we track for the events? Timestamps? Durations? Users and how
+* What data should we track for the events? Timestamps? Duration? Users and how
   we identify a user in our system?
 * Are we only concerned about the listed events? Should the API be extensible?
 * Can we combine `hover-in` an `hover-out` to a single `hover` metric?
@@ -368,18 +368,18 @@ Here are some questions I'd ask to determine requirements:
 * How fast should the data appear in our operator UI? Can the system be
 * eventually consistent?
 * What are the availability requirements for our operator UI?
-* What should be viewable via the UI? Does it affect our events? Do we need to
+* What should be visible via the UI? Does it affect our events? Do we need to
   fetch data from other systems?
 * Is some data loss acceptable?
 * What regions of the world do we operate in?
 
-> #### Functionl requirements
+> #### Functional requirements
 > * Ability to specify event types with different payloads
 > * For now, only work with the "click" event which should have a timestamp
 >   along with the ID of the component (string)
 > * The operator UI should be able to query the data by hour of day
 >
-> #### Non-functionl requirements
+> #### Non-functional requirements
 > * The data does not have to appear immediately in the operator UI
 > * The system can be eventually consistent
 > * Our startup has around 200k active users with peak traffic of about peak
@@ -390,9 +390,9 @@ Here are some questions I'd ask to determine requirements:
 > * Our users are primarily in Europe, but we've plans to expand to North America
 
 Depending on the interviewer they could elect to simplify the situation. For
-instance, by limiting scale or reponsiveness. Or by restricting the input and
+instance, by limiting scale or responsiveness. Or by restricting the input and
 output of the system. In the requirements above, we have a simple query pattern,
-a single event to deal with, and some acceptible data loss!
+a single event to deal with, and some acceptable data loss!
 
 ##### Proposing an initial solution
 Given that we can allow some data loss, we'd be best of batching interactions
@@ -483,7 +483,7 @@ these interviews contain a decent amount of back and forth.
 #### Standard blocks to know about
 This is a non-exhaustive list of standard components that you'd do well to
 know about. Just like with programming languages, learning one type is a
-transferrable skill. Learn the invariants of each ones! How they scale, what
+transferable skill. Learn the invariants of each ones! How they scale, what
 their strengths and weaknesses are.
 
 ##### Scaling
@@ -493,7 +493,7 @@ this is vertical scaling. Or we can distribute it on many machines, this is
 horizontal scaling.
 
 ##### Load balancers
-A load balancer works as a proxy and distributes traffic accross multiple
+A load balancer works as a proxy and distributes traffic across multiple
 machines. Their main purpose is to be able to increase the amount of concurrent
 requests to a service. Load balancers work at different levels of the OSI
 stack -- think application level vs network level.
@@ -501,7 +501,7 @@ stack -- think application level vs network level.
 There are different strategies for distributing the load:
 
 Round robin
-: Distributing traffic evenly accross machines
+: Distributing traffic evenly across machines
 
 Sticky sessions
 : Directing a user's traffic to the same machine for the duration of a session
@@ -545,7 +545,7 @@ If your access pattern is key-value based, NoSQL databases are a good
 alternative.
 
 ##### Message queues and topics
-There are different types of messagings systems you should be aware of. In
+There are different types of messaging systems you should be aware of. In
 general, you can split them into queues and topics. A queue works like you'd
 expect, you push a message onto the queue and then you dequeue it at the other
 end, FIFO.
@@ -564,7 +564,7 @@ receives all the messages from the topic.
 
 ##### Cloud storage
 
-[^covid]: Naturrally, during COVID-19 both parts of the interview process would
+[^covid]: Naturally, during COVID-19 both parts of the interview process would
   be remote.
 
 [^cracking-the-coding-interview]: As opposed to Google and Facebook where the
