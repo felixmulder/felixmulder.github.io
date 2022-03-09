@@ -498,14 +498,13 @@ machines. Their main purpose is to be able to increase the amount of concurrent
 requests to a service. Load balancers work at different levels of the OSI
 stack -- think application level vs network level.
 
-There are different strategies for distributing the load:
+There are different strategies for distributing the load, most notably:
 
 Round robin
 : Distributing traffic evenly across machines
 
 Sticky sessions
 : Directing a user's traffic to the same machine for the duration of a session
-
 
 ##### Databases
 There's a lot to say about databases. So let's simplify things. There are two
