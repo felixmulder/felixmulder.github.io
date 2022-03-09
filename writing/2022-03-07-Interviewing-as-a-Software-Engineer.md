@@ -604,6 +604,19 @@ immediately know that our consumers are not keeping up, if it then turns out to
 be due to CPU usage we'll probably just scale our infra and go back to sleep.
 
 ##### Cloud storage
+There are a lot of alternatives for durable and highly available storage. Each
+cloud provider have their preferred solution, like AWS S3 or Google Cloud
+Storage.
+
+There are other solutions available, like attaching network drives to compute
+instances. Doing this might be necesary when building a stateful service or
+hosting database on a compute instance.
+
+Something to keep in mind is the [latencies every programmer should
+know](https://colin-scott.github.io/personal_website/research/interactive_latency.html).
+
+You don't have to know it by heart, but sometimes it can really aid in
+estimating the latency of your solution.
 
 [^covid]: Naturally, during COVID-19 both parts of the interview process would
   be remote.
