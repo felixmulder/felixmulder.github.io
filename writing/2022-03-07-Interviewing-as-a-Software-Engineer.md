@@ -541,8 +541,8 @@ Familiarizing yourself with
 [MongoDB](https://docs.mongodb.com/manual/tutorial/getting-started/) is a good
 idea, it has an online playground and several easy to follow tutorials.
 
-If your access pattern is key-value based, NoSQL databases are a good
-alternative.
+If your access pattern is key-value based, NoSQL databases are a near perfect
+fit.
 
 ##### Message queues and topics
 There are different types of messaging systems you should be aware of. In
@@ -554,11 +554,22 @@ Queues operating in FIFO mode have limitations on their throughput, AWS SQS in
 FIFO allows at most 300 enqueues per second - or at most 3000 messages when
 batching.
 
-The advantage of using a queue is that your consumer(s) only receive each
-message once.
+An invariant of using a queue is that your consumer(s) only receive each
+message once. The drawback, being that scaling can be harder to achieve.
 
 A topic is similar on the producer side. On the consumer side, each consumer
-receives all the messages from the topic.
+receives all the messages from the topic. This is great if you need to do
+a number of different things per message that are orthogonal to each other.
+
+Topics scale by partition. Typically you either decide statically how many
+partitions you will have, or the system scales the number of partitions
+based on e.g. consumer lag. A partition key can usually be manually determined,
+in our case study, we chose the component ID as the partition key. Each partition
+can have one consumer per consumer group and thus your consumers can scale with
+the number of partitions.
+
+A system like Kafka can typically process ~900k transactions per second on a
+single partition, depending of course on message size.
 
 ##### Monitoring
 
