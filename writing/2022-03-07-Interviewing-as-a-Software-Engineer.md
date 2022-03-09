@@ -309,6 +309,260 @@ What about debug by print statements? That can be fine, make sure you're
 methodical thee as well. Try to print relevant things, not just `"HERE"`!
 
 ### Systems architecture
+I really love giving systems architecture interviews. They're a lot more open
+than some of the other interviews. As such, there is _so much_ to write on
+the subject of this interview type.
+
+Some of the design interviews talk about API design, and some of them focus
+solely on building a system with different standard compontents.
+
+When it comes to designing a good HTTP API, I recommend reading up on how
+to create a REST API. It's not a panacea and there are times when diverging
+from RESTful APIs leads to better design, but as a starting point it's a good
+tool to have in your toolbox.
+
+Let's focus on the interview type where you're asked to design a system. In
+this type of interview, assume general components. RDBMS over Postgres, NoSQL
+over MongoDB or DynamoDB, pub-sub over Kafka, messsage queue over SQS. Specific
+knowledge of how these types of components work and scale is a must to succeed
+in this interview.
+
+#### A case study
+Here's an example prompt for a design interview:
+
+> Our company Weta, wants to track how often a certain component is interacted
+> with on our website. Your task is to design the system that records
+> the users' interactions like "hover-in", "hover-out", "click" on uniquely
+> identifiable components.
+>
+> The data should be available to our teams via a web UI.
+
+
+##### Gathering requirements
+This should be enough for you to start gathering requirements. Divide these
+into "Functional" and "Non-functional" requirements.
+
+**Functional requirements**
+: Describes what the system does and how it should do them
+
+**Non-functional requirements**
+: Describe what the performance characteristics of the system should be
+
+In our case study, we need to ask clarifying questions to determine what goes
+into each category. These interviews tend to run around 45 minutes to an hour.
+As such, it's important to make sure what is actually in scope. The interviewer
+is probably happy to answer any such question.
+
+Another consideration is whether to go for a completely scalable solution, or
+an MVP at first, ask your interviewer. For our case, let's go for the scalable
+solution.
+
+Here are some questions I'd ask to determine requirements:
+
+* What data should we track for the events? Timestamps? Durations? Users and how
+  we identify a user in our system?
+* Are we only concerned about the listed events? Should the API be extensible?
+* Can we combine `hover-in` an `hover-out` to a single `hover` metric?
+* What does traffic look like to our website? I.e. what type of scale do we
+  want? How many actions per user per minute do we expect?
+* How fast should the data appear in our operator UI? Can the system be
+* eventually consistent?
+* What are the availability requirements for our operator UI?
+* What should be viewable via the UI? Does it affect our events? Do we need to
+  fetch data from other systems?
+* Is some data loss acceptable?
+* What regions of the world do we operate in?
+
+> #### Functionl requirements
+> * Ability to specify event types with different payloads
+> * For now, only work with the "click" event which should have a timestamp
+>   along with the ID of the component (string)
+> * The operator UI should be able to query the data by hour of day
+>
+> #### Non-functionl requirements
+> * The data does not have to appear immediately in the operator UI
+> * The system can be eventually consistent
+> * Our startup has around 200k active users with peak traffic of about peak
+>   traffic of 4 million interactions per minute (~67k interactions per
+>   second, at 20 interactions per user)
+> * We can endure some data loss, but we should be able to gauge usage reliably
+> * The operator UI should have an up-time of three nines (99.9%)
+> * Our users are primarily in Europe, but we've plans to expand to North America
+
+Depending on the interviewer they could elect to simplify the situation. For
+instance, by limiting scale or reponsiveness. Or by restricting the input and
+output of the system. In the requirements above, we have a simple query pattern,
+a single event to deal with, and some acceptible data loss!
+
+##### Proposing an initial solution
+Given that we can allow some data loss, we'd be best of batching interactions
+on the client side. Instead of 20 interactions being sent per minute and user
+we can reduce that to one request per minute and user.
+
+$$\frac{200'000 \text{ users}}{60 \text{ seconds}} \approx 3300 \text{ requests / second}$$
+
+A sample of such a request might be:
+
+```js
+// A POST request to `/interactions`
+[
+  {
+    "event_type": "click",
+    "occurred_at": <epoch ms>,
+    "component_id": <string>
+  },
+  ...
+]
+```
+
+It's good to mention here that there would need to be some authentication
+mechanism, but we'll scope that out.
+
+The recipient service has one job, to put these requests on a message queue.
+
+```mermaid
+graph LR
+  A(JS client) -->|POST /interactions| B{Load Balancer};
+  B --> D(ingestion-srv)
+  B --> E(ingestion-srv)
+  B --> F(...)
+  D --> G([Message queue service])
+  E --> G
+  F --> G
+```
+
+The JS client posts to a known gateway that distributes the traffic to our
+service, `ingestion-srv`. We're batching the requests on the client, but can
+scale the amount of services here to accommodate an increase in traffic.
+
+After putting the message on a queue, we'll consume that message on the other
+side:
+
+```mermaid
+graph LR
+  A([Message queue service]) --> B(consumer-srv)
+  A --> C(consumer-srv)
+  A --> D(...)
+  B --> E[(Database)]
+  C --> E[(Database)]
+  D --> E[(Database)]
+```
+
+At our current peak traffic, a single consumer is likely to suffice. At this
+point we have another opportunity to batch. This time, we would like to batch
+increments to the counter for each component ID and hour. We can enable this
+by partitioning the messages by component ID when we enqueue them - note that
+this means we can batch on both `ingestion-srv` and `consumer-srv`.
+
+Given our current batching strategy, it's somewhat feasible that we'll be able
+to amortize the writes to be linear to the amount of components on the page. Even
+with hundreds of components, any RDBMS should be able to handle so many updates.
+
+We've yet to add the UI component. Since this system is write heavy, it's worth
+adding read replicas to the database. Our UI service will then read from that
+replica:
+
+```mermaid
+graph LR
+  A[(Database)] -.-> B[(Read replica)]
+  B --> C(ui-srv)
+  B --> D(ui-srv)
+  B --> E(...)
+```
+
+At this point we have a complete system that satisfies the requirements. Now
+is a good time to go through the design and note weaknesses. What does cost
+efficiency look like for this solution? Where are the bottlenecks? How does
+this scale if we increase the traffic? Does it require operator intervention?
+Can we seamlessly scale this to multiple regions? Can we distribute the
+database? Do we need caching? How do we monitor this system?
+
+Show the interviewer that you're thinking about these things, in most cases
+these interviews contain a decent amount of back and forth.
+
+#### Standard blocks to know about
+This is a non-exhaustive list of standard components that you'd do well to
+know about. Just like with programming languages, learning one type is a
+transferrable skill. Learn the invariants of each ones! How they scale, what
+their strengths and weaknesses are.
+
+##### Scaling
+We usually talk about scaling in two terms, _horizontal_ and _vertical_. If we
+want to scale our application, we can either run it on a more powerful machine,
+this is vertical scaling. Or we can distribute it on many machines, this is
+horizontal scaling.
+
+##### Load balancers
+A load balancer works as a proxy and distributes traffic accross multiple
+machines. Their main purpose is to be able to increase the amount of concurrent
+requests to a service. Load balancers work at different levels of the OSI
+stack -- think application level vs network level.
+
+There are different strategies for distributing the load:
+
+Round robin
+: Distributing traffic evenly accross machines
+
+Sticky sessions
+: Directing a user's traffic to the same machine for the duration of a session
+
+
+##### Databases
+There's a lot to say about databases. So let's simplify things. There are two
+categories of databases you should be concerned with - relational and NoSQL.
+They're uniquely good at different things.
+
+Relational databases store data in tables with pre-defined formats and rules.
+They are flexible in that they allow you to join data in arbitrary ways. They're
+great for structured data - to simplify, if you would store the data in a
+spreadsheet, a SQL database is probably a fine choice.
+
+With the right schema, a relational database can easily handle tens of
+thousands of inserts per second.
+
+In terms of scalability, there the responsibility lands on the developer to define
+the schema in such a way that the tables can be distributed on many machines --
+as well as adding the logic to the application. There are systems like
+[Vitess](https://vitess.io/) for MySQL that allow you to distribute your
+database without manual sharding at the application level.
+
+When it comes to NoSQL databases, there are quite a few different concepts to
+be aware of:
+
+- Key-value
+- Graph
+- Document
+- Column oriented
+
+NoSQL databases attempt to offer scale and flexibility that traditional
+relational databases don't.
+
+Familiarizing yourself with
+[MongoDB](https://docs.mongodb.com/manual/tutorial/getting-started/) is a good
+idea, it has an online playground and several easy to follow tutorials.
+
+If your access pattern is key-value based, NoSQL databases are a good
+alternative.
+
+##### Message queues and topics
+There are different types of messagings systems you should be aware of. In
+general, you can split them into queues and topics. A queue works like you'd
+expect, you push a message onto the queue and then you dequeue it at the other
+end, FIFO.
+
+Queues operating in FIFO mode have limitations on their throughput, AWS SQS in
+FIFO allows at most 300 enqueues per second - or at most 3000 messages when
+batching.
+
+The advantage of using a queue is that your consumer(s) only receive each
+message once.
+
+A topic is similar on the producer side. On the consumer side, each consumer
+receives all the messages from the topic.
+
+##### Monitoring
+
+##### Cloud storage
 
 [^covid]: Naturrally, during COVID-19 both parts of the interview process would
   be remote.
