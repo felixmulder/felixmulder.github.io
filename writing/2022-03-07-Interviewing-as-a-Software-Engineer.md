@@ -9,6 +9,8 @@ summary: >
 ---
 
 # Interviewing as a Software Engineer
+*20 minute read*
+
 Interviewing is hard. In different ways for both parties. On the hiring side,
 you need to have a good framework for evaluation in place, and make sure that
 your engineers understand and apply that effectively. Failure to do so leads to
