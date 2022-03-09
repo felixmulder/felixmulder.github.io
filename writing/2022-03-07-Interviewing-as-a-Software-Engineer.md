@@ -591,7 +591,7 @@ In our case study good alerting would cover:
 * API calls to `ingestion-srv` and `ui-srv`, are we returning internal errors
   like 5XXs etc, is there an elevated number of 4XXs?
 * Heart beat on `ingestion-srv` and `ui-srv`, is the API reachable?
-* Consumer offest on messaging broker, are we far enough behind that we're
+* Consumer offset on messaging broker, are we far enough behind that we're
   risking breaking SLO?
 * Database health, are we able to reach and query the DB? Can we persist our
   updates in `consumer-srv`?
