@@ -244,7 +244,8 @@ team align with those?
 
 I've sometimes seen people ask about mobility within the company. Sometimes
 that's a great selling point, but bear in mind that the hiring manager is most
-likely trying to fill a slot on _their_ team.
+likely trying to fill a slot on _their_ team and would probably not want to see
+you move teams in the near future.
 
 As an individual contributor, the manager is also looking to see that you're
 easy to collaborate with. No matter how senior you are, show that you're
