@@ -159,7 +159,7 @@ When you start implementing the code, think about the function, its arguments an
 return value before writing any implementation. E.g. in Java
 
 ```java
-public static List<Color> parseColors(String input) {
+public List<Color> parseColors(String input) {
   // TODO - implement
   return List.of();
 }
