@@ -198,7 +198,7 @@ the code actually does what it is supposed to.
 
 Another consideration is just how testable your code is. Sometimes you'll be
 asked to write a function that is side-effectful in nature. It requires access
-to a randomness or perhaps reading something from the environment. This makes
+to randomness or perhaps reading something from the environment. This makes
 testing your solution effectively, a lot harder. Consider creating an internal
 function that you can delegate to:
 
@@ -240,7 +240,7 @@ It's a really good idea to look up company values before these types of
 interviews. Most companies will post these on their website.
 
 Your answers don't have to be clever, especially when asked about regrets and
-weaknesses. Be genuine. If you made a mistake, show that your learned something
+weaknesses. Be genuine. If you made a mistake, show that you learned something
 from it. When describing your weaknesses, don't turn them into strengths. Show
 that you're aware of them and let the interviewer know how you handle them.[^best-advice]
 
@@ -252,7 +252,7 @@ important, own it!
 This brings us to goals. For junior engineers, I know it's hard to be concrete
 here. Here you've got to play the game, the interviewer has probably let you in
 on what the team is about, be cognizant of that in your goals. Does the org or
-team align with those?
+team align with your goals?
 
 I've sometimes seen people ask about mobility within the company. Sometimes
 that's a great selling point, but bear in mind that the hiring manager is most
