@@ -7,6 +7,14 @@
   src: url('/assets/iosevka-light.woff') format('woff');
 }
 
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 a, a:active, a:focus {
   outline: none;
 }
