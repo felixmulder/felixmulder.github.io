@@ -283,3 +283,8 @@ dl {
   padding: 20px;
   border-radius: 3px;
 }
+
+.mermaid > svg {
+  display: block;
+  margin: auto;
+}
