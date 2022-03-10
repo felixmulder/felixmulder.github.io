@@ -17,6 +17,12 @@ your engineers understand and apply that effectively. Failure to do so leads to
 bias, indecision and ambiguity in decisions. Which isn't great for either
 party.
 
+For candidates it's a stressful situation. They're under the spotlight in a way
+that is not really natural. Simple things like typing or defining a function can
+feel much harder under pressure. The candidate is also investing themselves
+emotionally in the process. Talking about your experience and goals puts you
+in a vulnerable position.[^vulnerability]
+
 If you're on the hiring side, your interview process is not just a means for
 you to hire -- it's also an effective way to advertise for your company's
 brand. No matter the outcome of the process, the candidate should be walking
@@ -42,7 +48,7 @@ an on-site portion.[^covid]
 - Programming
 - Debugging
 - Systems architecture
-* Career and company fit
+- Career and company fit
 
 These do differ slightly between companies. E.g. some companies don't have the
 manager chat in the qualifying round of interviews, and some have several
@@ -82,7 +88,7 @@ strange popping up, the recruiter screen mostly feels like a sanity check before
 kicking off the real process.
 
 ### Communication
-This is not an interview itself, but it's a common to all interviews and by far
+This is not an interview itself, but it's common to all interviews and by far
 one of the most important skills you will be judged on as an engineer.
 
 Whether the interview has you programming, sketching a system, or talking to
@@ -99,7 +105,8 @@ try to forge ahead.
 
 In all the places I've worked, candidates can receive a hire recommendation
 despite bombing an interview, but that's prefaced on knowing why the candidate
-did poorly during that phase of the process.
+did poorly during that phase of the process. Remember that the interviewer's
+trying to get a good signal in order to evaluate you.
 
 A good candidate doesn't just give great answers when prompted, but also asks
 great questions of the interviewers. Some of the greatest interviews I've had,
@@ -228,6 +235,9 @@ your direct superior. During this interview you'll likely discuss your
 experience at previous employers, your greatest accomplishments, biggest
 regrets, as well as your future goals. Be ready to answer why you're looking
 for a new opportunity.
+
+It's a really good idea to look up company values before these types of
+interviews. Most companies will post these on their website.
 
 Your answers don't have to be clever, especially when asked about regrets and
 weaknesses. Be genuine. If you made a mistake, show that your learned something
@@ -617,6 +627,11 @@ know](https://colin-scott.github.io/personal_website/research/interactive_latenc
 
 You don't have to know it by heart, but sometimes it can really aid in
 estimating the latency of your solution.
+
+[^vulnerability]: Regarding vulnerability, I cannot recommend enough that
+  you pick up [Daring
+  Greatly](https://www.amazon.com/Daring-Greatly-Courage-Vulnerable-Transforms/dp/1592408419)
+  by Brené Brown.
 
 [^covid]: Naturally, during COVID-19 both parts of the interview process would
   be remote.
