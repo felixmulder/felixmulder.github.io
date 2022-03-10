@@ -106,7 +106,12 @@ p {
   margin-right: 0;
 }
 
-h1.back-button {
+.navbar nav ul li:first-child {
+  margin-left: 0;
+}
+
+h1.back-button,
+h1.back-button-small {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -114,6 +119,10 @@ h1.back-button {
   font-family: 'Raleway', sans-serif !important;
   font-weight: 100;
   margin: 0;
+}
+
+h1.back-button-small {
+  display: none;
 }
 
 .navbar a {
@@ -287,4 +296,15 @@ dl {
 .mermaid > svg {
   display: block;
   margin: auto;
+}
+
+/* Apply rules when device is a cell phone in portrait mode */
+@media (orientation: portrait) {
+  h1.back-button {
+    display: none;
+  }
+
+  h1.back-button-small {
+    display: flex;
+  }
 }
