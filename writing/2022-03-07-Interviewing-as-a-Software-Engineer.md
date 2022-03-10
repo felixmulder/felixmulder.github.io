@@ -522,39 +522,47 @@ Sticky sessions
 ##### Databases
 There's a lot to say about databases. So let's simplify things. There are two
 categories of databases you should be concerned with - relational and NoSQL.
-They're uniquely good at different things.
+They're good for different things, but there is some overlap.
 
 Relational databases store data in tables with pre-defined formats and rules.
 They are flexible in that they allow you to join data in arbitrary ways. They're
-great for structured data - to simplify, if you would store the data in a
-spreadsheet, a SQL database is probably a fine choice.
+great for structured data -- to simplify, if you would store the data in a
+spreadsheet, a SQL database is probably a fine choice. Another advantage of
+relational databases is that they're [ACID](https://en.wikipedia.org/wiki/ACID).
+Further atomicity is exposed to the user via transactions, where multiple
+mutations can execute as a single all or nothing operation.
 
 With the right schema, a relational database can easily handle tens of
 thousands of inserts per second.
 
-In terms of scalability, there the responsibility lands on the developer to define
+In terms of scalability, the responsibility lands on the developer to define
 the schema in such a way that the tables can be distributed on many machines --
 as well as adding the logic to the application. There are systems like
 [Vitess](https://vitess.io/) for MySQL that allow you to distribute your
 database without manual sharding at the application level.
 
-When it comes to NoSQL databases, there are quite a few different concepts to
-be aware of:
+NoSQL databases are typically not relational and handle dynamically structured
+data such as JSON blobs, documents, key value pairs and graphs.
 
-- Key-value
-- Graph
-- Document
-- Column oriented
-
-NoSQL databases attempt to offer scale and flexibility that traditional
-relational databases don't.
+While relational databases can scale vertically as can be seen above, they
+require manual sharding to scale horizontally. NoSQL databases attempt offer
+horizontal scaling without manual sharding of the database.
 
 Familiarizing yourself with
 [MongoDB](https://docs.mongodb.com/manual/tutorial/getting-started/) is a good
 idea, it has an online playground and several easy to follow tutorials.
 
-If your access pattern is key-value based, NoSQL databases are a near perfect
-fit.
+If your access pattern is key-value based and/or non-relational, NoSQL
+databases might be for you.
+
+So, how do you choose? Like everything in this interview: it depends. If you
+know that your data model has a very specific shape, like time series or
+key-value, then I'd consider a NoSQL database from the get-go. Otherwise, a
+safe bet is to choose a relational database until such time that you cannot
+survive with vertical scaling alone and need to shard the data in order to
+scale. At that juncture, I'd discuss the pros and cons with the interviewer
+and decide based on the requirements whether to invest in sharding the SQL
+database, introducing something like Vitess, or migrate to a NoSQL solution.
 
 ##### Message queues and topics
 There are different types of messaging systems you should be aware of. In
@@ -619,7 +627,7 @@ cloud provider have their preferred solution, like AWS S3 or Google Cloud
 Storage.
 
 There are other solutions available, like attaching network drives to compute
-instances. Doing this might be necesary when building a stateful service or
+instances. Doing this might be necessary when building a stateful service or
 hosting database on a compute instance.
 
 Something to keep in mind is the [latencies every programmer should
