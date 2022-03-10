@@ -192,9 +192,9 @@ latter unless you use a very sophisticated editor.
 In none of the places where I've interviewed candidates have we "deducted
 points" for when the program doesn't compile or give the expected output on the
 first try. It _is_, however, quite common that I see folks writing _a lot of code_
-without knowing if it'll compile. It puts these candidates at a disadvantage.
-They'll have to spend a bunch of time fixing their mistakes before seeing if
-the code actually does what it is supposed to.
+without knowing if it'll parse or compile. It puts these candidates at a
+disadvantage. They'll have to spend a bunch of time fixing their mistakes
+before seeing if the code actually does what it is supposed to.
 
 Another consideration is just how testable your code is. Sometimes you'll be
 asked to write a function that is side-effectful in nature. It requires access
