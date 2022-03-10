@@ -146,12 +146,13 @@ h1.back-button-small {
 
 .article-container,
 .articles-container {
-  max-width: 40rem;
+  max-width: 41rem;
   text-align: justify;
   margin: 0 auto;
   font-size: 16px;
   font-family: 'IBM Plex Sans', sans-serif;
   overflow-y: auto;
+  padding: 0 0.5rem;
 }
 
 .article-container h1,
