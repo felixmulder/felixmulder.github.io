@@ -27,6 +27,7 @@ p {
   display: flex;
   width: 100%;
   min-height: 100vh;
+  flex-direction: column;
 }
 
 .index-container {
@@ -72,20 +73,21 @@ p {
   color: rgb(55 65 81);
   text-decoration: none;
   padding: 4px 6px;
-  border: 1px solid transparent;
-  border-radius: 4px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: 200ms;
 }
 
 .page-link:hover {
-  border: 1px solid rgba(55, 65, 81);
+  border: 2px solid rgba(55, 65, 81, 0.7);
 }
 
 .navbar {
   display: flex;
   justify-content: space-between;
-  margin: 0 auto;
-  padding: 1.74rem 0;
-  text-align: center;
+  padding: 16px 32px;
+  width: 100%;
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 
 .navbar h1 {
@@ -94,15 +96,13 @@ p {
 
 .navbar nav ul {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
   list-style-type: none;
   list-style-position: inside;
   margin: 0;
 }
 
 .navbar nav ul li {
-  margin-left: 3em;
+  margin-left: 1em;
   margin-right: 0;
 }
 
@@ -117,19 +117,22 @@ h1.back-button {
 }
 
 .navbar a {
-  padding: 4px 0px;
+  padding: 0px;
   color: rgb(75, 85, 99);
   text-decoration: none;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
+  transition: 200ms;
+  font-size: 16px;
 }
 
 .navbar nav a {
-  padding: 4px 6px;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: 8px;
 }
 
 .navbar nav a:hover {
-  border: 1px solid rgb(75, 85, 99);
+  border: 2px solid rgb(75, 85, 99);
+  border: 2px solid rgba(55, 65, 81, 0.7);
 }
 
 .article-container,
@@ -146,7 +149,7 @@ h1.back-button {
 .articles-container h1 {
   font-family: 'Montserrat', sans-serif;
   font-weight: 800;
-  font-size: 32px;
+  font-size: 48px;
   text-align: left;
 }
 
@@ -241,7 +244,7 @@ hr {
   margin-bottom: 3em;
 }
 
-.talk-title, .article-title {
+h1.talk-title, h1.article-title {
   font-size: 18px;
   border-bottom: 0.5px solid rgba(0, 0, 0, 1);
   padding-bottom: 14px;
@@ -259,7 +262,7 @@ hr {
   margin-left: 5px;
 }
 
-.talk-venue {
+h2.talk-venue {
   font-size: 14px;
 }
 
