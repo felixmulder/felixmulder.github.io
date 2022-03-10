@@ -1,7 +1,7 @@
 ---
 title: "Interviewing as a Software Engineer"
-date: 2022-03-07
-published: false
+date: 2022-03-10
+published: true
 summary: >
   Interviewing is hard. In different ways for both parties. In this
   post, I describe my thoughts on how to do well in SWE interviews
