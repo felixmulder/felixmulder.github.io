@@ -319,7 +319,7 @@ maven vs gradle, stack vs cabal), it's a good idea to be able to do the above
 for all of them!
 
 What about debug by print statements? That can be fine, make sure you're
-methodical thee as well. Try to print relevant things, not just `"HERE"`!
+methodical there as well. Try to print relevant things, not just `"HERE"`!
 
 ### Systems architecture
 I really love giving systems architecture interviews. They're a lot more open
