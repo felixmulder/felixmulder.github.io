@@ -92,6 +92,13 @@ buildRules = do
       >>= loadAndApplyTemplate "templates/root.html" defaultContext
       >>= relativizeUrls
 
+  match "resume.html" do
+    route idRoute
+    compile $ getResourceBody
+      >>= loadAndApplyTemplate "templates/navbar.html" defaultContext
+      >>= loadAndApplyTemplate "templates/root.html" defaultContext
+      >>= relativizeUrls
+
 mdCompiler :: Compiler (Item String)
 mdCompiler = pandocCompilerWithTransform readerOpts writerOpts pandocFilter
   where

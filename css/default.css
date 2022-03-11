@@ -299,6 +299,115 @@ dl {
   margin: auto;
 }
 
+/** Start Resume */
+#resume {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  width: 50rem;
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: rgb(75, 85, 99);
+}
+
+#resume-header {
+  font-family: 'Raleway', sans-serif;
+  text-align: center;
+  padding-bottom: 2rem;
+}
+
+#resume-header h1 {
+  font-size: 22px;
+  font-weight: 100;
+}
+
+#resume-header h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+}
+
+#resume-body {
+  display: flex;
+  flex-direction: row;
+  min-height: 50vh;
+}
+
+#bio {
+  text-align: right;
+  width: 16rem;
+  padding-top: 137px;
+  padding-right: 0.5rem;
+}
+
+.bio-section:not(:first-child) {
+  margin-top: 2rem;
+}
+
+.bio-section h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+.bio-section ul {
+  margin: 0;
+  list-style-type: none;
+  font-size: 14px;
+}
+
+.bio-section ul:not(:first-child) {
+  margin-bottom: 1rem;
+}
+
+#experience {
+  padding-left: 2rem;
+}
+
+#experience > h1 {
+  margin-top: 0px;
+}
+
+.work-section {
+  display: flex;
+  flex-direction: row;
+}
+
+.work-section:not(:first-child) {
+  margin-top: 20px;
+}
+
+.work-details-header {
+  display: flex;
+  direction: row;
+  justify-content: space-between;
+}
+
+.work-details-header h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.work-details-header h2 {
+  font-size: 18px;
+  font-weight: 100;
+  margin: 0;
+}
+
+.work-details-body h2 {
+  font-size: 18px;
+  font-weight: 100;
+}
+
+.work-details-header-locale {
+  font-weight: 100;
+  font-size: 14px;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+/** End Resume */
+
 /* Apply rules when device is a cell phone in portrait mode */
 @media (orientation: portrait) {
   h1.back-button {
