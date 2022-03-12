@@ -1,7 +1,7 @@
 ---
 title: "Monorepos done right"
 date: 2022-03-12
-published: false
+published: true
 summary: >
   A monorepo isn't just throwing all of your code in the same repo and calling
   it a day. In this post we discuss how not to make your monorepo, well,
