@@ -118,7 +118,8 @@ This is not such a problem with multirepos, as the occurrence of merge races is
 The easiest mitigation is to serialize merges to the main branch. However,
 this does not scale. At Stripe, my current project is to implement a
 speculative approach to testing and merging changes, this will allow us to
-scale merges to hundreds of commits per hour.
+scale merges to hundreds of commits per hour while keeping the main branch
+green.
 
 ## Trying to get things right from the start
 This is why I'm writing this post. Most monorepos I've been exposed to have a lot
