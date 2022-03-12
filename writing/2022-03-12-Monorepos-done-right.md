@@ -103,7 +103,7 @@ quite possible to eliminate flakiness. For a whole org, it isn't. It's going to
 happen, so you have to figure out a way to deal with it.
 
 ##### Merge races
-A merge race occurrs as a conflict due to a merge, on the semantic level as
+A merge race occurs as a conflict due to a merge, on the semantic level as
 opposed to a conflict on the VCS level.
 
 Consider two pull requests changing the same file. They both pass CI on their
@@ -230,7 +230,11 @@ the service have to complete successfully! Furthermore, they want to be
 certain that the toy service can be built for the same commit in order to
 allow a deploy.
 
-For critical components, you may want to employ more rigour, it's up to you!
+For critical components, you may want to employ more rigor, it's up to you!
+
+It's important to have the distinction that not all services are deployable in
+all commits on the main branch. Imagine that a merge race causes services'
+deployability to go red, you wouldn't want that to stop any orthogonal change!
 
 ### Test flakiness
 In the previous section we sort of closed our eyes to having flaky tests in
@@ -251,7 +255,7 @@ The last one is harder. It brings us to needing a flaky test mitigation system.
 There are a couple of strategies we can employ. Each test should be given a
 globally unique ID. Whenever a new ID appears, we run that test several times
 in different configurations in order to determine if it is flaky. If it is not
-deamed flaky, we let it out into the wild. If the test GUID starts showing up
+deemed flaky, we let it out into the wild. If the test GUID starts showing up
 as failing intermittently, we should disable the test and open a ticket with
 the owning team.
 
