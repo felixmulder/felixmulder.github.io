@@ -55,8 +55,8 @@ There are real downsides to putting everything into a single repo.
 
 - **VCS not scaling to meet your needs**
 
-  Your version control not being able to handle the sheer number of references
-  and operations done to the repo.
+  Your version control system not being able to handle the sheer number of
+  references and operations done to the repo.
 
 - **Access and code ownership**
 
