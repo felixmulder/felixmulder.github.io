@@ -146,7 +146,8 @@ want to deploy one out of all your services, you'll get full rebuilds of your
 repo.
 
 I still think a hermetic build system is the way to go; but I wouldn't gate
-merges on full rebuilds. Instead, let's give some flexibility to our engineers.
+merges on testing the full repo. Instead, let's give some flexibility to our
+engineers.
 
 If we have the service `toy-srv`, the developers of that service should be
 comfortable in declaring what needs to pass in order for the service to be
