@@ -417,4 +417,9 @@ dl {
   h1.back-button-small {
     display: flex;
   }
+
+  #resume {
+    width: 100%;
+    padding: 0 0.5em;
+  }
 }
