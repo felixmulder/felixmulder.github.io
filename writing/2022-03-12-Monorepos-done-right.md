@@ -153,9 +153,9 @@ If we have the service `toy-srv`, the developers of that service should be
 comfortable in declaring what needs to pass in order for the service to be
 deployed.
 
-Let's each service directory contains some `src` files and some `test` files. A
-`BUILD.bazel` file that specifies build targets, and a `metadata.yaml` file
-that we can populate with repo specific infra:
+Let's say each service directory contains some `src` files and some `test`
+files. A `BUILD.bazel` file that specifies build targets, and a `metadata.yaml`
+file that we can populate with repo specific infra:
 
 ```txt
 .
