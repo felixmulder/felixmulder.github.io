@@ -427,3 +427,32 @@ dl {
     padding: 0 0.5em;
   }
 }
+
+@media only screen and (max-width: 767px) and (orientation: portrait) {
+  #resume {
+    width: 100%;
+    padding: 0 0.5em;
+  }
+
+  #resume-body {
+    flex-direction: column-reverse;
+  }
+
+  #experience {
+    padding-left: 0;
+  }
+
+  #bio {
+    width: 100%;
+    text-align: left;
+    padding: 0;
+  }
+
+  .bio-section h1 {
+    font-size: 24px;
+  }
+
+  .bio-section ul {
+    padding-left: 0;
+  }
+}
