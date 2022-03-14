@@ -9,6 +9,8 @@ summary: >
 ---
 
 # Monorepos done right
+*8 minute read*
+
 There's a lot of arguments for and against monorepos. Done right, I believe
 monorepos will help you move with urgency and focus as your engineering
 organization grows. That doesn't mean it's easy! I've also seen monorepos turn
