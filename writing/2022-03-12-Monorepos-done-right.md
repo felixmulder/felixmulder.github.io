@@ -286,3 +286,9 @@ There's a lot more to discuss when it comes to managing a monorepo, and I've
 left a lot of things out. I might write about this again in the future.
 
 -- Felix
+
+---
+
+#### Updates
+* 2020-03-15: Improve phrasing as to why naively serializing merges does not
+  scale ([commit](https://github.com/felixmulder/felixmulder.github.io/commit/6a484431e0b8acda13b4c01a20121c73df044280))
