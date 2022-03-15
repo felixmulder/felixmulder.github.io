@@ -274,7 +274,7 @@ The [Systems architecture](#systems-architecture) section has some overlap with
 debugging a service, so I'll focus on debugging code in this section.
 
 #### Approach
-Fixing bugs is something every engineer does, even if it wasn't they who
+Fixing bugs is something every engineer does, even if it wasn't them who
 introduced the error. The point of these types of exercises is to see how you
 diagnose and fix issues. Sometimes you'll be given a failing test-case which
 you can use as an entry point. Sometimes, you'll need to recreate the error
@@ -379,7 +379,8 @@ Here are some questions I'd ask to determine requirements:
 * What does traffic look like to our website? I.e. what type of scale do we
   want? How many actions per user per minute do we expect?
 * How fast should the data appear in our operator UI? Can the system be
-  eventually consistent?
+  eventually consistent[^eventual-consistency], if so is there an SLO[^slo] on
+  the data appearing in the UI?
 * What are the availability requirements for our operator UI?
 * What should be visible via the UI? Does it affect our events? Do we need to
   fetch data from other systems?
@@ -393,11 +394,12 @@ Here are some questions I'd ask to determine requirements:
 > * The operator UI should be able to query the data by hour of day
 >
 > #### Non-functional requirements
-> * The data does not have to appear immediately in the operator UI
+> * The data does not have to appear immediately in the operator UI, a lag of
+>   15 minutes is an acceptable SLO
 > * The system can be eventually consistent
-> * Our startup has around 200k active users with peak traffic of about peak
->   traffic of 4 million interactions per minute (~67k interactions per
->   second, at 20 interactions per user)
+> * Our startup has around 200k active users with peak traffic of about 4
+>   million interactions per minute (~67k interactions per second, at 20
+>   interactions per user)
 > * We can endure some data loss, but we should be able to gauge usage reliably
 > * The operator UI should have an up-time of three nines (99.9%)
 > * Our users are primarily in Europe, but we've plans to expand to North America
@@ -574,19 +576,25 @@ Queues operating in FIFO mode have limitations on their throughput, AWS SQS in
 FIFO allows at most 300 enqueues per second - or at most 3000 messages when
 batching.
 
-An invariant of using a queue is that your consumer(s) only receive each
-message once. The drawback, being that scaling can be harder to achieve.
+Using a queue, you can think of your consumer(s) only receiving the message
+once. Due to how distributed systems work, however, this will be "at least
+once" and thus any action they take should be idempotent. A drawback to using
+queues is that scaling can be harder to achieve.
 
-A topic is similar on the producer side. On the consumer side, each consumer
-receives all the messages from the topic. This is great if you need to do
-a number of different things per message that are orthogonal to each other.
+Publish subscribe systems like Kafka, Kinesis or Google Pub/Sub have topics
+instead of queues. A topic is similar on the producer side. On the consumer
+side, each consumer receives all the messages from the topic. This is great if
+you need to do a number of different things per message that are orthogonal to
+each other.
 
-Topics scale by partition. Typically you either decide statically how many
-partitions you will have, or the system scales the number of partitions
-based on e.g. consumer lag. A partition key can usually be manually determined,
-in our case study, we chose the component ID as the partition key. Each partition
-can have one consumer per consumer group and thus your consumers can scale with
-the number of partitions.
+Topics scale by partition. Each partition can have one consumer per consumer
+group and thus your consumers can scale with the number of partitions.
+Typically you decide statically how many partitions you will have, and can
+modify this if you see the need to scale the number of consumers based on
+e.g. consumer lag. A partition key can usually be manually determined, in our
+case study, we chose the component ID as the partition key. The system then
+distributes your messages on the different partitions. Systems like Kafka
+guarantee ordering per-topic.
 
 A system like Kafka can typically process ~900k transactions per second on a
 single partition, depending of course on message size.
@@ -655,4 +663,12 @@ estimating the latency of your solution.
 [^best-advice]: One of the best pieces of advice I ever received was not to
   focus on eliminating my weaknesses, but to lean into my strengths.
 
+[^eventual-consistency]: Given that no new state updates occur, a system that
+  is eventually consistent will at some point reach an equilibrium where all
+  accesses to its data return the same value. For example, in database systems,
+  read replicas might not be up to date with the main database but given time,
+  and no updates -- they will all contain the same data.
 
+[^slo]: Service Level Objective, an objective the service must meet in order to
+  fulfill its agreement with partners. Typically an externally facing system
+  will have an SLO on e.g. availability and latency.
