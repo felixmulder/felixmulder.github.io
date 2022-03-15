@@ -645,6 +645,20 @@ know](https://colin-scott.github.io/personal_website/research/interactive_latenc
 You don't have to know it by heart, but sometimes it can really aid in
 estimating the latency of your solution.
 
+## In closing
+We've discussed the different interviews, what interviewers look for, and
+examples to help you prepare yourself. I hope this post has given you some
+insight into the interviewing process, and perhaps helped you realize what you
+need to hone in order to present your best self.
+
+-- Felix
+
+---
+
+Thanks to [Filipe Cristóvão](https://www.linkedin.com/in/filipecristovao/) for
+helpfully reviewing drafts of this post. Much like a distributed system, this
+post will be eventually consistent thanks to him.
+
 [^vulnerability]: Regarding vulnerability, I cannot recommend enough that
   you pick up [Daring
   Greatly](https://www.amazon.com/Daring-Greatly-Courage-Vulnerable-Transforms/dp/1592408419)
