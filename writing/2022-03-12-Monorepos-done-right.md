@@ -37,7 +37,8 @@ There are a number of things I really like about monorepos:
 - **Sharing and reusing code**
 
   Discoverability for existing functionality and reusing existing components
-  is greatly simplified.
+  is greatly simplified. This also includes versioning and aligning
+  dependencies across the org.
 
 - **Improved collaboration**
 
@@ -259,8 +260,8 @@ There are a couple of strategies we can employ. Each test should be given a
 globally unique ID. Whenever a new ID appears, we run that test several times
 in different configurations in order to determine if it is flaky. If it is not
 deemed flaky, we let it out into the wild. If the test GUID starts showing up
-as failing intermittently, we should disable the test and open a ticket with
-the owning team.
+as failing intermittently, we automatically disable the test and open a ticket
+with the owning team.
 
 This latter piece is hard to build yourself quickly, but a lot of CI vendors
 seem to be digging into this space finally.
