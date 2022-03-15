@@ -577,9 +577,10 @@ FIFO allows at most 300 enqueues per second - or at most 3000 messages when
 batching.
 
 Using a queue, you can think of your consumer(s) only receiving the message
-once. Due to how distributed systems work, however, this will be "at least
-once" and thus any action they take should be idempotent. A drawback to using
-queues is that scaling can be harder to achieve.
+once. But not _exactly once_. Usual messaging systems can only guarantee
+that messages will be delivered _at least once_ when failure happens. This
+implies that any action consumers take should be idempotent. A drawback to
+using FIFO queues is that scaling can be harder to achieve.
 
 Publish subscribe systems like Kafka, Kinesis or Google Pub/Sub have topics
 instead of queues. A topic is similar on the producer side. On the consumer
@@ -594,7 +595,7 @@ modify this if you see the need to scale the number of consumers based on
 e.g. consumer lag. A partition key can usually be manually determined, in our
 case study, we chose the component ID as the partition key. The system then
 distributes your messages on the different partitions. Systems like Kafka
-guarantee ordering per-topic.
+guarantee ordering per-partition and not per-topic.
 
 A system like Kafka can typically process ~900k transactions per second on a
 single partition, depending of course on message size.
