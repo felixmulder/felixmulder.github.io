@@ -143,14 +143,14 @@ unaffected build artifacts. That way, we'll only rebuild the minimum set of
 changes.
 
 In real life, using a hermetic build system _for tests_ does not actually
-scale. The dependency graph of your repo becomes entwined with how much of your
-repo gets tested. Change a deeply nested component often? Even though you only
-want to deploy one out of all your services, you'll get full rebuilds of your
-repo.
+scale for pre-merge checks. The dependency graph of your repo becomes entwined
+with how much of your repo gets tested. Change a deeply nested component often?
+Even though you only want to deploy one out of all your services, you'll get
+full rebuilds of your repo.
 
 I still think a hermetic build system is the way to go; but I wouldn't gate
-merges on testing the full repo. Instead, let's give some flexibility to our
-engineers.
+_merges_ on testing the full repo. Instead, let's give some flexibility to our
+engineers.[^post-merge]
 
 If we have the service `toy-srv`, the developers of that service should be
 comfortable in declaring what needs to pass in order for the service to be
@@ -293,3 +293,8 @@ left a lot of things out. I might write about this again in the future.
 #### Updates
 * 2020-03-15: Improve phrasing as to why naively serializing merges does not
   scale ([commit](https://github.com/felixmulder/felixmulder.github.io/commit/6a484431e0b8acda13b4c01a20121c73df044280))
+
+[^post-merge]: When the change has actually been merged, we could still run
+  a more comprehensive suite of tests or even the full suite of tests and
+  propose an automatic revert if there's been any breakage to dependencies.
+  This is an awesome thing that a hermetic build system can provide!
