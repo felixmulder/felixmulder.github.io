@@ -294,6 +294,8 @@ left a lot of things out. I might write about this again in the future.
 * 2020-03-15: Improve phrasing as to why naively serializing merges does not
   scale ([commit](https://github.com/felixmulder/felixmulder.github.io/commit/6a484431e0b8acda13b4c01a20121c73df044280))
 
+* 2020-03-17: Clarify pre-merge checks ([commit](https://github.com/felixmulder/felixmulder.github.io/commit/0ca30adab534d4000d3bbe0fad023bd9263705a6))
+
 [^post-merge]: When the change has actually been merged, we could still run
   a more comprehensive suite of tests or even the full suite of tests and
   propose an automatic revert if there's been any breakage to dependencies.
