@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: actions/setup-haskell@v1
+    - uses: haskell/actions/setup@v1
       with:
         ghc-version: '8.6.5'
         cabal-version: '3.0'
@@ -27,4 +27,4 @@ jobs:
         REPO: self
         BRANCH: gh-pages
         FOLDER: _site
-        SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+        SSH_PRIVATE_KEY: ${{ secrets.GITHUB_TOKEN }}
