@@ -1,0 +1,30 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-haskell@v1
+      with:
+        ghc-version: '8.6.5'
+        cabal-version: '3.0'
+
+    - name: Install dependencies
+      run: cabal update
+
+    - name: Generate site
+      run: cabal run
+
+    - name: Deploy site
+      uses: s0/git-publish-subdir-action@v2.5.1
+      env:
+        REPO: self
+        BRANCH: gh-pages
+        FOLDER: _site
+        SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
