@@ -260,7 +260,7 @@ hr {
 
 h1.talk-title, h1.article-title {
   font-size: 18px;
-  border-bottom: 0.5px solid rgba(0, 0, 0, 1);
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.15);
   padding-bottom: 14px;
 }
 
