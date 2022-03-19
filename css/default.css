@@ -264,6 +264,27 @@ h1.talk-title, h1.article-title {
   padding-bottom: 14px;
 }
 
+
+.talk-title.video > a {
+  margin-left: -18px;
+  transition: 0.2s;
+  text-decoration: none;
+  color: rgb(0, 0, 0);
+}
+
+.talk-title.video:hover > a {
+  margin-left: 0;
+}
+
+.talk-title > a > svg {
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.talk-title:hover > a > svg {
+  opacity: 1;
+}
+
 .article-title > a {
   text-decoration: none;
   color: #000;
