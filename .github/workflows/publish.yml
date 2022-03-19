@@ -27,4 +27,4 @@ jobs:
         REPO: self
         BRANCH: gh-pages
         FOLDER: _site
-        SSH_PRIVATE_KEY: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
