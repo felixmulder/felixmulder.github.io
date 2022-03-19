@@ -17,16 +17,15 @@ jobs:
         ghc-version: '8.6'
         cabal-version: '3.0'
 
-    - name: Update dependency registry
-      run: cabal update
-
     - name: Freeze deps
       run: cabal freeze
 
     - uses: actions/cache@v2
       name: Cache cabal store
       with:
-        path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
+        path: |
+          ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
+          dist-newstyle
         key: ${{ hashFiles('cabal.project.freeze') }}
 
     - name: Generate site
