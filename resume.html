@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Felix Mulder</title>
+    <link rel="stylesheet" href="./css/default.css" />
+    <link rel="stylesheet" href="./css/haskell-syntax.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="navbar">
+  <h1 class="back-button">
+    <a href="./">Felix Mulder</a>
+  </h1>
+  <h1 class="back-button-small">
+    <a href="./">FM</a>
+  </h1>
+
+  <nav role="navigation">
+    <ul>
+      <li><a href="./writing.html">Writing</a></li>
+      <li><a href="./talks.html">Talks</a></li>
+      <li><a href="./resume.html">Résumé</a></li>
+    </ul>
+  </nav>
+</header>
+<div id="resume">
+  <div id="resume-header">
+    <h1>Felix Mulder</h1>
+    <h2>Computer Science Engineer<h2>
+  </div>
+
+  <div id="resume-body">
+    <div id="bio">
+      <div class="bio-section">
+        <h1>CONTACT</h1>
+        <ul>
+          <li>Metargatan 15</li>
+          <li>11 666, Stockholm</li>
+          <li>Sweden</li>
+          <li></li>
+          <li><a href="tel:+46739328668">+46739328668</a></li>
+          <li>
+            felix.mulder[at]gmail.com
+          </li>
+        </ul>
+      </div>
+
+      <div class="bio-section">
+        <h1>BORN</h1>
+        <ul>
+          <li>October 16, 1990</li>
+        </ul>
+      </div>
+
+      <div class="bio-section">
+        <h1>EDUCATION</h1>
+        <ul>
+          <li><strong>Research Fellowship</strong></li>
+          <li>Languages and Programming Methods Laboratory</li>
+          <li>EPFL, Switzerland</li>
+          <li><em>03.2016-05.2016</em></li>
+          <li></li>
+        </ul>
+
+        <ul>
+          <li><strong>Master of Science</strong></li>
+          <li>Computer Science Engineering</li>
+          <li>Lund University, Sweden</li>
+          <li><em>2011-2016</em></li>
+        </ul>
+
+        <ul>
+          <li><strong>Foreign Exchange</strong></li>
+          <li>Ikubunkan Yumei Gakuen</li>
+          <li>Tokyo, Japan</li>
+          <li><em>2008-2009</em></li>
+        </ul>
+      </div>
+
+      <div class="bio-section">
+        <h1>LANGUAGE PROFICIENCY</h1>
+        <ul>
+          <li>Swedish native</li>
+          <li>English full professional</li>
+          <li>French elementary</li>
+          <li>Japanese elementary</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="experience">
+      <h1>WORK EXPERIENCE</h1>
+
+      <div class="work-section">
+        <div class="work-details">
+          <div class="work-details-header">
+            <div>
+              <h1>Stripe</h1>
+              <h2>SENIOR ENGINEER</h2>
+            </div>
+            <div class="work-details-header-locale">
+              <span>REMOTE STOCKHOLM, SWEDEN</span>
+              <span>09.2020-Present</span>
+            </div>
+          </div>
+          <div class="work-details-body">
+            <p>
+              I work in developer productivity. My main area of focus is making
+              sure that merges to Stripe's monorepos is able to scale with the
+              growth of our engineering force.
+            </p>
+            <p>
+              We're looking at having hundreds of concurrent merge submissions
+              per hour. To do this we've implemented speculative builds in
+              order to keep a, de facto, always green main branch.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details">
+          <div class="work-details-header">
+            <div>
+              <h1>Klarna Bank AB</h1>
+              <h2>TEAM LEAD, LEAD ENGINEER</h2>
+            </div>
+            <div class="work-details-header-locale">
+              <span>STOCKHOLM, SWEDEN</span>
+              <span>09.2017-09.2020</span>
+            </div>
+          </div>
+          <div class="work-details-body">
+            <p>
+              Led teams that developed the capabilities for interledger
+              transactions and banking infrastructure on a modern banking
+              platform developed using functional languages and cloud
+              technologies.
+            </p>
+            <p>
+              Taught functional programming in Haskell/Scala to Klarna's
+              engineers and served as an adviser to various teams on Scala and
+              functional programming related solutions.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details">
+          <div class="work-details-header">
+            <div>
+              <h1>École Polytechnique Fédérale de Lausanne</h1>
+              <h2>COMPILER ENGINEER ON THE SCALA 3 COMPILER</h2>
+            </div>
+            <div class="work-details-header-locale">
+              <span>LAUSANNE, SWITZERLAND</span>
+              <span>08.2016-09.2017</span>
+            </div>
+          </div>
+          <div class="work-details-body">
+            <p>
+              Implemented the Scala 3 REPL, featuring lots of modern features
+              like tab-completion, syntax highlighting and more.
+            </p>
+            <p>
+              Implemented semantic error reporting to allow for amazing error
+              messages that tell you what went wrong, offer fixes and give
+              concrete suggestions using your own code as example.
+            </p>
+            <p>
+              Wrote a documentation compiler - and enabled it to be much more
+              than just creating API reference. It is a full-blown static site
+              generator, where you can cross reference between code and
+              documentation; which makes sure that you both cater to your users
+              and contributors - without duplication.
+            </p>
+            <p>
+              As release manager, I implemented a release strategy, based on
+              Rust's train model. I also gave several talks on Scala 3, kept
+              the community engaged via workshops and hackathons.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details">
+          <div class="work-details-header">
+            <div>
+              <h1>Google Summer of Code</h1>
+              <h2>Mentor for Scala Organization</h2>
+            </div>
+            <div class="work-details-header-locale">
+              <span>05.2017-07.2017</span>
+            </div>
+          </div>
+          <div class="work-details-body">
+            <p>
+              Mentoring student on improvements to documentation compiler.
+              Including type-safe templating engine and compiled documentation,
+              ensuring that any code-snippet is always up-to-date with the
+              released code.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details">
+          <div class="work-details-header">
+            <div>
+              <h1>Google Summer of Code</h1>
+              <h2>Scala Organization</h2>
+            </div>
+            <div class="work-details-header-locale">
+              <span>05.2016-07.2016</span>
+            </div>
+          </div>
+          <div class="work-details-body">
+            <p>
+              Implemented the next generation documentation tool, alias dottydoc,
+              for Scala. Improvements over the old scaladoc include a full Scala stack
+              from runnable binary to client JavaScript using Scala.js
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details">
+          <div class="work-details-header">
+            <div>
+              <h1>École Polytechnique Fédérale de Lausanne</h1>
+              <h2>Research Fellow, Programming Methods Laboratory</h2>
+            </div>
+            <div class="work-details-header-locale">
+              <span>LAUSANNE, SWITZERLAND</span>
+              <span>02.2016-05.2016</span>
+            </div>
+          </div>
+          <div class="work-details-body">
+            <p>
+              Working on the next generation Scala compiler, and the tooling
+              surrounding it. This compiler would later go on to become the Scala
+              3 compiler.
+            </p>
+            <p>
+              The majority of the work consisted of identifying analyzing and
+              xing issues in the compiler. Major contributions include partial
+              evaluation of statically known function results, implementing a
+              REPL based on Ammonite and laying the groundwork for the next
+              generation documentation tools for Scala.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details">
+          <div class="work-details-header">
+            <div>
+              <h1>Axis Communications AB</h1>
+              <h2>Student Software Engineer, Core Technologies</h2>
+            </div>
+            <div class="work-details-header-locale">
+              <span>LUND, SWEDEN</span>
+              <span>2014-2016</span>
+            </div>
+          </div>
+          <div class="work-details-body">
+            <p>
+              <strong>Master's Thesis:</strong> Image Processing Across
+              Multiple Interconnected System-on-Chips
+            </p>
+            <p>
+              Developed a <strong>Linux kernel</strong> performance indexing
+              framework, measuring relative performance difference in key
+              parts of the kernel using <strong>Python</strong>.
+            </p>
+            <p>
+              Implemented reference counting in Axis's video memory
+              driver for debug purposes. It identified a potential deadlock
+              on its first day of service.
+            </p>
+            <p>
+              Researched and implemented GPU use cases for Axis's embedded
+              systems using <strong>C</strong> and <strong>OpenGLES</strong>.
+            </p>
+            <p>
+              Built a system for cataloging and maintaining test data. Making
+              more than a terabyte of data not previously cataloged,
+              searchable.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details">
+          <div class="work-details-header">
+            <div>
+              <h1>Sole Proprietor</h1>
+              <h2>Software Engineer and Consultant</h2>
+            </div>
+            <div class="work-details-header-locale">
+              <span>LUND, SWEDEN</span>
+              <span>2012-2015</span>
+            </div>
+          </div>
+          <div class="work-details-body">
+            <p>
+              Developed an ordering system and API for Malmö's largest taxi
+              company using <strong>Scala</strong>, <strong>Akka</strong> and
+              <strong>PostgreSQL</strong>. Enabling users to order cabs and
+              track their location in real time.
+            </p>
+
+            <p>
+              Developed the second version of the taxi company's iOS app.
+            </p>
+
+            <p>
+              Project manager for iOS &amp; Android development on taxi apps.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details">
+          <div class="work-details-header">
+            <div>
+              <h1>Lund University: Computer Sc. Dept.</h1>
+              <h2>Teacher's Assistant and Lab Manager</h2>
+            </div>
+            <div class="work-details-header-locale">
+              <span>LUND, SWEDEN</span>
+              <span>2012-2015</span>
+            </div>
+          </div>
+          <div class="work-details-body">
+            <p>
+              <em>Data Structures, Abstraction and Design using Java</em>
+            </p>
+
+            <p>
+              <em>Programming and Databases</em>
+            </p>
+
+            <p>
+              <em>Computer Organization</em>, taught students the
+              basics of computer architecture, assembly and real time
+              systems.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details">
+          <div class="work-details-header">
+            <div>
+              <h1>Menmo</h1>
+              <h2>Software Developer, Web Applications &amp; Services</h2>
+            </div>
+            <div class="work-details-header-locale">
+              <span>MALMÖ, SWEDEN</span>
+              <span>2012-2013</span>
+            </div>
+          </div>
+          <div class="work-details-body">
+            <p>
+              Developed the companion app and backend for a coffee bar and
+              startup incubator. Enabling booking of meeting rooms, ordering
+              products from the bar, Wi-Fi access as well as invoicing.
+            </p>
+
+            <p>
+              Webmaster and developer for the daily newspaper
+              <a href="http://www.skd.se">Skånska Dagbladet</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details-body">
+          <h1>SKILLS</h1>
+          <p>
+          <h2>Programming Languages</h2>
+          Scala, Haskell, Java, C, Python, C++14, PureScript, JavaScript
+
+          <h2>Other Skills</h2>
+          Linux, Mac OS, AWS, PostgreSQL, Kafka, Reactive Programming,
+          TDD, DDD, Spark, TCP/IP, Agile, git, REST, React
+          </p>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details-body">
+          <h1>OPEN-SOURCE / ACADEMIA</h1>
+          <ul>
+            <li>
+              Program Committee <a href="https://icfp19.sigplan.org/home/erlang-2019">Erlang Workshop</a> ICFP 2019
+              <ul style="display:none;"><li><i>https://icfp19.sigplan.org/home/erlang-2019</i></li></ul>
+            </li>
+            <li>
+              Compiler Team Member of <a href="https://github.com/lampepfl/dotty/graphs/contributors">dotty</a>
+              <ul style="display:none;"><li><i>https://github.com/lampepfl/dotty</i></li></ul>
+            </li>
+            <li>
+              Contributor to <a href="https://github.com/jaspervdj/stylish-haskell">Stylish-Haskell</a>, migrated
+              code formatting to use the GHC Haskell compiler's parser
+              (<a href="https://github.com/haskell/stylish-haskell/pull/293">PR</a>)
+            <li>
+              Contributor to <a href="https://github.com/scala/scala">Scala</a>: key contributor to the 2.12 Scaladocs tool
+              <ul style="display:none;">
+                <li>Getting into Scaladoc Development featured on Scala-lang.org:<i>http://bit.ly/1r8m90Z</i></li>
+                <li><i>https://github.com/scala/scala</i></li>
+              </ul>
+            </li>
+            <li>
+              Maintainer of <a href="https://github.com/purescript-spec">purescript-spec</a> a testing framework inspired by Haskell's hspec
+              <ul style="display:none;"><li><i>https://github.com/purescript-spec</i></li></ul>
+            </li>
+            <li>
+              Contributor to the <a href="http://github.com/typelevel/cats">cats</a>
+              category theory and functional programming library for Scala
+              <ul style="display:none;" :>
+                <li><i>https://github.com/typelevel/cats</i></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details-body">
+          <h1>OTHER</h1>
+          <ul>
+            <li>
+              Competed in Swedish Espresso Brewing Championship and placed 8th
+            </li>
+            <li>
+              Worked as chief of QA, machine engineer and group leader for the
+              coffee tents at the university carnival, <em>Lundakarnevalen</em>.
+              The carnival involves 6000 students and attracts over 400000
+              visitors
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="work-section">
+        <div class="work-details-body">
+          <h1>REFERENCES</h1>
+          <p>Available upon request</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+    </div>
+  </body>
+  <script>mermaid.initialize({startOnLoad: true})</script>
+</html>

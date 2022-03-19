@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../../../../css/reveal.js/reset.css">
+    <link rel="stylesheet" href="../../../../css/reveal.js/reveal.css">
+    <link rel="stylesheet" href="../../../../css/reveal.js/theme/black.css">
+    <link rel="stylesheet" href="../../../../css/atom-one-dark.css">
+
+    <!-- customization for slides -->
+    <link rel="stylesheet" href="../../../../css/slides.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi )
+                ? '/css/reveal.js/print/pdf.css'
+                : '/css/reveal.js/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <title>Dotty and the new Scala developer experience</title>
+  </head>
+  <body>
+    <div class="reveal">
+      <div id="twitter-link">@felixmulder</div>
+      <div class="slides">
+        <section class="slide level6">
+
+<section>
+<h1 id="dotty">DOTTY</h1>
+<h4 id="and-the-new-scala-developer-experience">AND THE NEW SCALA DEVELOPER EXPERIENCE</h4>
+<p>Felix Mulder</p>
+<p><img data-src="/assets/talks/the-new-scala-dev-exp/Logo_EPFL-white.svg" id="epfl-logo" /></p>
+<hr />
+<h4 id="dotty-と新しい-scala-開発エクスペリエンス">Dotty と新しい Scala 開発エクスペリエンス</h4>
+</section>
+<section>
+Slides: <a href="http://felixmulder.com">felixmulder.com</a>
+</section>
+<section>
+<h3 id="about-me">ABOUT ME</h3>
+<ul>
+<li><a href="https://twitter.com/felixmulder">@felixmulder</a></li>
+<li><a href="https://github.com/felixmulder">github.com/felixmulder</a></li>
+<li>Built the 2.12 Scaladoc</li>
+<li>Research fellow LAMP EPFL</li>
+<li>Dotty Compiler Engineer</li>
+</ul>
+<hr />
+<div class="japanese">
+<ul>
+<li>2.12 の Scaladoc を作りました</li>
+<li>LAMP EPFLの研究員</li>
+<li>Dottyコンパイラエンジニア</li>
+</ul>
+</div>
+</section>
+<section>
+<img data-src="/assets/talks/the-new-scala-dev-exp/contribs.png" class="border" /> &lt;/bragging&gt;
+</section>
+<section>
+<h2 id="a-language-is-only-as">A LANGUAGE IS ONLY AS</h2>
+<h2 id="good-as-its-tooling">GOOD AS ITS TOOLING</h2>
+<hr />
+<div class="japanese">
+プログラミング言語はツール環境が命
+</div>
+</section>
+<section>
+<h1 id="rough-edges">ROUGH EDGES</h1>
+<hr />
+<div class="japanese">
+こなれてない所
+</div>
+</section>
+<section>
+<pre><code>trait Super {
+def x: String
+println(s&quot;initialized with: $x&quot;)
+}
+
+class Tester extends Super {
+val x = &quot;hello!&quot;
+}</code></pre>
+<pre class="fragment"><code>&quot;initialized with: null&quot;</code></pre>
+</section>
+<section>
+<h2 id="dont-worry-scala-i-still-love-you">DON’T WORRY SCALA, I STILL LOVE YOU</h2>
+<h2 id="we-can-work-around-this">WE CAN WORK AROUND THIS</h2>
+<hr />
+<div class="japanese">
+心配しないで、Scala、僕はまだあなたを愛している
+</div>
+</section>
+<section>
+<h2 id="newbie-solutions">Newbie “Solutions”</h2>
+<ul>
+<li>Compromised Immutability</li>
+<li>Lazification hell</li>
+<li>Refactor, maybe dump the trait</li>
+</ul>
+<hr />
+<div class="japanese">
+<h3 id="素人の解決方法">素人の「解決」方法</h3>
+<ul>
+<li>不変性を損なう</li>
+<li>遅延評価地獄</li>
+<li>コードをリファクタリングし、traitを削除</li>
+</ul>
+</div>
+</section>
+<section>
+<img data-src="/assets/talks/the-new-scala-dev-exp/regret.gif" class="border" />
+<hr />
+<div class="japanese">
+「ごめん、やっぱいまのナシ！」
+</div>
+</section>
+<section>
+<h1 id="type-inference">TYPE INFERENCE</h1>
+<hr />
+<h2 id="型推論">型推論</h2>
+</section>
+<section>
+<h2 id="type-inference-1">TYPE INFERENCE</h2>
+<pre><code>def ap1[A,B](a: A, f: A =&gt; B): B = f(a)
+
+ap1(1, x =&gt; x * 2) // error: missing parameter type</code></pre>
+</section>
+<section>
+<h2 id="type-inference-2">TYPE INFERENCE</h2>
+<pre><code>def ap2[A,B](a: A)(f: A =&gt; B): B = f(a)
+
+ap2(1)(x =&gt; x * 2) // 2</code></pre>
+</section>
+<section>
+<pre><code>class Foo { def bar: Int = ??? }
+val foo = new Foo
+// ...
+foo.barr</code></pre>
+</section>
+<section>
+<img data-src="/assets/talks/the-new-scala-dev-exp/fu.png" class="border" />
+</section>
+<section>
+<h1 id="awesome-error-messages">AWESOME ERROR MESSAGES</h1>
+<hr />
+<div class="japanese">
+すばらしいエラーメッセージ
+</div>
+</section>
+<section>
+<h1 id="slow-compile-times">SLOW COMPILE TIMES</h1>
+<hr />
+<h2 id="長いコンパイル時間">長いコンパイル時間</h2>
+</section>
+<section>
+<h2 id="compilers-crash-course">Compilers crash course</h2>
+<ul>
+<li>Tokenize Source</li>
+<li>Build Trees (AST)</li>
+<li>Typecheck</li>
+<li>Simplify</li>
+<li>Bytecode!</li>
+</ul>
+<hr />
+<div class="japanese">
+<ul>
+<li>ソースのトークン化</li>
+<li>抽象構文木の構築</li>
+<li>型検査</li>
+<li>簡略化</li>
+<li>バイトコード！</li>
+</ul>
+</div>
+</section>
+<section>
+<h3 id="compiler-phases">Compiler Phases</h3>
+<div class="node-container" style="width:216px">
+<div class="level">
+<div class="empty-node">
+
+</div>
+<div class="node">
+<div class="color fragment" data-fragment-index="3" style="background-color:#c73434;">
+
+</div>
+<div class="color fragment" data-fragment-index="6" style="background-color:#265fca;">
+
+</div>
+<div class="color fragment" data-fragment-index="9" style="background-color:#1f753a;">
+
+</div>
+<svg id="dl" width="50" height="60">
+<defs> <marker id="arrow" markerwidth="13" markerheight="13" refx="2" refy="6" orient="auto"> <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;"></path> </marker> </defs> <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"></path>
+</svg>
+<svg id="dr" width="50" height="60">
+<defs> <marker id="arrow" markerwidth="13" markerheight="13" refx="2" refy="6" orient="auto"> <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;"></path> </marker> </defs> <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"></path>
+</svg>
+</div>
+<div class="empty-node">
+
+</div>
+</div>
+<div class="level">
+<div class="node">
+<div class="color fragment" data-fragment-index="1" style="background-color:#c73434;">
+
+</div>
+<div class="color fragment" data-fragment-index="4" style="background-color:#265fca;">
+
+</div>
+<div class="color fragment" data-fragment-index="7" style="background-color:#1f753a;">
+
+</div>
+</div>
+<div class="empty-node">
+
+</div>
+<div class="node">
+<div class="color fragment" data-fragment-index="2" style="background-color:#c73434;">
+
+</div>
+<div class="color fragment" data-fragment-index="5" style="background-color:#265fca;">
+
+</div>
+<div class="color fragment" data-fragment-index="8" style="background-color:#1f753a;">
+
+</div>
+</div>
+</div>
+<div class="level desc">
+<div class="node" style="background-color:#c73434;margin-left:16px;">
+<span class="title">Phase 1</span>
+</div>
+<div class="node" style="background-color: #265fca;">
+<span class="title">Phase 2</span>
+</div>
+<div class="node" style="background-color: #1f753a;">
+<span class="title">Phase 3</span>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h3 id="fused-phases">FUSED PHASES</h3>
+<div class="node-container" style="width:216px">
+<div class="level">
+<div class="empty-node">
+
+</div>
+<div class="node">
+<div class="color fragment" data-fragment-index="7" style="background-color:#c73434;">
+
+</div>
+<div class="color fragment" data-fragment-index="8" style="background-color:#265fca;">
+
+</div>
+<div class="color fragment" data-fragment-index="9" style="background-color:#1f753a;">
+
+</div>
+<svg id="dl" width="50" height="60">
+<defs> <marker id="arrow" markerwidth="13" markerheight="13" refx="2" refy="6" orient="auto"> <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;"></path> </marker> </defs> <path d="M50,0 L20,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"></path>
+</svg>
+<svg id="dr" width="50" height="60">
+<defs> <marker id="arrow" markerwidth="13" markerheight="13" refx="2" refy="6" orient="auto"> <path d="M2,2 L2,11 L10,6 L2,2" style="fill:#fff;"></path> </marker> </defs> <path d="M0,0 L30,50" style="stroke:#fff; stroke-width: 1.25px; fill: none; marker-end: url(#arrow);"></path>
+</svg>
+</div>
+<div class="empty-node">
+
+</div>
+</div>
+<div class="level">
+<div class="node">
+<div class="color fragment" data-fragment-index="1" style="background-color:#c73434;">
+
+</div>
+<div class="color fragment" data-fragment-index="2" style="background-color:#265fca;">
+
+</div>
+<div class="color fragment" data-fragment-index="3" style="background-color:#1f753a;">
+
+</div>
+</div>
+<div class="empty-node">
+
+</div>
+<div class="node">
+<div class="color fragment" data-fragment-index="4" style="background-color:#c73434;">
+
+</div>
+<div class="color fragment" data-fragment-index="5" style="background-color:#265fca;">
+
+</div>
+<div class="color fragment" data-fragment-index="6" style="background-color:#1f753a;">
+
+</div>
+</div>
+</div>
+<div class="level desc">
+<div class="node" style="background-color:#c73434;margin-left:16px;">
+<span class="title">Phase 1</span>
+</div>
+<div class="node" style="background-color: #265fca;">
+<span class="title">Phase 2</span>
+</div>
+<div class="node" style="background-color: #1f753a;">
+<span class="title">Phase 3</span>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h1 id="scaladoc">SCALADOC</h1>
+“"Documentation cannot - and so need not - say everything. Its purpose is to help the next programmer build an accurate theory about the system." - Peter Naur”
+</section>
+<section>
+<h1 id="language-server">LANGUAGE SERVER</h1>
+<hr />
+<div class="japanese">
+プログラミング言語サーバー
+</div>
+</section>
+<section>
+<h3 id="tasty">TASTY</h3>
+<ul>
+<li>Pickling format</li>
+<li>Typed Trees</li>
+<li>Efficiently stored in bytecode</li>
+<li>Interop between binary incompatible compilers</li>
+</ul>
+<hr />
+<div class="japanese">
+<ul>
+<li>抽象構文木のシリアライズ形式</li>
+<li>型付き抽象構文木</li>
+<li>効率的にバイトコードに格納</li>
+<li>バイナリ互換性のないコンパイラ間の相互運用性を提供する</li>
+</ul>
+</div>
+</section>
+<section>
+<h2 id="developer-usability">Developer Usability</h2>
+<p>Get involved today!</p>
+<hr />
+<div class="japanese">
+<h3 id="開発者の使い勝手を向上するために">開発者の使い勝手を向上するために</h3>
+皆さんも Dotty プロジェクトに参加してください！
+</div>
+</section>
+<section>
+<h1 id="thank-you">Thank you!</h1>
+<hr />
+<div class="japanese">
+<h3 id="どうもありがとうございました">どうもありがとうございました！</h3>
+</div>
+</section>
+</section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2"></script>
+
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: false,
+        progress: false,
+        slideNumber: 'c/t',
+        //center: false,
+        hash: true,
+        transition: 'none', // none/fade/slide/convex/concave/zoom
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [ { src: '/js/reveal.js/plugin/zoom-js/zoom.js', async: true }
+                      , { src: '/js/reveal.js/plugin/highlight/highlight.js', async: true }
+                      , { src: '/js/reveal.js/plugin/notes/notes.js', async: true }
+                      ]
+      });
+    </script>
+  </body>
+</html>

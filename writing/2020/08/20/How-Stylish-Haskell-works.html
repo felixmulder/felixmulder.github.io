@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>How Stylish Haskell works</title>
+    <link rel="stylesheet" href="../../../../css/default.css" />
+    <link rel="stylesheet" href="../../../../css/haskell-syntax.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="navbar">
+  <h1 class="back-button">
+    <a href="../../../../">Felix Mulder</a>
+  </h1>
+  <h1 class="back-button-small">
+    <a href="../../../../">FM</a>
+  </h1>
+
+  <nav role="navigation">
+    <ul>
+      <li><a href="../../../../writing.html">Writing</a></li>
+      <li><a href="../../../../talks.html">Talks</a></li>
+      <li><a href="../../../../resume.html">Résumé</a></li>
+    </ul>
+  </nav>
+</header>
+<div class="article-container">
+  <h1 id="how-stylish-haskell-works">How stylish-haskell works</h1>
+<p>During the summer, our team at Klarna has been recruiting other teams to join our Haskell monorepo. Getting more teams interested in joining us in doing Haskell has always been our strategy - by doing it in a monorepo we feel that we are able to make sure that all teams write their code in a similar way.</p>
+<p>This poses a couple of challenges to us - only one of which we’re dealing with in this article!</p>
+<p>There are the basics of how we build the applications and make sure that tooling works great for everyone involved, to how the CI tests and deploys the artifacts.</p>
+<p>Then there are more subtle things: how we make sure that code reviews focus on the right things - and that people don’t introduce new patterns and ways of doing things.</p>
+<p>I believe that one of the most important things that you can do as a developer is to make sure that the above is automated. Which leads us to one of my pet peeves:</p>
+<h2 id="code-formatting">Code formatting</h2>
+<p>When there’s no (enforced) canonical way of formatting something in a language - people tend to think up their own way of doing something. Let’s take something as simple as formatting <code>data</code> in Haskell. Here are a couple of alternatives for how to format a record type:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="co">-- JS style:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">Car</span> <span class="ot">=</span> <span class="dt">Car</span> {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="ot">  manufacturingYear ::</span> <span class="dt">Year</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="ot">  milesRun ::</span> <span class="dt">Natural</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>} <span class="kw">deriving</span> stock (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="co">-- Vertical alignment (my personal hell):</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">Car</span> <span class="ot">=</span> <span class="dt">Car</span> {<span class="ot"> manufacturingYear ::</span> <span class="dt">Year</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>               ,<span class="ot"> milesRun          ::</span> <span class="dt">Natural</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>               }</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>               <span class="kw">deriving</span> stock (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a><span class="co">-- 2 space indent:</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">Car</span> <span class="ot">=</span> <span class="dt">Car</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>  {<span class="ot"> manufacturingYear ::</span> <span class="dt">Year</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a>  ,<span class="ot"> milesRun ::</span> <span class="dt">Natural</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a>  }</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a>  <span class="kw">deriving</span> stock (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span></code></pre></div>
+<p>The last one is my personal favorite as it minimizes git-diffs (yeah, I’m one of those people).<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p>This is just the tip of the iceberg though. Once we’ve agreed to how we format data, then we have: newtypes, imports, module headers, docstrings, language pragmas…</p>
+<p>Keeping this in sync in a single team is <em>fine</em>, maybe not enjoyable, but fine. In a monorepo with &gt;50kLOC and multiple teams; yeah, that’s not going to be pleasant at all.</p>
+<h2 id="use-a-code-formatter">Use a code formatter!</h2>
+<p>There are several options for Haskell:</p>
+<ul>
+<li><a href="https://github.com/tweag/ormolu">ormolu</a></li>
+<li><a href="https://github.com/mihaimaruseac/hindent">hindent</a></li>
+<li><a href="https://github.com/jaspervdj/stylish-haskell">stylish-haskell</a></li>
+</ul>
+<p>We chose to go with the last of the bunch. The reason simply being that we wanted to be able to customize the way that our code is formatted and some of our engineers are maintainers of the repo.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>With stylish in tow, we added formatting to our CI and the world was a better place, for a while.</p>
+<h2 id="ghc-8.10.x">GHC 8.10.X</h2>
+<p>We like shiny things! Especially if that means low-latency garbage collection and improved runtime - or a sane option for qualified imports, <a href="https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/glasgow_exts.html#extension-ImportQualifiedPost">post qualified</a>!</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="co">-- This let's you write:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">A.B.C</span> <span class="kw">qualified</span> <span class="kw">as</span> <span class="dt">C</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">D.E.F</span> <span class="kw">qualified</span> <span class="kw">as</span> <span class="dt">F</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">G.H.I</span> (<span class="dt">J</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="co">-- Instead of having to do this to minimize diffs:</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">A.B.C</span> <span class="kw">as</span> <span class="dt">C</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">D.E.F</span> <span class="kw">as</span> <span class="dt">F</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a><span class="kw">import</span>           <span class="dt">G.H.I</span> (<span class="dt">J</span>)</span></code></pre></div>
+<p>We upgraded to 8.10 as soon as our friends at IOHK patched <a href="https://github.com/input-output-hk/haskell.nix">haskell.nix</a> to offer the latest greatest version of GHC.</p>
+<p>The drawback: enabling the post qualified imports broke stylish haskell 😢</p>
+<h2 id="how-stylish-haskell-works-1">How stylish-haskell works</h2>
+<p>(Enough preamble!) Here’s the recipe for how stylish-haskell formats your haskell source code:</p>
+<p>Stylish is able to go into your source file, look at a specific segment of your code and apply a so called “step” to it. Each step modifies only a single type of structure - an example being how to format language pragmas.</p>
+<p>The step has the following definition, where <code>stepFilter</code> is the actual functionality of the step:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">Step</span> <span class="ot">=</span> <span class="dt">Step</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>  {<span class="ot"> stepName ::</span> <span class="dt">String</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>  ,<span class="ot"> stepFilter ::</span> <span class="dt">Lines</span> <span class="ot">-&gt;</span> <span class="dt">Module</span> <span class="ot">-&gt;</span> <span class="dt">Lines</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>  }</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a><span class="co">-- where</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="kw">type</span> <span class="dt">Lines</span> <span class="ot">=</span> [<span class="dt">String</span>]</span></code></pre></div>
+<p>The <code>Module</code> is given to the step by parsing the source code with <a href="https://hackage.haskell.org/package/haskell-src-exts">haskell-src-exts</a>. This means that the <code>stepFilter</code> function has both the original source code in terms of <code>Lines</code> as well as an AST representation of said source.</p>
+<p>Since the step returns <code>Lines</code> it’s possible to compose several of these together in order to format the entire file.</p>
+<p>When it comes time for the <code>Step</code> to edit the <code>Lines</code>, stylish has the concept of <code>Block</code> as well as editor functionality operating on blocks and lines called <code>Change</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co">-- A block is defined as:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">Block</span> <span class="ot">=</span> <span class="dt">Block</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>  {<span class="ot"> blockStart ::</span> <span class="dt">Int</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>  ,<span class="ot"> blockEnd ::</span> <span class="dt">Int</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>  }</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a><span class="co">-- and a change as:</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">Change</span> a <span class="ot">=</span> <span class="dt">Change</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>  {<span class="ot"> changeBlock ::</span> <span class="dt">Block</span> a</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a>  ,<span class="ot"> changeLines ::</span> [a] <span class="ot">-&gt;</span> [a]</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a>  }</span></code></pre></div>
+<p>Here’s a short example:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="ot">deleteTrailingWhitespace ::</span> <span class="dt">Step</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>deleteTrailingWhitespace <span class="ot">=</span> makeStep \<span class="fu">lines</span> _module <span class="ot">-&gt;</span> <span class="fu">fmap</span> <span class="fu">lines</span> stripWhitespace</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>  <span class="kw">where</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>    stripWhitespace <span class="ot">=</span> <span class="fu">reverse</span> <span class="op">.</span> <span class="fu">dropWhile</span> <span class="fu">isSpace</span> <span class="op">.</span> <span class="fu">reverse</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a><span class="co">-- alternatively using the changes API:</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a><span class="ot">deleteTrailingWhitespace ::</span> <span class="dt">Step</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>deleteTrailingWhitespace <span class="ot">=</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>  makeStep <span class="st">&quot;Delete trailing whitespace&quot;</span> <span class="op">$</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>    \<span class="fu">lines</span> _module <span class="ot">-&gt;</span> applyChanges <span class="fu">lines</span> (stripWhitespace <span class="op">&lt;$&gt;</span> lineNumbers)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a>  <span class="kw">where</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a>    stripWhitespace i <span class="ot">=</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a>      changeLine i <span class="op">.</span> <span class="fu">reverse</span> <span class="op">.</span> <span class="fu">dropWhile</span> <span class="fu">isSpace</span> <span class="op">.</span> <span class="fu">reverse</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a>    lineNumbers <span class="ot">=</span> <span class="co">-- elided for brevity</span></span></code></pre></div>
+<p>Both of these do the same thing - but it’ll become important later that we’re able to modify the file in place, and for that - the editor functions really come in hand.</p>
+<p>The editor is very useful when combined with the positions from the <a href="https://hackage.haskell.org/package/haskell-src-exts">haskell-src-exts</a> lib. One example being formatting records. A record is represented as a <code>Decl</code> which contains a <code>RecDecl</code>. We can get the starting positions of the record from the <code>Decl</code> and then tell stylish to only format what’s between the start and end line of the record. If a <code>Decl</code> turns out to not be a record, we can choose to emit no change. This means we get preservation of all other parts of the source file - no need to preserve comments or imports around the record, we can focus only on the thing we want to change.</p>
+<p>In short, stylish haskell does the following:</p>
+<ul>
+<li>Read file into <code>Lines</code></li>
+<li>Check which <code>Step</code> to enable and how to configure each of them from the stylish config you as the user specified</li>
+<li>Use the editor functions to produce a number of <code>Change</code> datas in order to edit the file in place by either line numbers or by the concept of <code>Block</code></li>
+<li>Compose each enabled and configured step one after the other</li>
+<li>Write the file to disk</li>
+</ul>
+<h2 id="haskell-source-extensions">Haskell source extensions</h2>
+<p>The limitations of stylish rest fundamentally on the functionality of <a href="https://hackage.haskell.org/package/haskell-src-exts">haskell-src-exts</a>. This means that any new language feature enabled by language pragma or other flag, needs to first gain support in this dependency before stylish can make use of it.</p>
+<p>The pros of using this library is that it’s quite easy to manipulate the resulting AST that you get from parsing. In contrast to most real compiler parsers, it keeps a lot of source file information that normal parsers might discard. Compiler parsers tend to discard things that aren’t useful to compilation - such as comments.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<p>Other tooling projects in Haskell land have started using the GHC parser directly instead as means to mitigate this limitation. The parser as well as the AST is available in the <a href="https://hackage.haskell.org/package/ghc-lib-parser">ghc-lib-parser</a> package, which is the GHC API but usable as a library.</p>
+<h2 id="rewriting-stylish">Rewriting stylish</h2>
+<p>In order to fix our issue, I started re-writing the parts of stylish that I thought relevant to my team’s needs using <a href="https://hackage.haskell.org/package/ghc-lib-parser">ghc-lib-parser</a>. The result of this work is that this <a href="https://github.com/jaspervdj/stylish-haskell/pull/293">PR branch</a> now formats our &gt;50kLOC haskell monorepo on every PR and every branch build.</p>
+<p>I think it might be interesting to write a separate article on how the GHC AST works and how I adapted stylish to work with it. It contains a couple of interesting things like a printer monad. I’ll try to put something together soon, hope this was an interesting read!</p>
+<p>// Felix</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>Some of you might argue that it does not minimize diffs. Well, it does when you structure co-products like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">Car</span> <span class="ot">=</span> <span class="dt">Car</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  {<span class="ot"> manufacturingYear ::</span> <span class="dt">Year</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>  ,<span class="ot"> milesRun ::</span> <span class="dt">Natural</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  }</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>  <span class="kw">deriving</span> stock (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">Vehicle</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>  <span class="ot">=</span> <span class="dt">MkCar</span> <span class="dt">Car</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>  <span class="op">|</span> <span class="dt">MkBicycle</span> <span class="dt">Bicycle</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>  <span class="kw">deriving</span> stock (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span></code></pre></div>
+<p>This has the added benefit that you can get precise types when you deconstruct the co-product.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>Funny story, they actually just wanted to see if they could get imports formatted according to our standards and after a few PRs they were made maintainers - after that we thought, well - looks like a well structured project that we can extend to our liking. Let’s go for it!<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>As a side note, <a href="https://twitter.com/eugene_burmako">Eugene</a> and <a href="https://twitter.com/olafurpg">Olaf</a> spent an inordinate amount of time getting things like comment positions just right for scalameta. Getting positions correct <em>is really damn difficult</em>. Making an AST easy to use while retaining this information is an art.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</div>
+
+
+    </div>
+  </body>
+  <script>mermaid.initialize({startOnLoad: true})</script>
+</html>

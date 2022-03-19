@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../../../../css/reveal.js/reset.css">
+    <link rel="stylesheet" href="../../../../css/reveal.js/reveal.css">
+    <link rel="stylesheet" href="../../../../css/reveal.js/theme/black.css">
+    <link rel="stylesheet" href="../../../../css/atom-one-dark.css">
+
+    <!-- customization for slides -->
+    <link rel="stylesheet" href="../../../../css/slides.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi )
+                ? '/css/reveal.js/print/pdf.css'
+                : '/css/reveal.js/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <title>Haskell at Klarna</title>
+  </head>
+  <body>
+    <div class="reveal">
+      <div id="twitter-link">@felixmulder</div>
+      <div class="slides">
+        <section id="haskell-in-production" class="slide level2">
+<h2>Haskell in Production</h2>
+<p>Services at Klarna written in Haskell</p>
+</section>
+<section id="why-haskell" class="slide level2">
+<h2>Why Haskell?</h2>
+</section>
+<section class="slide level2">
+
+<p><img data-src="/assets/talks/haskell-in-production-meetup/klarna_jvm_history.png" /></p>
+</section>
+<section id="we-loved-functional-but-scala" class="slide level2">
+<h2>We loved functional, but 💔 Scala</h2>
+</section>
+<section id="so-haskell." class="slide level2">
+<h2>So, Haskell.</h2>
+</section>
+<section id="what-haskell-is-and-what-it-isnt." class="slide level2">
+<h2>What Haskell is, and what it isn’t.</h2>
+</section>
+<section id="common-misconceptions" class="slide level2">
+<h2>Common misconceptions</h2>
+</section>
+<section id="common-misconceptions-1" class="slide level2">
+<h2>Common misconceptions</h2>
+<ul>
+<li>Reading Haskell code is hard</li>
+</ul>
+</section>
+<section id="common-misconceptions-2" class="slide level2">
+<h2>Common misconceptions</h2>
+<ul>
+<li>You need to understand the m-word</li>
+</ul>
+</section>
+<section id="common-misconceptions-3" class="slide level2">
+<h2>Common misconceptions</h2>
+<ul>
+<li>Haskell is slow</li>
+</ul>
+</section>
+<section id="common-misconceptions-4" class="slide level2">
+<h2>Common misconceptions</h2>
+<ul>
+<li>The libraries you want don’t exist</li>
+</ul>
+</section>
+<section id="common-misconceptions-5" class="slide level2">
+<h2>Common misconceptions</h2>
+<ul>
+<li>The tooling you want doesn’t exist</li>
+</ul>
+</section>
+<section id="common-misconceptions-6" class="slide level2">
+<h2>Common misconceptions</h2>
+<ul>
+<li>You need a PhD to get anything done</li>
+</ul>
+</section>
+<section id="common-misconceptions-7" class="slide level2">
+<h2>Common misconceptions</h2>
+<ul>
+<li>Writing features is slow</li>
+</ul>
+</section>
+<section id="none-of-these-are-inherently-true." class="slide level2">
+<h2>None of these are inherently true.</h2>
+</section>
+<section id="some-of-them-can-be." class="slide level2">
+<h2>Some of them can be.</h2>
+</section>
+<section id="honestly-its-the-same-for-erlang." class="slide level2">
+<h2>Honestly it’s the same for Erlang.</h2>
+</section>
+<section class="slide level2">
+
+<p><img data-src="/assets/talks/haskell-in-production-meetup/why_isnt_fp_the_norm.png" /></p>
+</section>
+<section class="slide level2">
+
+<p><img data-src="/assets/talks/haskell-in-production-meetup/you_are_but_a_child_profunctor.jpg" /></p>
+</section>
+<section id="leaving-the-ivory-tower" class="slide level2">
+<h2>Leaving the Ivory Tower</h2>
+</section>
+<section class="slide level2">
+
+<h4 id="from-the-ivory-tower-to-the-happy-island">From the Ivory Tower to the Happy Island</h4>
+<ul>
+<li>Learning resources</li>
+<li>Inclusive community</li>
+<li>User-friendly libraries</li>
+<li>Golden path</li>
+</ul>
+</section>
+<section id="golden-path" class="slide level2">
+<h2>Golden Path</h2>
+<ul>
+<li>Language</li>
+<li>Libraries</li>
+<li>Tools</li>
+<li>Patterns</li>
+</ul>
+</section>
+<section id="haskell-at-klarna" class="slide level2">
+<h2>Haskell at Klarna</h2>
+<p>We’re not officially supporting it.</p>
+</section>
+<section id="yet." class="slide level2">
+<h2>Yet.</h2>
+</section>
+<section id="our-haskell-stack" class="slide level2">
+<h2>Our Haskell stack</h2>
+</section>
+<section class="slide level2">
+
+<h3 id="libraries">Libraries</h3>
+<ul>
+<li><code>servant</code></li>
+<li><code>postgresql-simple (+ opalaye)</code></li>
+<li><code>hedgehog</code></li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="servant">Servant</h3>
+<p>A set of packages to declare web APIs on the type-level</p>
+</section>
+<section class="slide level2">
+
+<pre class="haskell"><code>type GetPet
+    = &quot;pets&quot; :&gt; Capture &quot;petId&quot; PetId :&gt; Get '[JSON] Pet</code></pre>
+</section>
+<section class="slide level2">
+
+<pre class="haskell"><code>type GetPet
+    = &quot;pets&quot; :&gt; Capture &quot;petId&quot; PetId :&gt; Get '[JSON] Pet
+
+type PostPet
+    = &quot;pets&quot; :&gt; Capture &quot;petId&quot; PetId :&gt; Post '[JSON] NoContent
+   :&gt; ReqBody '[JSON] Pet</code></pre>
+</section>
+<section class="slide level2">
+
+<pre class="haskell"><code>type GetPet
+    = &quot;pets&quot; :&gt; Capture &quot;petId&quot; PetId :&gt; Get '[JSON] Pet
+
+type PostPet
+    = &quot;pets&quot; :&gt; Capture &quot;petId&quot; PetId :&gt; Post '[JSON] NoContent
+   :&gt; ReqBody '[JSON] Pet
+
+type PetAPI
+    = GetPet
+ :&lt;|&gt; PostPet
+ :&lt;|&gt; DeletePet</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="but-thats-not-the-best-part-of-servant.">But that’s not the best part of servant.</h3>
+</section>
+<section class="slide level2">
+
+<h3 id="types-can-actually-give-you-much-more.">Types can actually give you much more.</h3>
+<ul>
+<li>Statically defined OpenAPI</li>
+<li>Statically defined documentation</li>
+<li>Clients for free in both Haskell and JavaScript!</li>
+<li>Mock an entire server from the type!</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="openapi">OpenAPI</h3>
+<pre class="haskell"><code>type PetApi = ...
+
+petApiSwagger = encode $ toSwagger $ Proxy @UserApi</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="openapi-1">OpenAPI</h3>
+<pre class="haskell"><code>type PetApi = ...
+
+petApiSwagger = encode $ toSwagger $ Proxy @UserApi
+-- error:
+-- • No instance for (ToSchema Pet)
+--     arising from a use of ‘toSwagger’
+-- • In the second argument of ‘($)’, namely
+--     ‘toSwagger $ Proxy @GetPet’
+--   In the expression: encode $ toSwagger $ Proxy @GetPet
+--   In an equation for ‘swaggy’:
+--       swaggy = encode $ toSwagger $ Proxy @GetPet</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="openapi-2">OpenAPI</h3>
+<pre class="haskell"><code>data Pet = Pet
+  { name :: Text
+  , age  :: Int
+  }
+  deriving (Generic)</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="openapi-3">OpenAPI</h3>
+<pre class="haskell"><code>data Pet = Pet
+  { name :: Text
+  , age  :: Int
+  }
+  deriving (Generic)
+
+instance ToSchema Pet</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="openapi-4">OpenAPI</h3>
+<pre class="haskell"><code>type PetApi = ...
+
+petApiSwagger = encode $ toSwagger $ Proxy @UserApi
+-- { &quot;swagger&quot;: &quot;2.0&quot;, ... }</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="clients---haskell">Clients - Haskell</h3>
+<pre class="haskell"><code>type PetApi = ...
+
+getPetClient :: PetId -&gt; ClientM Pet
+postPetClient :: PetId -&gt; Pet -&gt; ClientM NoContent
+getPetClient :&lt;|&gt; postPetClient = client (Proxy @PetApi)
+
+getPet :: ClientEnv -&gt; PetId -&gt; IO (Either ClientError Pet)
+getPet env petId = runClientM (getPetClient petId) env</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="clients---js">Clients - JS</h3>
+<pre class="haskell"><code>import Servant.JS (jsForApi)
+import Servant.JS.Axios (axios)
+
+type PetApi = ...
+
+jsCode :: String
+jsCode = jsForApi (Proxy @PetApi) axios</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="documentation">Documentation</h3>
+<pre class="haskell"><code>apiDocs :: String
+apiDocs = _ $ docs $ Proxy @PetApi</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="documentation---markdown">Documentation - markdown!</h3>
+<pre class="haskell"><code>apiDocs :: String
+apiDocs = markdown $ docs $ Proxy @PetApi</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="documentation---pandoc">Documentation - pandoc!</h3>
+<pre class="haskell"><code>apiDocs :: String
+apiDocs = _ $ pandoc $ docs $ Proxy @PetApi</code></pre>
+<p class="smaller">
+AsciiDoc, CommonMark, ConTeXt, Custom, Docbook, Docx, DokuWiki, EPUB, FB2, HTML, Haddock, ICML, Ipynb, JATS, Jira, LaTeX, Man, Markdown, Math, MediaWiki, Ms, Muse, Native, ODT, OOXML, OPML, OpenDocument, Org, Powerpoint, RST, RTF, Shared, TEI, Texinfo, Textile, XWiki, ZimWiki
+</p>
+</section>
+<section class="slide level2">
+
+<h3 id="mocked-server">Mocked server</h3>
+<pre class="haskell"><code>petGen :: Gen Pet
+    = Pet
+  &lt;$&gt; choice [ &quot;Diddy&quot;, &quot;Tupac&quot; ]
+  &lt;*&gt; Gen.int (Range 0 10)</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="mocked-server-1">Mocked server</h3>
+<pre class="haskell"><code>import Servant.Mock
+
+petApi :: Proxy PetApi
+petApi = Proxy
+
+main :: IO ()
+main = run 8080 $ serve petApi (mock petApi Proxy)</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="property-based-integration-tests">Property based integration tests</h3>
+<pre class="haskell"><code>import Hedgehog.Servant
+
+genApi :: Gen (BaseUrl -&gt; Request)
+genApi = genRequest (Proxy @PetApi) (genPet :*: GNil)
+</code></pre>
+</section>
+<section class="slide level2">
+
+<h3 id="loc">&lt;100 LOC</h3>
+</section>
+<section class="slide level2">
+
+<h4 id="so-far-we-havent-written-a-single-line-of-implementation-code.">So far, we haven’t written a single line of implementation code.</h4>
+</section>
+<section id="other-integrations" class="slide level2">
+<h2>Other integrations</h2>
+<ul>
+<li>SwaggerUI</li>
+<li>Other language clients:
+<ul>
+<li>Purescript</li>
+<li>Elm</li>
+<li>Kotlin</li>
+<li>Python</li>
+<li>C#</li>
+<li>Ruby</li>
+</ul></li>
+<li>Checked exceptions</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<pre class="haskell"><code>type GetPet
+    = &quot;pets&quot; :&gt; Capture &quot;petId&quot; PetId :&gt; Get '[JSON] Pet</code></pre>
+<pre class="haskell"><code>getPet :: PetId -&gt; Maybe Pet</code></pre>
+</section>
+<section class="slide level2">
+
+<pre class="haskell"><code>getPet :: PetId -&gt; Maybe Pet</code></pre>
+</section>
+<section class="slide level2">
+
+<pre class="haskell"><code>getPet :: PetId -&gt; Maybe Pet
+
+-- Which we'll translate to:
+
+getPet :: PetId -&gt; Handler Pet</code></pre>
+</section>
+<section id="so-whats-a-handler" class="slide level2">
+<h2>So, what’s a Handler?</h2>
+</section>
+<section id="yes-its-an-m-word." class="slide level2">
+<h2>Yes, it’s an m-word.</h2>
+</section>
+<section class="slide level2">
+
+<h4 id="handler">Handler</h4>
+<p><img data-src="/assets/talks/haskell-in-production-meetup/handler_hackage.png" style="width:40.0%" /></p>
+</section>
+<section class="slide level2">
+
+<pre class="haskell"><code>pets :: Map PetId Pet
+pets = Map.fromList
+  [ (&quot;cat&quot;, undefined)
+  , (&quot;dog&quot;, undefined)
+  ]
+
+getPet :: PetId -&gt; Handler Pet
+getPet petId =
+  case Map.lookup petId of
+    Just pet -&gt; return pet
+    Nothing  -&gt; throw404</code></pre>
+</section>
+<section class="slide level2">
+
+<h4 id="putting-it-all-together">Putting it all together</h4>
+<pre class="haskell"><code>apiHandler :: Server PetApi
+apiHandler
+     = getPet
+  :&lt;|&gt; postPet
+
+main :: IO ()
+main
+  = run 8080
+  $ serve (Proxy @PetApi) apiHandlers</code></pre>
+</section>
+<section id="in-summary" class="slide level2">
+<h2>In summary</h2>
+<ul>
+<li><p>Getting stuff done is quick, and sans footguns</p></li>
+<li><p>We’re really happy with what Haskell offers us</p></li>
+</ul>
+</section>
+<section id="klarna-is-hiring" class="slide level2">
+<h2>Klarna is hiring</h2>
+<p>Build the next generation of banking using FP</p>
+<ul>
+<li>Internal <a href="#/">TheKonferen.se</a></li>
+<li>External conference of choice</li>
+<li>Smoooth Lambdas - Category Theory study group</li>
+</ul>
+</section>
+<section id="thank-you" class="slide level2">
+<h2>Thank you!</h2>
+</section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2"></script>
+
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: false,
+        progress: false,
+        slideNumber: 'c/t',
+        //center: false,
+        hash: true,
+        transition: 'none', // none/fade/slide/convex/concave/zoom
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [ { src: '/js/reveal.js/plugin/zoom-js/zoom.js', async: true }
+                      , { src: '/js/reveal.js/plugin/highlight/highlight.js', async: true }
+                      , { src: '/js/reveal.js/plugin/notes/notes.js', async: true }
+                      ]
+      });
+    </script>
+  </body>
+</html>

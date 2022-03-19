@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../../../../css/reveal.js/reset.css">
+    <link rel="stylesheet" href="../../../../css/reveal.js/reveal.css">
+    <link rel="stylesheet" href="../../../../css/reveal.js/theme/black.css">
+    <link rel="stylesheet" href="../../../../css/atom-one-dark.css">
+
+    <!-- customization for slides -->
+    <link rel="stylesheet" href="../../../../css/slides.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi )
+                ? '/css/reveal.js/print/pdf.css'
+                : '/css/reveal.js/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <title>Reconstructing Scala</title>
+  </head>
+  <body>
+    <div class="reveal">
+      <div id="twitter-link">@felixmulder</div>
+      <div class="slides">
+        <section class="slide level6">
+
+<section>
+<h1 id="reconstructing-scala">RECONSTRUCTING SCALA</h1>
+<p>Felix Mulder</p>
+<p><img data-src="/assets/talks/reconstructing-scala/Logo_EPFL-white.svg" id="epfl-logo" /></p>
+</section>
+<section>
+Slides: <a href="http://felixmulder.com">felixmulder.com</a>
+</section>
+<section>
+<h1 id="interrupt-me-guyz-plz">Interrupt me, guyz, plz</h1>
+</section>
+<section>
+<h2 id="lets-take-a-trip-down-memory-lane">LET’S TAKE A TRIP DOWN MEMORY LANE</h2>
+</section>
+<section style="text-align: left; font-size: 25px;">
+"We’d like to announce availability of the first implementation of the Scala programming language. Scala smoothly integrates object-oriented and functional programming. It is designed to express common programming patterns in a concise, elegant, and type-safe way. Scala introduces several innovative language constructs. For instance:
+<ul>
+<li>Abstract types and mixin composition unify ideas from object and module systsems.</li>
+<li>Pattern matching over class hierarchies unifies functional and object-oriented data access. It greatly simplifies the processing of XML trees.</li>
+<li>A flexible syntax and type system enables the construction of advanced libraries and new domain specific languages.</li>
+</ul>
+At the same time, Scala is compatible with Java. Java libraries and frameworks can be used without glue code or additional declarations. The current implementation of Scala runs on Java VM. It requires JDK 1.4 and can run on Windows, MacOS, Linux, Solaris, and most other operating systems. A .net version of Scala is currently under development."
+<p><em>- 2004-01-20 by Martin Odersky</em></p>
+</section>
+<section>
+<h2 id="scala-1.x">Scala 1.x</h2>
+<ul>
+<li>Algebraic Data Types</li>
+<li>Function Values</li>
+<li>Generics</li>
+<li><p>By-name Parameters</p>
+<pre><code>def foo(i: =&gt; Int): Int = {
+  if (true) 0
+  else i
+}</code></pre></li>
+</ul>
+</section>
+<section>
+<h2 id="scala-1.x-1">Scala 1.x</h2>
+<ul>
+<li><p>Parameterless methods</p>
+<pre><code>def length: Int = ???</code></pre></li>
+<li><p>Always eta-expanded partially applied functions:</p>
+<pre><code>def map(f: Int =&gt; Int)(xs: Iterable[Int]) = ???
+val square = map(x =&gt; x * x)</code></pre></li>
+</ul>
+</section>
+<section>
+<h2 id="scala-1.x-2">Scala 1.x</h2>
+<ul>
+<li><p>Surprising behaviour:</p>
+<pre><code>println(&quot;wat&quot;.length)
+// res: &lt;function&gt;</code></pre></li>
+</ul>
+</section>
+<section>
+<h3 id="scala-2.0---alias-puberty">Scala 2.0 - alias puberty,</h3>
+<h3 id="or">or</h3>
+<h3 id="a-time-where-cake-didnt-make-them-fat">“a time where cake didn’t make them fat”</h3>
+</section>
+<section>
+<h3 id="scala-2.0">Scala 2.0</h3>
+<ul>
+<li>Auto-add <code>()</code> if reference is to a nullary function</li>
+<li>Eta-expand iff:
+<ul>
+<li>Expected type is a function</li>
+<li><p>Missing parameters are specified with "<code>_</code>"</p>
+<pre><code>val square = map(x =&gt; x * x)(_)</code></pre></li>
+</ul></li>
+<li>New keywords: <code>implicit, match, requires</code></li>
+<li>Private qualifiers: <code>private[X]</code></li>
+<li>Implicit parameters</li>
+</ul>
+</section>
+<section>
+<h2 id="scala-2.1">Scala 2.1</h2>
+<ul>
+<li>Multi-line strings</li>
+<li>Class literals: <code>classOf[X]</code></li>
+<li>Protected qualifiers: <code>protected[X]</code></li>
+</ul>
+</section>
+<section>
+<h2 id="scala-2.3">Scala 2.3</h2>
+<ul>
+<li>Procedure syntax</li>
+<li>Tuples</li>
+<li>Extractors using: <code>unapply</code></li>
+<li>Current syntax for self-types introduced</li>
+<li>Case classes cannot be abstract - uh, oh Martin!</li>
+</ul>
+</section>
+<section>
+<h2 id="scala-2.4-2.5">Scala 2.4-2.5</h2>
+<ul>
+<li><code>private[this]</code></li>
+<li><p>Early initialization</p>
+<pre><code>trait T { val x: Int; println(x) }
+class C extends { val x = 5 } with T
+
+new C // res: 5</code></pre></li>
+</ul>
+</section>
+<section>
+<h2 id="scala-2.6---sturm-und-drang">Scala 2.6 - Sturm und Drang</h2>
+<ul>
+<li>Existential Types</li>
+<li>Lazy Values</li>
+<li>Structural Types</li>
+<li>Higher-kinded types?</li>
+</ul>
+</section>
+<section>
+<h2 id="scala-2.7---revenge-of-the-case-class">Scala 2.7 - revenge of the case class</h2>
+<ul>
+<li>Case classes may now be abstract again - hooray Martin!</li>
+<li>Case classes get extractor methods by default</li>
+<li>Case classes allowed to have companions</li>
+<li>Mixing Scala and Java code in the same project is now allowed</li>
+</ul>
+</section>
+<section>
+<h2 id="scala-2.8---end-of-puberty">Scala 2.8 - end of puberty</h2>
+<ul>
+<li>Redesigned Collections</li>
+<li>Specialization using: <code>@specialized</code></li>
+<li>Named and default arguments</li>
+<li>Package objects</li>
+</ul>
+</section>
+<section>
+<h2 id="scala-2.9---beefing-up">Scala 2.9 - beefing up</h2>
+<ul>
+<li>Parallel collections</li>
+<li>DelayedInit</li>
+<li>App</li>
+</ul>
+</section>
+<section>
+<h2 id="scala-2.10---the-end-of-adolescence">Scala 2.10 - the end of adolescence</h2>
+<ul>
+<li>Value Classes</li>
+<li>Implicit Classes</li>
+<li>String Interpolation</li>
+<li>Dependent Method Types</li>
+<li>Scala Reflection</li>
+<li>Macros</li>
+</ul>
+</section>
+<section>
+<h1 id="scala-as-it-is-today">Scala as it is Today</h1>
+</section>
+<section>
+<h2 id="common-theme-up-until-2.10">Common theme up until 2.10</h2>
+<ul>
+<li>Growth, experimentation, maturing features</li>
+<li>Nearly nothing removed - lost features replaced</li>
+<li>Future 2.X versions - more stability-oriented</li>
+</ul>
+</section>
+<section>
+<h2 id="why-the-rapid-growth">Why the rapid growth?</h2>
+<ul>
+<li><p>Adoption</p>
+<p>- people asked for features</p></li>
+<li><p>It was developed at a University</p>
+<p>- PhD students wanted to see their work applied</p></li>
+</ul>
+</section>
+<section>
+<h2 id="reconstructing-scala-1">Reconstructing Scala</h2>
+</section>
+<section>
+<h2 id="lessons-learned-in-2.10-2.1x">Lessons learned in 2.10-2.1X</h2>
+<h2 id="spirit-of-2.0-2.9" class="fragment">Spirit of 2.0-2.9</h2>
+</section>
+<section>
+<h1 id="dotty">Dotty</h1>
+</section>
+<section>
+<ul>
+<li>Simplification</li>
+<li>Developer Usability</li>
+<li>Correctness - proven foundation, “DOT”</li>
+<li>Scala 3</li>
+</ul>
+</section>
+<section>
+<img data-src="/assets/talks/reconstructing-scala/contribs.png" class="border" />
+</section>
+<section>
+<h2 id="errgonomics">ERRGONOMICS</h2>
+<ul>
+<li>Awesome Error Messages</li>
+<li>Dottydoc Compiler</li>
+</ul>
+</section>
+<section>
+<h3 id="getting-started-with-dotty">Getting Started with Dotty</h3>
+<ul>
+<li><a href="https://scastie.scala-lang.org/?target=dotty">Scastie</a></li>
+<li><pre><code>$ brew install lampepfl/brew/dotty</code></pre></li>
+<li><pre><code>$ sbt new lampepfl/dotty.g8</code></pre></li>
+</ul>
+</section>
+<section>
+<h2 id="lets-try-some-things-out">Let’s try some things out</h2>
+<ul>
+<li>Brew</li>
+<li>IDE</li>
+<li>Dottydoc</li>
+</ul>
+</section>
+<section>
+<h3 id="awesome-error-messages">Awesome Error Messages</h3>
+<div class="fragment">
+<div style="float: left; width: 50%; height: 100%;">
+<ul>
+<li><a href="https://github.com/ALPHA-60">@ALPHA-60</a></li>
+<li><a href="https://github.com/AndrewZurn">@AndrewZurn</a></li>
+<li><a href="https://github.com/ShaneDelmore">@ShaneDelmore</a></li>
+<li><a href="https://github.com/abeln">@abeln</a></li>
+<li><a href="https://github.com/adamtrousdale">@adamtrousdale</a></li>
+<li><a href="https://github.com/b-studios">@b-studios</a></li>
+<li><a href="https://github.com/ennru">@ennru</a></li>
+<li><a href="https://github.com/hhandoko">@hhandoko</a></li>
+<li><a href="https://github.com/jarrodj">@jarrodj</a></li>
+</ul>
+</div>
+<div style="float: left; width: 50%; height: 100%;">
+<ul>
+<li><a href="https://github.com/jozi-k">@jozi-k</a></li>
+<li><a href="https://github.com/jyotman94">@jyotman94</a></li>
+<li><a href="https://github.com/ljdelight">@ljdelight</a></li>
+<li><a href="https://github.com/m-sp">@m-sp</a></li>
+<li><a href="https://github.com/markusthoemmes">@markusthoemmes</a></li>
+<li><a href="https://github.com/maseev">@maseev</a></li>
+<li><a href="https://github.com/rubenpieters">@rubenpieters</a></li>
+<li><a href="https://github.com/sebastianharko">@sebastianharko</a></li>
+<li><a href="https://github.com/thiagoandrade6">@thiagoandrade6</a></li>
+</ul>
+</div>
+</div>
+</section>
+<section>
+<h2 id="lets-try-some-things-out-1">Let’s try some things out</h2>
+<ul>
+<li>Brew</li>
+<li>IDE</li>
+<li>Dottydoc</li>
+</ul>
+</section>
+<section>
+<h3 id="key-differences">Key Differences</h3>
+<ul>
+<li><a href="https://contributors.scala-lang.org/t/implicits-with-inferred-return-type-lead-to-undefined-behavior/615">Explicit Implicits</a></li>
+<li>No more procedure syntax</li>
+<li>Union Types</li>
+<li>Intersection Types</li>
+<li>Trait Parameters</li>
+<li>Implicit Functions</li>
+<li>Enums</li>
+<li>Callgraph, automatic specialization</li>
+<li>Library defined rewrites</li>
+<li>TASTY</li>
+<li>IDE using Visual Studio Code</li>
+</ul>
+</section>
+<section>
+<h3 id="type-inference">TYPE INFERENCE</h3>
+<a href="https://www.youtube.com/watch?v=YIQjfCKDR5A">Dotty and Types: The Story So Far</a>
+<h4 id="by-guillaume-martres" style="margin-top: 20px">by Guillaume Martres</h4>
+</section>
+<section>
+<pre><code>trait List[+A] {
+  def foldRight[B](z: B)(f: (A, B) =&gt; B): B = ???
+}
+
+List(1, 2, 3).foldRight(List.empty)(_ :: _) // scalac: nope 
+                                            //  dotty:  yep </code></pre>
+</section>
+<section>
+<h1 id="implicit-functions">Implicit Functions</h1>
+</section>
+<section>
+<code class="scala">implicit A =&gt; B</code>
+</section>
+<section>
+<h2 id="tagless-final-interpreters" class="fragment">Tagless Final Interpreters</h2>
+</section>
+<section>
+<pre><code>sealed trait Exp[T]
+final case class Add[T](t1: T, t2: T) extends Exp[T]
+final case class Lit[T](i: Int) extends Exp[T]</code></pre>
+<pre class="fragment" data-fragment-index="2"><code>implicit val evalInt: Eval[Int] = new Eval[Int] {
+  def apply(exp: Exp[Int])): Int = exp match {
+    case Add(t1, t2) =&gt; apply(t1) + apply(t2)
+    case Lit(const)  =&gt; const
+  }
+}</code></pre>
+<pre class="fragment" data-fragment-index="1"><code>// 8 + (2 + 2 + 2)
+def expr1[T](implicit eval: Eval[T]): T =
+  eval(Add(Lit(8), Add(Lit(2), Add(Lit(2), Lit(2)))))</code></pre>
+</section>
+<section>
+<h2 id="what-if-we-want-multiplication">What if we want multiplication?</h2>
+</section>
+<section>
+<pre><code>sealed trait Exp[T]
+final case class Add[T](t1: T, t2: T) extends Exp[T]
+final case class Mul[T](i: Int) extends Exp[T]
+final case class Lit[T](i: Int) extends Exp[T]</code></pre>
+<pre><code>implicit val evalInt: Eval[Int] = new Eval[Int] {
+  def apply(exp: Exp[Int])): Int = exp match {
+    case Add(t1, t2) =&gt; apply(t1) + apply(t2)
+    case Mul(t1, t2) =&gt; apply(t1) * apply(t2)
+    case Lit(const)  =&gt; const
+  }
+}</code></pre>
+<pre><code>// 8 + (2 + 2 + 2)
+def expr1[T](implicit eval: Eval[T]): T =
+  eval(Add(Lit(8), Add(Lit(2), Add(Lit(2), Lit(2)))))
+
+def expr2[T](implicit eval: Eval[T]): T =
+  eval(Add(Lit(8), Mul(Lit(2), Lit(3))))</code></pre>
+</section>
+<section>
+<pre><code>trait Exp[T] {
+  def add(t1: T, t2: T): T
+  def lit(i: Int) = T
+}
+
+implicit val intExp: Exp[Int] = new Exp[Int] {
+  def add(t1: Int, t2: Int) = t1 + t2
+  def lit(i: Int) = i
+}
+
+// 8 + (2 + 2 + 2)
+def expr1[T](implicit e: Exp[T]) =
+  e.add(e.lit(8), e.add(e.lit(2), e.add(e.lit(2), e.lit(2))))</code></pre>
+</section>
+<section>
+<pre><code>object ExpSyntax {
+  def lit[T](i: Int)(implicit e: Exp[T]): T = e.lit(i)
+  def add[T](l: T, r: T)(implicit e: Exp[T]): T = e.add(l, r)
+}
+import ExpSyntax._</code></pre>
+</section>
+<section>
+<pre><code>trait Exp[T] {
+  def add(t1: T, t2: T): T
+  def lit(i: Int) = T
+}
+
+implicit val intExp: Exp[Int] = new Exp[Int] {
+  def add(t1: Int, t2: Int) = t1 + t2
+  def lit(i: Int) = i
+}
+
+// 8 + (2 + 2 + 2)
+def expr1[T: Exp] =
+  add(lit(8), add(lit(2), add(lit(2), lit(2))))</code></pre>
+</section>
+<section>
+<pre><code>trait Mul[T] {
+  def mul(t1: T, t2: T): T
+}
+
+implicit val intMul: Mul[Int] = new Mul[Int] {
+  def mul(i1: Int, i2: Int) = i1 * i2
+}
+
+// 8 + 3 * 2
+def expr2[T : Exp : Mul] =
+  add(lit(8), mul(lit(3), lit(2)))</code></pre>
+</section>
+<section>
+<pre><code>type Ring[T] = implicit (Exp[T], Mul[T]) =&gt; T
+
+// 8 + 3 * 2
+def expr2: Ring[T] =
+  add(lit(8), mul(lit(3), lit(2)))</code></pre>
+<a href="https://gist.github.com/OlivierBlanvillain/48bb5c66dbb0557da50465809564ee80">Revisiting Tagless Final Interpreters</a> - Olivier Blanvillain
+</section>
+<section style="text-align: left;">
+<div style="float: left; width: 50%; height: 100%;">
+<h2 id="repl" style="margin-bottom: 0; margin-top: 0.5em;">REPL</h2>
+<a href="https://github.com/lampepfl/dotty/issues?q=is%3Aopen+is%3Aissue+label%3Aarea%3Arepl">Issues</a>
+<h2 id="error-messages" style="margin-bottom: 0; margin-top: 0.5em;">ERROR MESSAGES</h2>
+<a href="http://github.com/lampepfl/dotty/issues/1589">Issue #1589</a>
+</div>
+<div style="float: left; width: 50%; height: 100%;">
+<h2 id="ides-tooling" style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">IDEs &amp; TOOLING</h2>
+<a href="https://github.com/lampepfl/dotty/labels/area%3Atooling">Issues</a>
+<h2 id="build-tools" style="margin-bottom: 0; margin-top: 0.5em; text-transform: none;">Build Tools</h2>
+</div>
+</section>
+<section>
+<h2 id="answers">Answers</h2>
+<ul>
+<li>Why 0.1.2-RC1? Because reasons</li>
+<li>I have a suggestion! TTYL &lt;3</li>
+<li>Macros? Soon! Via scalamacros and scalameta</li>
+<li>SI-2712? Yes</li>
+<li>Next release? Six weeks!</li>
+</ul>
+</section>
+<section>
+<h1 id="question">Question?</h1>
+</section>
+<section>
+<h1 id="thank-you">Thank you!</h1>
+</section>
+</section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2"></script>
+
+    <script>
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: false,
+        progress: false,
+        slideNumber: 'c/t',
+        //center: false,
+        hash: true,
+        transition: 'none', // none/fade/slide/convex/concave/zoom
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [ { src: '/js/reveal.js/plugin/zoom-js/zoom.js', async: true }
+                      , { src: '/js/reveal.js/plugin/highlight/highlight.js', async: true }
+                      , { src: '/js/reveal.js/plugin/notes/notes.js', async: true }
+                      ]
+      });
+    </script>
+  </body>
+</html>
