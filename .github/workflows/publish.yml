@@ -10,13 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+
     - uses: haskell/actions/setup@v1
+      id: setup-haskell-cabal
       with:
         ghc-version: '8.6'
         cabal-version: '3.0'
 
-    - name: Install dependencies
+    - name: Update dependency registry
       run: cabal update
+
+    - name: Freeze deps
+      run: cabal freeze
+
+    - uses: actions/cache@v2
+      name: Cache cabal store
+      with:
+        path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
+        key: ${{ hashFiles('cabal.project.freeze') }}
 
     - name: Generate site
       run: cabal run
