@@ -102,6 +102,9 @@ buildRules = do
   -- Create a `.nojekyll` file so that jekyll is not run on every deploy:
   create [".nojekyll"] $ route idRoute >> compile (makeItem @String "")
 
+  -- Add CNAME file to make sure GH pages uses custom domain
+  create ["CNAME"] $ route idRoute >> compile (makeItem @String "felixmulder.com")
+
 mdCompiler :: Compiler (Item String)
 mdCompiler = pandocCompilerWithTransform readerOpts writerOpts pandocFilter
   where
