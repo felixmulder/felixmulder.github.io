@@ -1,4 +1,6 @@
 # Felix Mulder
+[![CI](https://github.com/felixmulder/felixmulder.github.io/actions/workflows/publish.yml/badge.svg)](https://github.com/felixmulder/felixmulder.github.io/actions/workflows/publish.yml)
+
 Personal website hosted at felixmulder.com
 
 ## Development
