@@ -99,6 +99,9 @@ buildRules = do
       >>= loadAndApplyTemplate "templates/root.html" defaultContext
       >>= relativizeUrls
 
+  -- Create a `.nojekyll` file so that jekyll is not run on every deploy:
+  create [".nojekyll"] $ route idRoute >> compile (makeItem @String "")
+
 mdCompiler :: Compiler (Item String)
 mdCompiler = pandocCompilerWithTransform readerOpts writerOpts pandocFilter
   where
