@@ -452,7 +452,7 @@ dl {
 @media only screen and (max-width: 767px) and (orientation: portrait) {
   .container {
     /* Make the height of the container a bit smaller due to iOS toolbar size */
-    min-height: calc(100vh - 50px);
+    min-height: calc(100vh - 80px);
   }
 
   #resume {
