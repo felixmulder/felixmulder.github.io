@@ -1,0 +1,5 @@
+packages: .
+
+-- Pandoc 2.7 requires http-client < 0.7. http-conduit 2.3.9 and later
+-- export responseEarlyHints, which requires http-client >= 0.7.16.
+constraints: http-conduit == 2.3.8.3
