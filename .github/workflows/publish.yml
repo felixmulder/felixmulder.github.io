@@ -1,40 +1,54 @@
-name: Deploy to GitHub Pages
+name: Build and deploy to GitHub Pages
+
 on:
+  pull_request:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
+  build:
+    name: Build and validate
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install pinned build tools
+      run: make setup
+
+    - name: Build and check pages and local links
+      run: make check
+
+    - name: Upload site for review
+      uses: actions/upload-artifact@v4
+      with:
+        name: site-preview
+        path: public/
+        include-hidden-files: true
+
   deploy:
     name: Deploy to GitHub Pages
-    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
 
-    - uses: haskell-actions/setup@v2
-      id: setup-haskell-cabal
+    - uses: actions/download-artifact@v4
       with:
-        ghc-version: '8.6'
-        cabal-version: '3.14.2.0'
+        name: site-preview
+        path: public/
 
-    - name: Freeze deps
-      run: cabal freeze
-
-    - uses: actions/cache@v4
-      name: Cache cabal store
-      with:
-        path: |
-          ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-          dist-newstyle
-        key: ${{ hashFiles('cabal.project.freeze') }}
-
-    - name: Generate site
-      run: cabal run
-
-    - name: Deploy site
+    - name: Publish generated site
       uses: s0/git-publish-subdir-action@v2.5.1
       env:
         REPO: self
         BRANCH: gh-pages
-        FOLDER: _site
+        FOLDER: public
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

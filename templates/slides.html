@@ -27,17 +27,20 @@
       document.getElementsByTagName( 'head' )[0].appendChild( link );
     </script>
 
-    <title>$title$</title>
+    <title>{{ page.title }}</title>
   </head>
   <body>
     <div class="reveal">
       <div id="twitter-link">@felixmulder</div>
       <div class="slides">
-        $body$
+        {{ load_data(path="generated/slides/" ~ page.extra.slides_body, format="plain") | safe }}
       </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/plugin/zoom/zoom.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.0.2/plugin/notes/notes.js"></script>
 
     <script>
       // More info https://github.com/hakimel/reveal.js#configuration
@@ -49,11 +52,7 @@
         hash: true,
         transition: 'none', // none/fade/slide/convex/concave/zoom
 
-        // More info https://github.com/hakimel/reveal.js#dependencies
-        dependencies: [ { src: '/js/reveal.js/plugin/zoom-js/zoom.js', async: true }
-                      , { src: '/js/reveal.js/plugin/highlight/highlight.js', async: true }
-                      , { src: '/js/reveal.js/plugin/notes/notes.js', async: true }
-                      ]
+        plugins: [RevealZoom, RevealHighlight, RevealNotes]
       });
     </script>
   </body>
