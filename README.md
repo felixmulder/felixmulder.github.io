@@ -5,8 +5,8 @@ Personal website hosted at felixmulder.com
 
 ## Development
 
-The site uses Zola for pages, Pandoc for Markdown slide decks, and lychee for
-local link checking. Make and POSIX shell commands coordinate the build.
+The site uses Zola for pages and archived HTML slide decks, and lychee for local
+link checking. Make and POSIX shell commands coordinate setup and validation.
 
 Install the pinned binaries into this checkout (macOS ARM64 or Linux x86-64):
 
@@ -15,7 +15,7 @@ make setup
 ```
 
 Versions and upstream archive SHA-256 digests live in `tools.env`. The installer
-uses curl, tar, unzip, and a SHA-256 utility. No system installs or compiler
+uses curl, tar, and a SHA-256 utility. No system installs or compiler
 toolchains are needed.
 
 Start the preview with live reload at <http://127.0.0.1:8000>:
@@ -42,21 +42,23 @@ builds the production site without running the checks.
 - `content/_index.md` and `content/resume.md`: homepage and résumé metadata;
   their HTML layouts live in `templates/index.html` and `templates/resume.html`.
 - `content/writing/`: articles with TOML front matter.
-- `content/talks/`: talk metadata and original HTML or Markdown slide sources.
+- `content/talks/`: talk metadata, including slide filenames and PDF links.
+- `slides/`: archived Reveal.js HTML slide bodies, embedded by `templates/slides.html`.
 - `templates/`: Tera layouts.
 - `static/`: CSS, JavaScript, images, fonts, PDFs, and GitHub Pages files.
 
 Pages use clean directory URLs. Each migrated page declares an alias for its
 original `.html` URL. Zola's redirects preserve heading fragments.
-Explicit heading IDs retain the article anchors that differ between Pandoc and
-Zola. Mermaid diagrams use `<pre class="mermaid">` blocks; the display equation
-uses a raw HTML block so Markdown typography does not alter the TeX source.
+Explicit heading IDs retain the article anchors that differ between the old
+renderer and Zola. Mermaid diagrams use `<pre class="mermaid">` blocks; the
+display equation uses a raw HTML block so Markdown typography does not alter the
+TeX source.
 
-Make prepares slide bodies in ignored `generated/slides/` before starting Zola.
-The `slide_format` field uses the explicit form `slide_format = "html"` or
-`slide_format = "markdown"`. The generated filename matches the source stem and
-its `slides_body` field. Original HTML decks retain their markup; Markdown decks
-are converted to Reveal.js with Pandoc. The two PDF talks keep their PDF links.
+Slide bodies are tracked HTML files in `slides/`. Each talk's `slides_body` field
+names the HTML file that Zola embeds in the shared Reveal.js layout. The remaining
+Markdown deck was converted once to preserve its generated slides; no conversion
+tool or preprocessing step is needed to build or preview the site. Zola watches
+`slides/` directly for live reload. The two PDF talks keep their PDF links.
 
 ## Manual validation before merging
 
@@ -77,7 +79,7 @@ Keep the live site open beside <http://127.0.0.1:8000> and review:
 - Compare every route in `checks/legacy-pages.txt` with the live site where useful.
 
 Code colors and footnote markup follow Zola's renderer. They may differ slightly
-from Pandoc's previous output and should be checked visually.
+from the previous site's output and should be checked visually.
 
 ## Deployment
 

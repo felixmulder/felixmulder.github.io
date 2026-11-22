@@ -6,16 +6,12 @@ cd "$(dirname "$0")/.."
 case "$(uname -s)-$(uname -m)" in
     Darwin-arm64)
         target=aarch64-apple-darwin
-        pandoc_archive="pandoc-$PANDOC_VERSION-arm64-macOS.zip"
         zola_sha=$ZOLA_DARWIN_SHA256
-        pandoc_sha=$PANDOC_DARWIN_SHA256
         lychee_sha=$LYCHEE_DARWIN_SHA256
         ;;
     Linux-x86_64)
         target=x86_64-unknown-linux-gnu
-        pandoc_archive="pandoc-$PANDOC_VERSION-linux-amd64.tar.gz"
         zola_sha=$ZOLA_LINUX_SHA256
-        pandoc_sha=$PANDOC_LINUX_SHA256
         lychee_sha=$LYCHEE_LINUX_SHA256
         ;;
     *) echo 'Supported platforms: macOS ARM64 and Linux x86-64.' >&2; exit 1 ;;
@@ -41,10 +37,7 @@ install_tool() {
     else
         printf '%s  %s\n' "$checksum" "$directory/archive" | shasum -a 256 --check -
     fi
-    case "$url" in
-        *.zip) unzip -q "$directory/archive" -d "$directory" ;;
-        *) tar -xzf "$directory/archive" -C "$directory" ;;
-    esac
+    tar -xzf "$directory/archive" -C "$directory"
     binary=$(find "$directory" -type f -name "$tool" -print)
     test -n "$binary"
     install -m 755 "$binary" "$destination"
@@ -53,7 +46,5 @@ install_tool() {
 
 install_tool zola "$ZOLA_VERSION" \
     "https://github.com/getzola/zola/releases/download/v$ZOLA_VERSION/zola-v$ZOLA_VERSION-$target.tar.gz" "$zola_sha"
-install_tool pandoc "$PANDOC_VERSION" \
-    "https://github.com/jgm/pandoc/releases/download/$PANDOC_VERSION/$pandoc_archive" "$pandoc_sha"
 install_tool lychee "$LYCHEE_VERSION" \
     "https://github.com/lycheeverse/lychee/releases/download/lychee-v$LYCHEE_VERSION/lychee-$target.tar.gz" "$lychee_sha"

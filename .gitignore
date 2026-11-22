@@ -5,5 +5,4 @@ dist-newstyle/
 vendor/
 .DS_Store
 public/
-generated/
 .tools/

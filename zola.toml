@@ -3,7 +3,6 @@ title = "Felix Mulder"
 compile_sass = false
 generate_sitemap = false
 generate_robots_txt = false
-skip_content_templating = ["talks/**"]
 
 [markdown]
 smart_punctuation = true

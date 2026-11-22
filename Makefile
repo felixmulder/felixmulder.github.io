@@ -1,30 +1,16 @@
 ZOLA ?= .tools/bin/zola
-PANDOC ?= .tools/bin/pandoc
 LYCHEE ?= .tools/bin/lychee
 
-SLIDE_SOURCES := $(filter-out content/talks/_index.md,$(wildcard content/talks/*.md))
-SLIDE_OUTPUTS := $(patsubst content/talks/%.md,generated/slides/%.html,$(SLIDE_SOURCES))
+.PHONY: build setup serve check
 
-.PHONY: build setup slides serve check
-
-build: slides
+build:
 	$(ZOLA) build
 
 setup:
 	sh scripts/setup-tools.sh
 
-slides: $(SLIDE_OUTPUTS)
-
-generated/slides/%.html: content/talks/%.md scripts/render-slides.sh
-	@sh scripts/render-slides.sh "$<" "$@" "$(PANDOC)"
-
-serve: slides
-	@set -e; \
-	while sleep 1; do $(MAKE) --silent --no-print-directory slides || :; done & \
-	watcher=$$!; \
-	trap 'kill "$$watcher" 2>/dev/null || true' EXIT; \
-	trap 'exit 130' INT TERM; \
-	$(ZOLA) serve --port 8000 --extra-watch-path generated
+serve:
+	$(ZOLA) serve --port 8000 --extra-watch-path slides
 
 check: build
 	$(ZOLA) check --skip-external-links
