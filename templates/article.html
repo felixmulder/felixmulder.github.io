@@ -1,3 +1,7 @@
+{% extends "root.html" %}
+{% block content %}
+{% include "navbar.html" %}
 <div class="article-container">
-  $body$
+  {{ page.content | replace(from=config.base_url, to="") | safe }}
 </div>
+{% endblock content %}

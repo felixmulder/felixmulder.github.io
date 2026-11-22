@@ -1,0 +1,15 @@
+base_url = "https://felixmulder.com"
+title = "Felix Mulder"
+compile_sass = false
+generate_sitemap = false
+generate_robots_txt = false
+
+[markdown]
+smart_punctuation = true
+definition_list = true
+bottom_footnotes = true
+external_links_external = false
+
+[markdown.highlighting]
+theme = "github-light"
+error_on_missing_language = true

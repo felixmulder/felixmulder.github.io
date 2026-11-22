@@ -1,12 +1,16 @@
+{% extends "root.html" %}
+{% block content %}
+{% include "navbar.html" %}
+{% set talks = get_section(path="talks/_index.md") %}
 <div class="articles-container">
   <h1>Talks</h1>
   <ul>
-    $for(articles)$
+    {% for talk in talks.pages | sort(attribute="relative_path") | reverse %}
     <li>
 
-      <h1 class="talk-title $if(video_url)$ video $endif$">
-        $if(video_url)$
-        <a href="$video_url$">
+      <h1 class="talk-title{% if talk.extra.video_url %} video{% endif %}">
+        {% if talk.extra.video_url %}
+        <a href="{{ talk.extra.video_url }}">
             <svg
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
@@ -20,30 +24,30 @@
                 <path d="M204.11,0C91.388,0,0,91.388,0,204.111c0,112.725,91.388,204.11,204.11,204.11c112.729,0,204.11-91.385,204.11-204.11    C408.221,91.388,316.839,0,204.11,0z M286.547,229.971l-126.368,72.471c-17.003,9.75-30.781,1.763-30.781-17.834V140.012    c0-19.602,13.777-27.575,30.781-17.827l126.368,72.466C303.551,204.403,303.551,220.217,286.547,229.971z"/>
               </g>
             </svg>
-          </span>
-          $title$
+          {{ talk.title }}
         </a>
-        $else$
-        $title$
-        $endif$
+        {% else %}
+        {{ talk.title }}
+        {% endif %}
       </h1>
 
-      $if(venue)$
-      <h2 class="talk-venue">$venue$</h2>
-      $endif$
+      {% if talk.extra.venue %}
+      <h2 class="talk-venue">{{ talk.extra.venue }}</h2>
+      {% endif %}
 
-      $if(summary)$
-      <p>$summary$</p>
-      $endif$
+      {% if talk.extra.summary %}
+      <p>{{ talk.extra.summary | safe }}</p>
+      {% endif %}
 
 
-      $if(slides)$
-      <a href="$slides$">Slides</a>
-      $else$
-      <a href="$url$">Slides</a>
-      $endif$
-      $date$
+      {% if talk.extra.slides %}
+      <a href="{{ talk.extra.slides }}">Slides</a>
+      {% else %}
+      <a href="{{ talk.path }}">Slides</a>
+      {% endif %}
+      {{ talk.date }}
     </li>
-    $endfor$
+    {% endfor %}
   </ul>
 </div>
+{% endblock content %}

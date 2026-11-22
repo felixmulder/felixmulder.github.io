@@ -1,14 +1,19 @@
+{% extends "root.html" %}
+{% block content %}
+{% include "navbar.html" %}
+{% set writing = get_section(path="writing/_index.md") %}
 <div class="articles-container">
   <h1>Writing</h1>
   <ul>
-    $for(articles)$
+    {% for article in writing.pages | sort(attribute="relative_path") | reverse %}
     <li>
-      <h1 class="article-title"><a href="$url$">$title$</a><span class="article-date">- $date$</span></h1>
+      <h1 class="article-title"><a href="{{ article.path }}">{{ article.title }}</a><span class="article-date">- {{ article.date }}</span></h1>
 
-      $if(summary)$
-      <p>$summary$</p>
-      $endif$
+      {% if article.extra.summary %}
+      <p>{{ article.extra.summary | safe }}</p>
+      {% endif %}
     </li>
-    $endfor$
+    {% endfor %}
   </ul>
 </div>
+{% endblock content %}
